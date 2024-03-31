@@ -5,7 +5,7 @@ using AD.BASE;
 using AD.UI;
 using UnityEngine;
 
-namespace AD.Experimental.Neuron
+namespace AD.Derivation.Neuron
 {
     [Serializable]
     public class DestroyException : ADException

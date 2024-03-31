@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 
-namespace AD.Experimental.Runtime
+namespace AD.Derivation.Runtime
 {
     public class CustomCurvePoint : MonoBehaviour
     {

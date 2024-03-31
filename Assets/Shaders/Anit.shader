@@ -2,7 +2,7 @@ Shader "AD/URP/2D/Lit"
 {
     Properties
     {
-        _MainTex("Diffuse", 2D) = "white" {}
+        [PerRendererData] _MainTex("Diffuse", 2D) = "white" {}
         _MaskTex("Mask", 2D) = "white" {}
         _NormalMap("Normal Map", 2D) = "bump" {}
         _Offset("Offset",float) = 0

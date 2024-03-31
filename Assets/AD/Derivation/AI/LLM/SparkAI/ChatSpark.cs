@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using UnityEngine;
 
-namespace AD.Experimental.LLM
+namespace AD.Derivation.LLM
 {
     [Serializable]
     public class XunfeiSettings

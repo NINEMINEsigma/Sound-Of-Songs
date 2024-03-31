@@ -298,8 +298,8 @@ namespace AD.Utility
                     {
                         Type typeTkey = typeof(TKey);
                         if (typeTkey == typeof(string)) (this as Dictionary<string, TVal>).Add("New Key", default);
-                        else if (typeTkey.IsSubclassOf(typeof(Experimental.Localization.Cache.CacheAssetsKey)) || typeTkey == typeof(Experimental.Localization.Cache.CacheAssetsKey))
-                            (this as Dictionary<Experimental.Localization.Cache.CacheAssetsKey, TVal>).Add(new("New Key"), default);
+                        else if (typeTkey.IsSubclassOf(typeof(Derivation.Localization.Cache.CacheAssetsKey)) || typeTkey == typeof(Derivation.Localization.Cache.CacheAssetsKey))
+                            (this as Dictionary<Derivation.Localization.Cache.CacheAssetsKey, TVal>).Add(new("New Key"), default);
                         else if (typeTkey.IsSubclassOf(typeof(object))) base.Add(default, default);
                         else if (ReflectionExtension.IsPrimitive(typeTkey)) base.Add(default, default);
                     }

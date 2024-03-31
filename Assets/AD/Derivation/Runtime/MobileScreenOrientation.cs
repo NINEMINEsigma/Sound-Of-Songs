@@ -22,7 +22,7 @@ namespace AD.Utility
 
 }
 
-namespace AD.Experimental.Runtime
+namespace AD.Derivation.Runtime
 {
     [Serializable]
     public class MobileScreenOrientation : MonoBehaviour

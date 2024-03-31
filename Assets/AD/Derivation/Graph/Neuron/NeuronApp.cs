@@ -1,7 +1,7 @@
 ﻿using System;
 using AD.BASE;
 
-namespace AD.Experimental.Neuron
+namespace AD.Derivation.Neuron
 {
     public class App : ADArchitecture<App>
     {

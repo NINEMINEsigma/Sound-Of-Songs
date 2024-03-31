@@ -399,6 +399,42 @@ namespace AD.Utility
                 return result = ArithmeticInfo.GetUnlegitimateOne();
             }
         }
+
+        public static float MakeArithmeticParse(this string expression)
+        {
+            if (TryParse(expression, out var result))
+            {
+                return result.ReadValue();
+            }
+            else
+            {
+                throw new ArithmeticException("Value Parse Error : " + expression);
+            }
+        }
+
+        public static Vector2 MakeArithmeticVec2Parse(this string[] expressions)
+        {
+            if (TryParse(expressions[0], out var x) && TryParse(expressions[1], out var y))
+            {
+                return new(x.ReadValue(), y.ReadValue());
+            }
+            else
+            {
+                throw new ArithmeticException("Vec2 Parse Error : " + expressions.LinkAndInsert(","));
+            }
+        }
+
+        public static Vector3 MakeArithmeticVec3Parse(this string[] expressions)
+        {
+            if (TryParse(expressions[0], out var x) && TryParse(expressions[1], out var y) && TryParse(expressions[2], out var z))
+            {
+                return new(x.ReadValue(), y.ReadValue(), z.ReadValue());
+            }
+            else
+            {
+                throw new ArithmeticException("Vec3 Parse Error : " + expressions.LinkAndInsert(","));
+            }
+        }
     }
 
     [Serializable]
@@ -862,6 +898,4 @@ namespace AD.Utility
             return false;
         }
     }
-
-
 }

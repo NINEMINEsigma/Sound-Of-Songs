@@ -6,7 +6,7 @@ using AD.Utility;
 using Unity.VisualScripting;
 using UnityEngine;
 
-namespace AD.Experimental.Localization.Cache
+namespace AD.Derivation.Localization.Cache
 {
     /// <summary>
     /// 能够对缓存对象进行管理以及历遍

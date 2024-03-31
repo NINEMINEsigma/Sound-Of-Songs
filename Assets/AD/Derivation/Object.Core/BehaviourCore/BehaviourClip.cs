@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AD.Experimental.Runtime
+namespace AD.Derivation.Runtime
 {
     [CreateAssetMenu(fileName = "New BehaviourClip", menuName = "AD/Behaviour/Clip", order = 50)]
-    public class BehaviourClip : AD.Experimental.EditorAsset.Cache.AbstractScriptableObject
+    public class BehaviourClip : AD.Derivation.EditorAsset.Cache.AbstractScriptableObject
     {
         public string clipName => BindKey;
         public BehaviourSource source;

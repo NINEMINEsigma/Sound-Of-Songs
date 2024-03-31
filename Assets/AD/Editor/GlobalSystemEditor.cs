@@ -26,7 +26,7 @@ namespace AD
         SerializedProperty _Text;
         SerializedProperty _Toggle;
 
-        SerializedProperty _ModernButton;
+        SerializedProperty _ModernUIButton;
         SerializedProperty _ModernUIDropdown;
         SerializedProperty _ModernUIFillBar;
         SerializedProperty _ModernUIInputField;
@@ -85,7 +85,7 @@ namespace AD
             _Slider = serializedObject.FindProperty(nameof(_Slider));
             _Text = serializedObject.FindProperty(nameof(_Text));
             _Toggle = serializedObject.FindProperty(nameof(_Toggle));
-            _ModernButton = serializedObject.FindProperty(nameof(_ModernButton));
+            _ModernUIButton = serializedObject.FindProperty(nameof(_ModernUIButton));
             _ModernUIDropdown = serializedObject.FindProperty(nameof(_ModernUIDropdown));
             _ModernUIFillBar = serializedObject.FindProperty(nameof(_ModernUIFillBar));
             _ModernUIInputField = serializedObject.FindProperty(nameof(_ModernUIInputField));
@@ -246,7 +246,7 @@ namespace AD
             GUILayout.EndHorizontal();
 
             GUILayout.Space(2);
-            EditorGUILayout.PropertyField(_ModernButton);
+            EditorGUILayout.PropertyField(_ModernUIButton);
             EditorGUILayout.PropertyField(_ModernUIDropdown);
             EditorGUILayout.PropertyField(_ModernUIFillBar);
             EditorGUILayout.PropertyField(_ModernUIInputField);
@@ -482,7 +482,7 @@ namespace AD
         [MenuItem("GameObject/AD/ModernUI/Button", false, 11)]
         private static void ModernButton(UnityEditor.MenuCommand menuCommand)
         {
-            var target = GameObject.Instantiate(ADGlobalSystem.instance._ModernButton);
+            var target = GameObject.Instantiate(ADGlobalSystem.instance._ModernUIButton);
             target.name = "Button";
             GameObjectUtility.SetParentAndAlign(target.gameObject, menuCommand.context as GameObject);
             Undo.RegisterCreatedObjectUndo(target.gameObject, "Create " + target.name);

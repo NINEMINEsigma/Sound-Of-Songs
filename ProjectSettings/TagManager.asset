@@ -38,14 +38,17 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
   - name: Low Static
     uniqueID: 3058834753
     locked: 0
   - name: Low
     uniqueID: 479031861
     locked: 0
-  - name: Default
-    uniqueID: 0
+  - name: Default Static
+    uniqueID: 3386423561
     locked: 0
   - name: GameObject
     uniqueID: 4049775837

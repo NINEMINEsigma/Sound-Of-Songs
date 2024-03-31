@@ -3,7 +3,7 @@ using AD.BASE;
 using AD.UI;
 using AD.Utility;
 
-namespace AD.Experimental.GameEditor
+namespace AD.Derivation.GameEditor
 {
     public class GameEditorApp : ADArchitecture<GameEditorApp>
     {

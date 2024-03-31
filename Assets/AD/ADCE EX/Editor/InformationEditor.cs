@@ -1,6 +1,6 @@
 using UnityEditor;
 using UnityEngine;
-using AD.Experimental.GameEditor;
+using AD.Derivation.GameEditor;
 
 [CustomEditor(typeof(Information))]
 public class InformationEditor : AbstractCustomADEditor

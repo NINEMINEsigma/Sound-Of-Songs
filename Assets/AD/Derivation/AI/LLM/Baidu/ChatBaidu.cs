@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace AD.Experimental.LLM
+namespace AD.Derivation.LLM
 {
     public class BaiduSettings
     {

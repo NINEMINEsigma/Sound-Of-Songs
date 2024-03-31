@@ -223,7 +223,7 @@ namespace AD
         public AD.UI.Text _Text;
         public AD.UI.Toggle _Toggle;
 
-        public AD.UI.ModernUIButton _ModernButton;
+        public AD.UI.ModernUIButton _ModernUIButton;
         public AD.UI.ModernUIDropdown _ModernUIDropdown;
         public AD.UI.ModernUIFillBar _ModernUIFillBar;
         public AD.UI.ModernUIInputField _ModernUIInputField;

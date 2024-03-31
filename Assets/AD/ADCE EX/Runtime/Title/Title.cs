@@ -1,6 +1,6 @@
 using AD.BASE;
 
-namespace AD.Experimental.GameEditor
+namespace AD.Derivation.GameEditor
 {
     public class Title : ADController
     {

@@ -2,7 +2,7 @@ using AD.BASE;
 using AD.Utility;
 using UnityEngine;
 
-namespace AD.Experimental.SceneTrans
+namespace AD.Derivation.SceneTrans
 {
     public class SceneTrans : MonoBehaviour
     {

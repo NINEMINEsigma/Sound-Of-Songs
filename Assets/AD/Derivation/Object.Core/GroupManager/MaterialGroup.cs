@@ -68,6 +68,16 @@ namespace AD.Utility.Object
                     else current.SetInt(name, (int)(((shiftType == ShiftType.Add) ? speed : -speed) * Time.time + initialPhase));
                 }
             }
+
+            public void Update(string name, float value)
+            {
+                if (materials == null || materials.Length == 0 || controlType == ControlType.Time) return;
+                foreach (var current in materials)
+                {
+                    if (valueType == ValueType.Float) current.SetFloat(name, value);
+                    else current.SetInt(name, (int)value);
+                }
+            }
         }
 
         [Serializable]
@@ -89,6 +99,20 @@ namespace AD.Utility.Object
                 try
                 {
                     current.value.Update(current.key);
+                }
+                catch { }
+            }
+        }
+
+        public void UpdateTarget(string key, float value)
+        {
+            foreach (var current in SourcePairs)
+            {
+                if (string.IsNullOrEmpty(current.key)) continue;
+                try
+                {
+                    if (current.key == key)
+                        current.value.Update(current.key, value);
                 }
                 catch { }
             }

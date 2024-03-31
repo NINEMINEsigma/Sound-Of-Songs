@@ -5,7 +5,7 @@ using System.Diagnostics;
 using AD.BASE;
 using UnityEngine;
 
-namespace AD.Experimental.LLM
+namespace AD.Derivation.LLM
 {
     public class LLM : MonoSystem
     {

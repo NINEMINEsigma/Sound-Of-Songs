@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using AD.Experimental.GameEditor;
+using AD.Derivation.GameEditor;
 
 [CustomEditor(typeof(Properties))]
 public class PropertiesEditor : AbstractCustomADEditor

@@ -5,7 +5,7 @@ using AD.UI;
 using AD.Utility;
 using UnityEngine;
 
-namespace AD.Experimental.GameEditor
+namespace AD.Derivation.GameEditor
 {
     public class PropertiesItem : ListViewItem
     {

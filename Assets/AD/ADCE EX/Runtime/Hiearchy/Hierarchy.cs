@@ -5,7 +5,7 @@ using AD.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace AD.Experimental.GameEditor
+namespace AD.Derivation.GameEditor
 {
     [Serializable]
     public class HierarchyEditorAssets

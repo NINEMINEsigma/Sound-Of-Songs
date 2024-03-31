@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using AD.BASE;
 using UnityEngine;
 
-namespace AD.Experimental.Performance
+namespace AD.Derivation.Performance
 {
     public class ConeAllegationItem : MonoBehaviour
     {

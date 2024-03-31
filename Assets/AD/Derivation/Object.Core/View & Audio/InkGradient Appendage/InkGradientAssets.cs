@@ -6,7 +6,7 @@ using UnityEngine;
 namespace AD.UI
 {
     [CreateAssetMenu(fileName = "New InkGradientAssets", menuName = "AD/InkGradientAssets", order = 131)]
-    public class InkGradientAssets : AD.Experimental.EditorAsset.Cache.AbstractScriptableObject
+    public class InkGradientAssets : AD.Derivation.EditorAsset.Cache.AbstractScriptableObject
     {
         [Header("Normal")]
         public Sprite Normal;

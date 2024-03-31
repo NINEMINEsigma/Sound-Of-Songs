@@ -22,9 +22,19 @@ public class MeshRenderEditor : Editor
         int layerValue = SortingLayer.GetLayerValueFromID(meshRenderer.sortingLayerID);
         layerValue = EditorGUILayout.Popup("Sorting Layer", layerValue, layerNames);
 
-        SortingLayer layer = SortingLayer.layers[layerValue];
-        meshRenderer.sortingLayerName = layer.name;
-        meshRenderer.sortingLayerID = layer.id;
-        meshRenderer.sortingOrder = EditorGUILayout.IntField("Order In Value", meshRenderer.sortingOrder);
+        try
+        {
+            SortingLayer layer = SortingLayer.layers[layerValue];
+            meshRenderer.sortingLayerName = layer.name;
+            meshRenderer.sortingLayerID = layer.id;
+            meshRenderer.sortingOrder = EditorGUILayout.IntField("Order In Value", meshRenderer.sortingOrder);
+        }
+        catch
+        {
+            SortingLayer layer = SortingLayer.layers[0];
+            meshRenderer.sortingLayerName = layer.name;
+            meshRenderer.sortingLayerID = layer.id;
+            meshRenderer.sortingOrder = EditorGUILayout.IntField("Order In Value", meshRenderer.sortingOrder);
+        }
     }
 }

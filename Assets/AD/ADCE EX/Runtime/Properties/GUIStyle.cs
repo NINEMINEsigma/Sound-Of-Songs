@@ -1,11 +1,11 @@
 ﻿using AD.UI;
 using UnityEngine;
 
-namespace AD.Experimental.GameEditor
+namespace AD.Derivation.GameEditor
 {
     [System.Serializable]
     [CreateAssetMenu(fileName = "New GUIStyle", menuName = "AD/GUIStyle", order = 11)]
-    public class GUIStyle : AD.Experimental.EditorAsset.Cache.AbstractScriptableObject
+    public class GUIStyle : AD.Derivation.EditorAsset.Cache.AbstractScriptableObject
     {
         public UnityEngine.GameObject Prefab;
         public string TypeName;

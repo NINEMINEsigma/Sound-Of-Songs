@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace AD.Experimental.LLM
+namespace AD.Derivation.LLM
 {
     public class chatGPT : LLM
     {
