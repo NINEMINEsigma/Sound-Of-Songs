@@ -25,6 +25,7 @@ namespace RhythmGame.Time
 
         private void Start()
         {
+            App.instance.Init();
             App.instance.RegisterController(this);
         }
 

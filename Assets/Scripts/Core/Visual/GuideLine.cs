@@ -17,7 +17,13 @@ namespace RhythmGame.Visual
     [Serializable, EaseSave3]
     public class VertexData
     {
-        public VertexData() : this(new MeshExtension.VertexEntry()) { }
+        public VertexData() : this(new MeshExtension.VertexEntry()
+        {
+            Size = 0.3f,
+            Normal = Vector3.right,
+            Position = Vector3.zero
+        })
+        { }
         public VertexData(string[] position, string[] normal, string size)
         {
             this.Position = position;
@@ -28,11 +34,12 @@ namespace RhythmGame.Visual
             new string[3] { entry.Position.x.ToString(), entry.Position.y.ToString(), entry.Position.z.ToString() },
             new string[3] { entry.Normal.x.ToString(), entry.Normal.y.ToString(), entry.Normal.z.ToString() },
             entry.Size.ToString()
-            ) { }
+            )
+        { }
 
-        public string[] Position = new string[3] { "0", "0", "0" };
-        public string[] Normal = new string[3] { "1", "0", "0" };
-        public string Size = "0.3";
+        public string[] Position;
+        public string[] Normal;
+        public string Size;
 
         public static implicit operator MeshExtension.VertexEntry(VertexData o)
         {
@@ -58,10 +65,10 @@ namespace RhythmGame.Visual
     /// 在生成时立即进行一次<see cref="App.MatchData(IController)"/>
     /// </summary>
     [RequireComponent(typeof(MeshFilter)), RequireComponent(typeof(MeshRenderer))]
-    public class GuideLine : ADController, IController, IRuildHandler,IListenTime
+    public class GuideLine : ADController, IController, IRuildHandler, IListenTime
     {
         [SerializeField] private List<VertexData> m_Vertexs = new();
-        [RhythmData,ADSerialize()]
+        [RhythmData, ADSerialize()]
         public List<VertexData> Vertexs
         {
             get => m_Vertexs;
@@ -105,7 +112,7 @@ namespace RhythmGame.Visual
                 {
                     Size = 0.3f,
                     Normal = Vector3.right,
-                    Position = new(0,0,100),
+                    Position = new(0, 0, 100),
                     Type = MeshExtension.BuildNormalType.JustDirection
                 }));
             }
@@ -151,13 +158,14 @@ namespace RhythmGame.Visual
         public void When(float time, float duration)
         {
             //Get Anchor Position
-            if (m_CurrentGuideLineVertexIndex + 2 >= this.RealVertexs.Count) m_CurrentGuideLineVertexIndex = 0;
             while (m_CurrentGuideLineVertexIndex + 1 < this.RealVertexs.Count)
             {
                 if (this.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position.z >= App.instance.CameraSafeAreaPanel)
                 {
-                    float start = this.RealVertexs[m_CurrentGuideLineVertexIndex].Position.z;
-                    float end = this.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position.z;
+                    App.instance.StartVertex = this.RealVertexs[m_CurrentGuideLineVertexIndex].Position;
+                    float start = App.instance.StartVertex.z;
+                    App.instance.EndVertex = this.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position;
+                    float end = App.instance.EndVertex.z;
                     float Zduration = end - start;
                     float Zt = (App.instance.CameraSafeAreaPanel - start) / (float)Zduration;
                     AnchorGuider.position = Vector3.Lerp(this.RealVertexs[m_CurrentGuideLineVertexIndex].Position, this.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position, Zt);
@@ -165,6 +173,7 @@ namespace RhythmGame.Visual
                 }
                 m_CurrentGuideLineVertexIndex++;
             }
+            if (m_CurrentGuideLineVertexIndex + 2 >= this.RealVertexs.Count) m_CurrentGuideLineVertexIndex = 0;
             //Update Anchor Material
             MainMaterialGroup.UpdateTarget("_Offset", App.instance.CameraSafeAreaPanel / 2.0f);
         }

@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using AD;
 using AD.BASE;
 using AD.Utility;
+using RhythmGame.Time;
 using UnityEngine;
 
 namespace RhythmGame.Visual
@@ -39,39 +41,60 @@ namespace RhythmGame.Visual
         /// </summary>
         public class NoteBase : MonoBehaviour, IVisualBase, IController
         {
-            [SerializeField]private bool m_IsDirty;
+            [SerializeField] private bool m_IsDirty;
             public bool IsDirty { get => m_IsDirty; private set => m_IsDirty = value; }
 
             public MonoBehaviour MonoTarget => this;
 
             public ADOrderlyEvent RebuildListener = new();
 
-            public Vector2 m_Anchors;
-            [RhythmData]
-            public Vector2 Anchors
+            private void Start()
             {
-                get => m_Anchors;
+                LocalPostion ??= new string[2] { "0", "0" };
+                if (Application.isPlaying)
+                    ADGlobalSystem.OpenCoroutine(() => !App.instance.Contains<TimeController>() || !App.instance.Contains<CameraCore>(), () =>
+                    {
+                        App.instance.GetController<TimeController>().AddListener(this);
+                        SetDirty();
+                    });
+            }
+
+            private void OnDestroy()
+            {
+                if (Application.isPlaying && ADGlobalSystem.instance)
+                    App.instance.GetController<TimeController>().RemoveListener(this);
+            }
+
+            [SerializeField] private string[] m_LocalPostion = new string[2] { "0", "0" };
+            [RhythmData]
+            public string[] LocalPostion
+            {
+                get => m_LocalPostion;
                 set
                 {
                     IsDirty = true;
-                    m_Anchors = value;
+                    m_LocalPostion = value;
                 }
             }
-            public Vector2 m_Postion;
+            [SerializeField] private string m_JudgeTime = "0";
             [RhythmData]
-            public Vector2 LocalPostion
+            public string JudgeTime
             {
-                get => m_Postion;
+                get => m_JudgeTime;
                 set
                 {
                     IsDirty = true;
-                    m_Postion = value;
+                    m_JudgeTime = value;
                 }
             }
 
-            public Vector2 Positon
+            private Vector2 m_Position;
+            public Vector2 Position
             {
-                get => LocalPostion + Anchors;
+                get
+                {
+                    return m_Position;
+                }
             }
 
 
@@ -88,7 +111,39 @@ namespace RhythmGame.Visual
             /// </summary>
             protected virtual void TransformRebuild()
             {
-
+                //Local Position
+                m_Position = LocalPostion.MakeArithmeticVec2Parse();
+                m_Position.x *= App.instance.ViewportWidth;
+                m_Position.y *= App.instance.ViewportHeight;
+                //Get Anchor Position
+                int m_CurrentGuideLineVertexIndex = 0;
+                GuideLine guideLine = App.instance.GetController<GuideLine>();
+                TimeController timeController = App.instance.GetController<TimeController>();
+                Vector3 AnchorGuiderPosition = Vector2.zero;
+                float DurDepth =
+                    (JudgeTime.MakeArithmeticParse() / timeController.MainAudioSource.CurrentClip.length) *
+                    (App.instance.MaxDepth - App.instance.MinDepth) + App.instance.MinDepth;
+                while (m_CurrentGuideLineVertexIndex + 1 < guideLine.RealVertexs.Count)
+                {
+                    if (guideLine.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position.z >= DurDepth)
+                    {
+                        float start = guideLine.RealVertexs[m_CurrentGuideLineVertexIndex].Position.z;
+                        float end = guideLine.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position.z;
+                        float Zduration = end - start;
+                        //判定时间/总时长获得百分比,乘以总长度获得从MinDepth开始的距离,加上MinDepth获得世界坐标下的深度
+                        //据此深度坐标,套入公式获得这个区间内的百分比
+                        float Zt = (DurDepth - start) / (float)Zduration;
+                        AnchorGuiderPosition
+                            = Vector3.Lerp(guideLine.RealVertexs[m_CurrentGuideLineVertexIndex].Position, guideLine.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position, Zt);
+                        break;
+                    }
+                    m_CurrentGuideLineVertexIndex++;
+                }
+                //Final
+                transform.position = new(
+                    AnchorGuiderPosition.x + Position.x * App.instance.ViewportWidth,
+                    AnchorGuiderPosition.y + Position.y * App.instance.ViewportHeight,
+                    AnchorGuiderPosition.z);
             }
 
             public void RebuildImmediately()
@@ -113,7 +168,7 @@ namespace RhythmGame.Visual
 
             private void LateUpdate()
             {
-                Rebuild();
+
             }
 
             public void SetDirty()
@@ -123,6 +178,8 @@ namespace RhythmGame.Visual
 
             public void When(float time, float duration)
             {
+                if (this.gameObject.activeInHierarchy)
+                    Rebuild();
 
             }
         }

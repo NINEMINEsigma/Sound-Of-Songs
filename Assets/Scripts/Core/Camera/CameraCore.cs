@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using AD;
 using AD.BASE;
+using AD.UI;
 using AD.Utility;
-using AD.Utility.Object;
 using RhythmGame.Time;
 using RhythmGame.Visual;
 using UnityEngine;
@@ -16,7 +14,7 @@ namespace RhythmGame
 
         [SerializeField] private GuideLine MainGuideLine;
         [SerializeField] private Material LineCilper;
-        [SerializeField] private float MinZ, MaxZ;
+        [SerializeField] private RectTransform Viewport;
 
         public MonoBehaviour MonoTarget => this;
 
@@ -28,9 +26,14 @@ namespace RhythmGame
             for (int i = 0, e = MainGuideLine.RealVertexs.Count; i < e; i++)
             {
                 var current = MainGuideLine.RealVertexs[i];
-                if (current.Position.z < MinZ) MinZ = current.Position.z;
-                if (current.Position.z > MaxZ) MaxZ = current.Position.z;
+                if (current.Position.z < App.instance.MinDepth) App.instance.MinDepth = current.Position.z;
+                if (current.Position.z > App.instance.MaxDepth) App.instance.MaxDepth = current.Position.z;
             }
+            //Viewport
+            var vipo = Viewport.GetRect();
+            App.instance.ViewportWidth = (vipo[2].x - vipo[0].x);
+            App.instance.ViewportHeight = (vipo[2].y - vipo[0].y);
+            Debug.Log($"{App.instance.ViewportWidth},{App.instance.ViewportHeight}");
         }
 
         protected override void OnDestroy()
@@ -45,7 +48,7 @@ namespace RhythmGame
         public void When(float time, float duration)
         {
             float t = time / duration;
-            float depth = Mathf.Lerp(MinZ, MaxZ, t);
+            float depth = Mathf.Lerp(App.instance.MinDepth, App.instance.MaxDepth, t);
             this.transform.localPosition = this.transform.localPosition.SetZ(CameraOffsetZ + depth);
             LineCilper.SetFloat("_NearPanel", this.transform.position.z - CameraOffsetZ);
             App.instance.CameraSafeAreaPanel = this.transform.position.z - CameraOffsetZ;

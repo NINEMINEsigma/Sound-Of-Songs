@@ -598,7 +598,7 @@ namespace AD.BASE
 
         public virtual void Init()
         {
-
+            AD__Objects = new();
         }
 
         public
