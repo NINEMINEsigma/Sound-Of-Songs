@@ -888,7 +888,7 @@ namespace AD.UI
             {
                 stops[i] = (stops[i] * size) + min;
 
-                if (i > 0 && Math.Abs(stops[i] - stops[i - 1]) < 2)
+                if (i > 0 && Mathf.Abs(stops[i] - stops[i - 1]) < 2)
                 {
                     stops.RemoveAt(i);
                     --i;

@@ -998,9 +998,9 @@ MonoBehaviour:
     InvokeArray: 
     _m_Delegates: []
   m_LocalPostion:
-  - 0.01
-  - 0.01
-  m_JudgeTime: 1.7
+  - '{WorldX(-5)}'
+  - '{WorldY(0)}'
+  m_JudgeTimeExpression: 0.75
 --- !u!1 &418272156
 GameObject:
   m_ObjectHideFlags: 0
@@ -2020,6 +2020,23 @@ MonoBehaviour:
   MainGuideLine: {fileID: 621260700}
   LineCilper: {fileID: 2100000, guid: 91302dd0551973a46b9486a5b3fe90df, type: 2}
   Viewport: {fileID: 206574509}
+  m_TimingPairs:
+  - StartTimeExpression: 0
+    EndTimeExpression: '{SongTime(5)}'
+    StartValueExpression: 0
+    EndValueExpression: '{SongTime(2)}'
+    EaseCurveTypeExpression: Linear
+  - StartTimeExpression: '{SongTime(5)}'
+    EndTimeExpression: '{SongTime(10)}'
+    StartValueExpression: '{SongTime(2)}'
+    EndValueExpression: 0
+    EaseCurveTypeExpression: Linear
+  - StartTimeExpression: '{SongTime(10)}'
+    EndTimeExpression: 1
+    StartValueExpression: 0
+    EndValueExpression: 1
+    EaseCurveTypeExpression: Linear
+  m_IsDirty: 0
 --- !u!1 &577923589
 GameObject:
   m_ObjectHideFlags: 0
@@ -2460,11 +2477,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Selected: 0
   ElementArea: Text
---- !u!1 &714815666 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2167730616229911385, guid: 5ff5e20bb829e624a803702e94d45f49, type: 3}
-  m_PrefabInstance: {fileID: 1744037416}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &772707122
 GameObject:
   m_ObjectHideFlags: 0
@@ -3369,7 +3381,7 @@ MonoBehaviour:
       Data:
       - Key: {fileID: 776543258}
         Value:
-        - {fileID: 714815666}
+        - {fileID: 1744037418}
         - {fileID: 151172673}
         - {fileID: 1450660504}
         - {fileID: 361329061}
@@ -3602,6 +3614,11 @@ PrefabInstance:
 --- !u!4 &1744037417 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2167730616229911391, guid: 5ff5e20bb829e624a803702e94d45f49, type: 3}
+  m_PrefabInstance: {fileID: 1744037416}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1744037418 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2167730616229911385, guid: 5ff5e20bb829e624a803702e94d45f49, type: 3}
   m_PrefabInstance: {fileID: 1744037416}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1894068399

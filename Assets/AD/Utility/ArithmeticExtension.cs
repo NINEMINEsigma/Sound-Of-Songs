@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using AD.BASE;
-using UnityEngine;
-using AD.Utility.Internal;
-using static AD.Utility.ReflectionExtension;
+using AD.Utility;
+using AD.Math.Internal;
+using static AD.Reflection.ReflectionExtension;
 using System.Linq;
+using UnityEngine;
+using static AD.Math.ArithmeticVariable;
 
-namespace AD.Utility
+namespace AD.Math
 {
     namespace Internal
     {
@@ -81,7 +83,7 @@ namespace AD.Utility
 #if UNITY_EDITOR
                 BreakMessage = "Start BuildFinalArgList";
 #endif
-            AD.Utility.ArithmeticInfo.ArithmeticData.Symbol currentSymbol = ArithmeticInfo.ArithmeticData.Symbol.Addition;
+            AD.Math.ArithmeticInfo.ArithmeticData.Symbol currentSymbol = ArithmeticInfo.ArithmeticData.Symbol.Addition;
                 List<ArithmeticInfo.ArithmeticData> arithmeticDatas = new();
                 foreach (var subStr in subStrs)
                 {
@@ -90,7 +92,7 @@ namespace AD.Utility
                         char current = source[subStr.Start];
                         if (current == '+' || current == '-' || current == '*' || current == '/')
                         {
-                            currentSymbol = (AD.Utility.ArithmeticInfo.ArithmeticData.Symbol)current;
+                            currentSymbol = (AD.Math.ArithmeticInfo.ArithmeticData.Symbol)current;
                             continue;
                         }
                     }
@@ -434,6 +436,16 @@ namespace AD.Utility
             {
                 throw new ArithmeticException("Vec3 Parse Error : " + expressions.LinkAndInsert(","));
             }
+        }
+
+        public static bool AddFunction(string name, ArithmeticFunction.FunctionEntry funcEntry)
+        {
+            return ArithmeticFunction.FunctionPairs.TryAdd(name, funcEntry);
+        }
+
+        public static bool AddVariable(string name, ArithmeticConstant variableEntry)
+        {
+            return ArithmeticVariable.VariableConstantPairs.TryAdd(name, new VariableEntry() { RefIndex = 1, Value = variableEntry });
         }
     }
 
@@ -823,7 +835,7 @@ namespace AD.Utility
                     if (expression.Contains(')'))
                     {
                         expression = expression[1..^1].Trim();
-                        int fi = expression.First(ch => ch == '(');
+                        int fi = expression.IndexOf('(');
                         //...() （就在倒数第二的位置，)在倒数第一
                         if (fi == expression.Length - 2)
                         {

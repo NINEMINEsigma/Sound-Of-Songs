@@ -1,7 +1,9 @@
 using AD.BASE;
+using AD.Utility.Object;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 namespace AD.UI
 {
@@ -49,6 +51,18 @@ namespace AD.UI
             Source.source.onSelect.AddListener(delegate { AnimateIn(); });
             Source.source.onEndEdit.AddListener(delegate { AnimateOut(); });
             UpdateState();
+        }
+
+        public override void OnPointerEnter(PointerEventData eventData)
+        {
+            base.OnPointerEnter(eventData);
+            CameraCore.IsLockKeyBoardDetectForMove = true;
+        }
+
+        public override void OnPointerExit(PointerEventData eventData)
+        {
+            base.OnPointerExit(eventData);
+            CameraCore.IsLockKeyBoardDetectForMove = false;
         }
 
         public ModernUIInputField SetTitle(string title)

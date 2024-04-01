@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AD;
 using AD.BASE;
 using AD.Utility;
+using AD.Math;
 using RhythmGame.Time;
 using UnityEngine;
 
@@ -76,17 +77,18 @@ namespace RhythmGame.Visual
                     m_LocalPostion = value;
                 }
             }
-            [SerializeField] private string m_JudgeTime = "0";
+            [SerializeField] private string m_JudgeTimeExpression = "0";
             [RhythmData]
-            public string JudgeTime
+            public string JudgeTimeExpression
             {
-                get => m_JudgeTime;
+                get => m_JudgeTimeExpression;
                 set
                 {
                     IsDirty = true;
-                    m_JudgeTime = value;
+                    m_JudgeTimeExpression = value;
                 }
             }
+            public float JudgeTime => JudgeTimeExpression.MakeArithmeticParse();
 
             private Vector2 m_Position;
             public Vector2 Position
@@ -113,33 +115,33 @@ namespace RhythmGame.Visual
             {
                 //Local Position
                 m_Position = LocalPostion.MakeArithmeticVec2Parse();
-                m_Position.x *= App.instance.ViewportWidth;
-                m_Position.y *= App.instance.ViewportHeight;
                 //Get Anchor Position
                 int m_CurrentGuideLineVertexIndex = 0;
                 GuideLine guideLine = App.instance.GetController<GuideLine>();
                 TimeController timeController = App.instance.GetController<TimeController>();
-                Vector3 AnchorGuiderPosition = Vector2.zero;
-                float DurDepth =
-                    (JudgeTime.MakeArithmeticParse() / timeController.MainAudioSource.CurrentClip.length) *
-                    (App.instance.MaxDepth - App.instance.MinDepth) + App.instance.MinDepth;
-                while (m_CurrentGuideLineVertexIndex + 1 < guideLine.RealVertexs.Count)
-                {
-                    if (guideLine.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position.z >= DurDepth)
-                    {
-                        float start = guideLine.RealVertexs[m_CurrentGuideLineVertexIndex].Position.z;
-                        float end = guideLine.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position.z;
-                        float Zduration = end - start;
-                        //判定时间/总时长获得百分比,乘以总长度获得从MinDepth开始的距离,加上MinDepth获得世界坐标下的深度
-                        //据此深度坐标,套入公式获得这个区间内的百分比
-                        float Zt = (DurDepth - start) / (float)Zduration;
-                        AnchorGuiderPosition
-                            = Vector3.Lerp(guideLine.RealVertexs[m_CurrentGuideLineVertexIndex].Position, guideLine.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position, Zt);
-                        break;
-                    }
-                    m_CurrentGuideLineVertexIndex++;
-                }
-                //Final
+                CameraCore cameraCore = App.instance.GetController<CameraCore>();
+                float depth = cameraCore.GetAnchorDepth(JudgeTime, timeController.MainAudioSource.CurrentClip.length);
+                Vector3 AnchorGuiderPosition = guideLine.GetAnchorPoint(depth, ref m_CurrentGuideLineVertexIndex);
+                //float DurDepth =
+                //    (JudgeTime.MakeArithmeticParse() / timeController.MainAudioSource.CurrentClip.length) *
+                //    (App.instance.MaxDepth - App.instance.MinDepth) + App.instance.MinDepth;
+                //while (m_CurrentGuideLineVertexIndex + 1 < guideLine.RealVertexs.Count)
+                //{
+                //    if (guideLine.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position.z >= DurDepth)
+                //    {
+                //        float start = guideLine.RealVertexs[m_CurrentGuideLineVertexIndex].Position.z;
+                //        float end = guideLine.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position.z;
+                //        float Zduration = end - start;
+                //        //判定时间/总时长获得百分比,乘以总长度获得从MinDepth开始的距离,加上MinDepth获得世界坐标下的深度
+                //        //据此深度坐标,套入公式获得这个区间内的百分比
+                //        float Zt = (DurDepth - start) / (float)Zduration;
+                //        AnchorGuiderPosition
+                //            = Vector3.Lerp(guideLine.RealVertexs[m_CurrentGuideLineVertexIndex].Position, guideLine.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position, Zt);
+                //        break;
+                //    }
+                //    m_CurrentGuideLineVertexIndex++;
+                //}
+                ////Final
                 transform.position = new(
                     AnchorGuiderPosition.x + Position.x * App.instance.ViewportWidth,
                     AnchorGuiderPosition.y + Position.y * App.instance.ViewportHeight,

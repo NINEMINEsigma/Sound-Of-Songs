@@ -21,6 +21,8 @@ namespace RhythmGame.Time
             MainAudioSource.Stop();
             MainAudioSource.CurrentTime = -3;
             MainAudioSource.Play();
+            App.instance.StartTime = 0;
+            App.instance.EndTime = MainAudioSource.CurrentClip.length;
         }
 
         private void Start()

@@ -6,13 +6,14 @@ using AD.BASE;
 using AD.Derivation.GameEditor;
 using AD.Utility;
 using AD.Utility.Object;
+using AD.Math;
 using RhythmGame.Time;
 using UnityEngine;
 
 namespace RhythmGame.Visual
 {
     /// <summary>
-    /// ÓÃÓÚ±£´æµÄÊµ¼ÊÀàĞÍ£¬Í¨¹ıÖ±½Ó±£´æ±í´ïÊ½À´À©Õ¹ÆÌÃæÎÄ¼şµÄ¿É²Ù×÷ĞÔ
+    /// ç”¨äºä¿å­˜çš„å®é™…ç±»å‹ï¼Œé€šè¿‡ç›´æ¥ä¿å­˜è¡¨è¾¾å¼æ¥æ‰©å±•é“ºé¢æ–‡ä»¶çš„å¯æ“ä½œæ€§
     /// </summary>
     [Serializable, EaseSave3]
     public class VertexData
@@ -61,11 +62,18 @@ namespace RhythmGame.Visual
         }
     }
 
+    [Serializable, EaseSave3]
+    public class TimingParagraphData
+    {
+        public string Time;
+        public string Speed;
+    }
+
     /// <summary>
-    /// ÔÚÉú³ÉÊ±Á¢¼´½øĞĞÒ»´Î<see cref="App.MatchData(IController)"/>
+    /// åœ¨ç”Ÿæˆæ—¶ç«‹å³è¿›è¡Œä¸€æ¬¡<see cref="App.MatchData(IController)"/>
     /// </summary>
     [RequireComponent(typeof(MeshFilter)), RequireComponent(typeof(MeshRenderer))]
-    public class GuideLine : ADController, IController, IRuildHandler, IListenTime
+    public class GuideLine : ADController, IController, IRebuildHandler, IListenTime
     {
         [SerializeField] private List<VertexData> m_Vertexs = new();
         [RhythmData, ADSerialize()]
@@ -138,6 +146,11 @@ namespace RhythmGame.Visual
             }
         }
 
+        public void SetDirty()
+        {
+            IsDirty = true;
+        }
+
         private void LateUpdate()
         {
             Rebuild();
@@ -158,24 +171,44 @@ namespace RhythmGame.Visual
         public void When(float time, float duration)
         {
             //Get Anchor Position
-            while (m_CurrentGuideLineVertexIndex + 1 < this.RealVertexs.Count)
-            {
-                if (this.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position.z >= App.instance.CameraSafeAreaPanel)
-                {
-                    App.instance.StartVertex = this.RealVertexs[m_CurrentGuideLineVertexIndex].Position;
-                    float start = App.instance.StartVertex.z;
-                    App.instance.EndVertex = this.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position;
-                    float end = App.instance.EndVertex.z;
-                    float Zduration = end - start;
-                    float Zt = (App.instance.CameraSafeAreaPanel - start) / (float)Zduration;
-                    AnchorGuider.position = Vector3.Lerp(this.RealVertexs[m_CurrentGuideLineVertexIndex].Position, this.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position, Zt);
-                    break;
-                }
-                m_CurrentGuideLineVertexIndex++;
-            }
+            //ä¸ºäº†èƒ½å¤Ÿæ”¯æŒå€’é€€
+            m_CurrentGuideLineVertexIndex = 0;
+            AnchorGuider.position = GetAnchorPoint(App.instance.CameraSafeAreaPanel, ref m_CurrentGuideLineVertexIndex);
             if (m_CurrentGuideLineVertexIndex + 2 >= this.RealVertexs.Count) m_CurrentGuideLineVertexIndex = 0;
             //Update Anchor Material
             MainMaterialGroup.UpdateTarget("_Offset", App.instance.CameraSafeAreaPanel / 2.0f);
+        }
+
+        public Vector3 GetAnchorPoint(float depth,ref int temp_CurrentGuideLineVertexIndex)
+        {
+            float RealDepth = depth;
+            ////Timing
+            //foreach (var single in TimingPairs)
+            //{
+            //    if (single.IsMyDuration(depth))
+            //    {
+            //        RealDepth = single.Evaluate(depth);
+            //        break;
+            //    }
+            //}
+            //Get Anchor Position
+            Vector3 result = Vector3.zero;
+            while (temp_CurrentGuideLineVertexIndex + 1 < this.RealVertexs.Count)
+            {
+                if (this.RealVertexs[temp_CurrentGuideLineVertexIndex + 1].Position.z >= RealDepth)
+                {
+                    App.instance.StartVertex = this.RealVertexs[temp_CurrentGuideLineVertexIndex].Position;
+                    float start = App.instance.StartVertex.z;
+                    App.instance.EndVertex = this.RealVertexs[temp_CurrentGuideLineVertexIndex + 1].Position;
+                    float end = App.instance.EndVertex.z;
+                    float Zduration = end - start;
+                    float Zt = (RealDepth - start) / (float)Zduration;
+                    result = Vector3.Lerp(this.RealVertexs[temp_CurrentGuideLineVertexIndex].Position, this.RealVertexs[temp_CurrentGuideLineVertexIndex + 1].Position, Zt);
+                    break;
+                }
+                temp_CurrentGuideLineVertexIndex++;
+            }
+            return result;
         }
     }
 }

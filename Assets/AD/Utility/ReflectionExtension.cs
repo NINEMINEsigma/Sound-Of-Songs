@@ -8,7 +8,7 @@ using AD.Utility.Pipe;
 using Unity.VisualScripting;
 using UnityEngine;
 
-namespace AD.Utility
+namespace AD.Reflection
 {
     [Serializable]
     public class ReflectionException : ADException
@@ -1017,12 +1017,14 @@ namespace AD.Utility
             public ADReflectedMethod(Type type, string methodName, Type[] parameterTypes)
             {
                 MethodInfo nonGenericMethod = type.GetMethod(methodName, parameterTypes);
+                this.method = nonGenericMethod;
                 ArgsTotal = parameterTypes == null ? 0 : parameterTypes.Length;
             }
 
             public ADReflectedMethod(Type type, string methodName, Type[] parameterTypes, BindingFlags bindingAttr)
             {
                 MethodInfo nonGenericMethod = type.GetMethod(methodName, bindingAttr, null, parameterTypes, null);
+                this.method = nonGenericMethod;
                 ArgsTotal = parameterTypes == null ? 0 : parameterTypes.Length;
             }
 

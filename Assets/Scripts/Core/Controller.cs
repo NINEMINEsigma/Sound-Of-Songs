@@ -7,7 +7,7 @@ namespace RhythmGame
 {
     /// <summary>
     /// 通过使用这个特性来指示这个Property是需要保存的数据，并且在初始化时需要使用
-    /// <para>之所以这样指定为Property是为了能够更好的规范使用<see cref="IRuildHandler.IsDirty"/></para>
+    /// <para>之所以这样指定为Property是为了能够更好的规范使用<see cref="IRebuildHandler.IsDirty"/></para>
     /// </summary>
     [System.AttributeUsage(System.AttributeTargets.Property, Inherited = true, AllowMultiple = true)]
     public sealed class RhythmDataAttribute : System.Attribute
@@ -30,11 +30,12 @@ namespace RhythmGame
         MonoBehaviour MonoTarget { get; }
     }
 
-    public interface IRuildHandler
+    public interface IRebuildHandler
     {
         bool IsDirty { get; }
         void Rebuild();
         void RebuildImmediately();
+        void SetDirty();
     }
 
     public class ControllerException:ADException
