@@ -94,7 +94,7 @@ Shader "Project/Note"
                 
                 float dis = i.positionWS.z - _NearPanel;
                 clip(dis);
-                float a = 1 - clamp(0,1, 0.2 * dis);
+                float a = 1 - clamp(0,1, 0.05 * dis);
                 mainTex.a = a;
                 return mainTex;
             }
@@ -139,7 +139,7 @@ Shader "Project/Note"
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed4 col = tex2D(_MainTex, i.uv);
-                float a = i.worldPos.z - _NearPanel + 6.5;
+                float a = i.worldPos.z - _NearPanel + 2.5;
                 clip(a);
                 col.a = clamp(0,1,a);
                 return col;
