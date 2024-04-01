@@ -14,6 +14,7 @@ namespace RhythmGame
     {
         public const float CameraOffsetZ = -10;
 
+        [SerializeField] private Camera MainCamera;
         [SerializeField] private GuideLine MainGuideLine;
         [SerializeField] private Material LineCilper;
         [SerializeField] private RectTransform Viewport;
@@ -65,6 +66,18 @@ namespace RhythmGame
         private void LateUpdate()
         {
             Rebuild();
+            for (int i = 0, e = Input.touchCount; i < e; i++)
+            {
+                var current = Input.GetTouch(i);
+                if (current.phase != TouchPhase.Ended && current.phase != TouchPhase.Canceled)
+                {
+                    Ray ray = MainCamera.ScreenPointToRay(current.position);
+                    if (Physics.Raycast(ray, out RaycastHit hit))
+                    {
+                        ADEventSystemExtension.Execute<App, IListenTouch>(App.instance, hit.collider.gameObject, null, (T, _) => T.OnCatching(current));
+                    }
+                }
+            }
         }
 
         public void When(float time, float duration)

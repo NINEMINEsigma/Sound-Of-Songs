@@ -38,6 +38,11 @@ namespace RhythmGame
         void SetDirty();
     }
 
+    public interface IListenTouch:IADEventSystemHandler
+    {
+        void OnCatching(Touch touch);
+    }
+
     public class ControllerException:ADException
     {
         public ControllerException(IController controller,string message):base(message)

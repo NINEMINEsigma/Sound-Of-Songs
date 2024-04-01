@@ -806,6 +806,7 @@ MonoBehaviour:
     value:
       materials:
       - {fileID: 2100000, guid: c14e556795a09984797bfc4b331e130e, type: 2}
+      - {fileID: 2100000, guid: 34493af747205a64880c1fb49e5dcafb, type: 2}
       valueType: 0
       shiftType: 0
       controlType: 1
@@ -822,6 +823,8 @@ GameObject:
   m_Component:
   - component: {fileID: 386874338}
   - component: {fileID: 386874337}
+  - component: {fileID: 386874339}
+  - component: {fileID: 386874340}
   m_Layer: 0
   m_Name: Anchor Guider
   m_TagString: Untagged
@@ -896,6 +899,34 @@ Transform:
   m_Father: {fileID: 621260703}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &386874339
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386874336}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &386874340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386874336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c844a91071ba194aa5fce4015680c67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MainCamera: {fileID: 519420031}
+  TouchMoveSpeed: 0.01
+  IsCatching: 0
 --- !u!1 &398827946
 GameObject:
   m_ObjectHideFlags: 0
@@ -908,7 +939,7 @@ GameObject:
   - component: {fileID: 398827948}
   - component: {fileID: 398827949}
   m_Layer: 0
-  m_Name: Square
+  m_Name: Note A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -922,8 +953,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 398827946}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 15}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -5.9, y: 0, z: 11.67}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 904992142}
@@ -970,12 +1001,12 @@ SpriteRenderer:
   m_SortingLayerID: -245191459
   m_SortingLayer: 4
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 92875b9cba057924f9e250294e34d717, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 2.56, y: 2.56}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -998,9 +1029,9 @@ MonoBehaviour:
     InvokeArray: 
     _m_Delegates: []
   m_LocalPostion:
-  - '{WorldX(-5)}'
-  - '{WorldY(0)}'
-  m_JudgeTimeExpression: 0.75
+  - '{WorldX(-1)}'
+  - '{WorldY(1)}'
+  m_JudgeTimeExpression: 10
 --- !u!1 &418272156
 GameObject:
   m_ObjectHideFlags: 0
@@ -2017,23 +2048,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ef740ce49adde740b7eb94feec34425, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MainCamera: {fileID: 519420031}
   MainGuideLine: {fileID: 621260700}
   LineCilper: {fileID: 2100000, guid: 91302dd0551973a46b9486a5b3fe90df, type: 2}
   Viewport: {fileID: 206574509}
   m_TimingPairs:
   - StartTimeExpression: 0
-    EndTimeExpression: '{SongTime(5)}'
+    EndTimeExpression: '{SongTime(2)}'
     StartValueExpression: 0
     EndValueExpression: '{SongTime(2)}'
     EaseCurveTypeExpression: Linear
-  - StartTimeExpression: '{SongTime(5)}'
-    EndTimeExpression: '{SongTime(10)}'
+  - StartTimeExpression: '{SongTime(2)}'
+    EndTimeExpression: '{SongTime(5)}'
     StartValueExpression: '{SongTime(2)}'
-    EndValueExpression: 0
+    EndValueExpression: '{SongTime(10)}'
     EaseCurveTypeExpression: Linear
-  - StartTimeExpression: '{SongTime(10)}'
+  - StartTimeExpression: '{SongTime(5)}'
     EndTimeExpression: 1
-    StartValueExpression: 0
+    StartValueExpression: '{SongTime(10)}'
     EndValueExpression: 1
     EaseCurveTypeExpression: Linear
   m_IsDirty: 0
@@ -2617,6 +2649,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 398827947}
+  - {fileID: 2145354156}
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3378,22 +3411,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MySceneComponents:
     All:
-      Data:
-      - Key: {fileID: 776543258}
-        Value:
-        - {fileID: 1744037418}
-        - {fileID: 151172673}
-        - {fileID: 1450660504}
-        - {fileID: 361329061}
-      - Key: {fileID: 1458790986}
-        Value:
-        - {fileID: 519420028}
-      - Key: {fileID: 1025407073}
-        Value:
-        - {fileID: 1582910863}
-      - Key: {fileID: 904992141}
-        Value:
-        - {fileID: 398827946}
+      Data: []
       OnAdd:
         m_PersistentCalls:
           m_Calls: []
@@ -3614,11 +3632,6 @@ PrefabInstance:
 --- !u!4 &1744037417 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2167730616229911391, guid: 5ff5e20bb829e624a803702e94d45f49, type: 3}
-  m_PrefabInstance: {fileID: 1744037416}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1744037418 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2167730616229911385, guid: 5ff5e20bb829e624a803702e94d45f49, type: 3}
   m_PrefabInstance: {fileID: 1744037416}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1894068399
@@ -3889,3 +3902,108 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Selected: 0
   ElementArea: Text
+--- !u!1 &2145354155
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2145354156}
+  - component: {fileID: 2145354158}
+  - component: {fileID: 2145354157}
+  m_Layer: 0
+  m_Name: Note B
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2145354156
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2145354155}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5, y: 0, z: 11.67}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 904992142}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2145354157
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2145354155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5c842396b43356489a4fa3cad8e0a6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IsDirty: 0
+  RebuildListener:
+    InvokeArray: 
+    _m_Delegates: []
+  m_LocalPostion:
+  - 0.01
+  - 0.01
+  m_JudgeTimeExpression: 5
+--- !u!212 &2145354158
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2145354155}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 34493af747205a64880c1fb49e5dcafb, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: -245191459
+  m_SortingLayer: 4
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 21300000, guid: 35eddb22351305249bcd1c25839425b6, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 2.56, y: 2.56}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0

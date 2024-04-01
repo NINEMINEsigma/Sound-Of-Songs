@@ -16,6 +16,11 @@ namespace AD.Derivation.GameEditor
         void OnRayCatching();
     }
 
+    public interface ICatchCameraRayInfo : IADEventSystemHandler
+    {
+        void OnRayCatching(RayExtension.RayInfo info);
+    }
+
     public class EditorSystem : MonoBehaviour, IADSystem,IMainHoster
     {
         #region IADSystem
@@ -118,12 +123,12 @@ namespace AD.Derivation.GameEditor
         {
             if (CoreCamera != null && CoreCamera.FoucsOneTarget != null && Mouse.current.leftButton.isPressed)
             {
-                GameObject FoucesOneObject = CoreCamera.FoucsOneTarget.transform.parent.gameObject;
-                if (!FoucesOneObject.TryGetComponent(out ColliderLayer colliderLayer)) return;
+                GameObject FocusOneObject = CoreCamera.FoucsOneTarget.transform.parent.gameObject;
+                if (!FocusOneObject.TryGetComponent(out ColliderLayer colliderLayer)) return;
 
-                Transform FoucesOne = colliderLayer.ParentGroup.transform;
+                Transform FocusOne = colliderLayer.ParentGroup.transform;
                 Transform CoreOne = CoreCamera.Core.transform;
-                DragingFocusObject(FoucesOne, CoreOne);
+                DragingFocusObject(FocusOne, CoreOne);
             }
         }
 
@@ -131,18 +136,19 @@ namespace AD.Derivation.GameEditor
         {
             if (CoreCamera != null && CoreCamera.FoucsOneTarget != null && Mouse.current.leftButton.isPressed)
             {
-                GameObject FoucesOneObject = CoreCamera.FoucsOneTarget;
+                GameObject FocusOneObject = CoreCamera.FoucsOneTarget;
 
-                Transform FoucesOne = FoucesOneObject.transform;
+                Transform FocusOne = FocusOneObject.transform;
                 Transform CoreOne = CoreCamera.Core.transform;
-                DragingFocusObject(FoucesOne, CoreOne);
+                DragingFocusObject(FocusOne, CoreOne);
             }
         }
 
         private void DragingFocusObject(Transform FocusOne, Transform CoreOne)
         {
             ADEventSystemExtension.Execute<ICatchCameraRayUpdate>(FocusOne.gameObject, null, (T, P) => T.OnRayCatching());
-
+            ADEventSystemExtension.Execute<ICatchCameraRayInfo>(FocusOne.gameObject, null, (T, P) => T.OnRayCatching(CoreCamera.RayForm));
+            if (TouchPanel == null) return;
             Vector2 dragVec = TouchPanel.DeltaDragVec;
             float DragDelta = DragSpeed * Time.deltaTime;
             if (CoreCamera.Is2D)
