@@ -14,6 +14,7 @@ namespace RhythmGame.Time
 
         public AudioSourceController MainAudioSource;
         [SerializeField] private MaterialGroup MainMaterialGroup;
+        [SerializeField] private ModernUIFillBar TimeFillBar;
 
         public override void Init()
         {
@@ -34,15 +35,21 @@ namespace RhythmGame.Time
         private void Update()
         {
             if (MainAudioSource.IsPlay)
+            {
+                TimeFillBar.SetPerecent(MainAudioSource.CurrentTime / MainAudioSource.CurrentClip.length, 0, MainAudioSource.CurrentClip.length);
                 foreach (var listener in Listeners)
                 {
                     listener.When(MainAudioSource.CurrentTime, MainAudioSource.CurrentClip.length);
                 }
+            }
             else
+            {
+                TimeFillBar.SetPerecent(0, 0, MainAudioSource.CurrentClip.length);
                 foreach (var listener in Listeners)
                 {
                     listener.When(0, 100);
                 }
+            }
 
             //Update Note Material
             MainMaterialGroup.UpdateTarget("_NearPanel", App.instance.CameraSafeAreaPanel);
