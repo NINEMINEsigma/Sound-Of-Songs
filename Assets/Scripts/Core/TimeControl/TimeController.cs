@@ -92,9 +92,9 @@ namespace RhythmGame.Time
 
         public void Replay()
         {
-            StopSong();
+            MainAudioSource.Stop();
             MainAudioSource.CurrentTime = -3;
-            PlaySong();
+            MainAudioSource.Play();
         }
     }
 }

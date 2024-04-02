@@ -986,7 +986,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.9, y: 0.9, z: 0.1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &386874340
 MonoBehaviour:
@@ -1341,7 +1341,7 @@ MonoBehaviour:
     TargetPitch_Attribute_Name: MasterPitch
     TargetPitchshifterPitch_Attribute_Name: PitchShifterPitch
     TargetOutputSpeed: {fileID: 0}
-    TargetPitchValue: 1
+    TargetPitchValue: 0.1
 --- !u!82 &432076931
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1451,7 +1451,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SourcePairs:
-  - Clip: {fileID: 8300000, guid: 17007b50d4f4184489d2d19c38b4c2bc, type: 3}
+  - Clip: {fileID: 8300000, guid: 6cc44070707d577459c11fe4839a64fa, type: 3}
     Name: 
     CilpName: 
   _Mixer: {fileID: 432076930}
@@ -1978,7 +1978,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1450660507}
         m_TargetAssemblyTypeName: RhythmGame.Time.TimeController, Assembly-CSharp
-        m_MethodName: StopSong
+        m_MethodName: Replay
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2860,7 +2860,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Stop
+  m_text: Replay
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

@@ -22,20 +22,20 @@ namespace RhythmGame.Editor
             for (int i = 0; i < 100; i++)
             {
                 NoteBase current = (Random.value > 0.5 ? NoteA.PrefabInstantiate() : NoteB.PrefabInstantiate());
-                current.transform.SetParent(ParRoot, false);
                 current.JudgeTimeExpression = (baseTime + Random.value + i).ToString();
-                current.LocalPostion = new string[2] { "{WorldX(" + ((Random.value - 0.5f)*15).ToString() + ")}", "{WorldY(" + ((Random.value - 0.5f)*7).ToString() + ")}" };
-                current.LocalEulerAngles = new string[3] 
-                {  "0","0",((Random.value - 0.5f) * 180).ToString() };
                 if(Random.value>0.75)
                 {
-                    NoteBase CurDouble = current.PrefabInstantiate();
+                    NoteBase CurDouble = (Random.value > 0.5 ? NoteA.PrefabInstantiate() : NoteB.PrefabInstantiate());
                     CurDouble.transform.SetParent(ParRoot, false);
                     CurDouble.JudgeTimeExpression = current.JudgeTimeExpression;
                     CurDouble.LocalPostion = new string[2] { "{WorldX(" + ((Random.value - 0.5f) * 12).ToString() + ")}", "{WorldY(" + ((Random.value - 0.5f) * 5).ToString() + ")}" };
                     CurDouble.LocalEulerAngles = new string[3]
                     {  "0","0",((Random.value - 0.5f) * 180).ToString() };
                 }
+                current.transform.SetParent(ParRoot, false);
+                current.LocalPostion = new string[2] { "{WorldX(" + ((Random.value - 0.5f)*15).ToString() + ")}", "{WorldY(" + ((Random.value - 0.5f)*7).ToString() + ")}" };
+                current.LocalEulerAngles = new string[3] 
+                {  "0","0",((Random.value - 0.5f) * 180).ToString() };
             }
         }
 

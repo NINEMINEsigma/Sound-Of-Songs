@@ -232,6 +232,14 @@ namespace RhythmGame.Visual
                     IsJudged = false;
                     IsBeenTouch = false;
                 }
+#else
+                if (time < JudgeTime && !IsBeenTouch && IsJudged)
+                {
+                    gameObject.SetActive(true);
+                    DistroyDataAndDoRemoveJudgeData();
+                    IsJudged = false;
+                    IsBeenTouch = false;
+                }
 #endif
                 //没有被判定且超出判定区间
                 if (!(IsBeenTouch || IsJudged) && (time - JudgeTime > JudgeType.Bad.ToSecond()))
