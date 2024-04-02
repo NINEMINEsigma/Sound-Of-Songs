@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using AD.BASE;
 using AD.UI;
 using AD.Utility.Object;
+using RhythmGame.Visual.Note;
 using UnityEngine;
 
 namespace RhythmGame.Time
@@ -64,6 +65,29 @@ namespace RhythmGame.Time
         public void RemoveListener(IListenTime listener)
         {
             Listeners.Remove(listener);
+        }
+
+        public void PlaySong()
+        {
+            MainAudioSource.Play();
+        }
+
+        public void PauseSong()
+        {
+            MainAudioSource.Pause();
+        }
+
+        public void StopSong()
+        {
+            MainAudioSource.Stop();
+            foreach (var listener in Listeners)
+            {
+                if (listener.As<NoteBase>(out var note))
+                {
+                    note.IsBeenTouchJudge = false;
+                }
+            }
+            Architecture.GetController<RhythmGame.Visual.ScoreBoard>().Init();
         }
     }
 }

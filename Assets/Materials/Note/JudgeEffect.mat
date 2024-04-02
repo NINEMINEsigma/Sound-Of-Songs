@@ -43,7 +43,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _ColorMask: 15
-    - _CurrentFramesCount: 16
+    - _CurrentFramesCount: 0
     - _EnableExternalAlpha: 0
     - _Stencil: 0
     - _StencilComp: 8

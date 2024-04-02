@@ -7,6 +7,7 @@ using AD.Math;
 using RhythmGame.Time;
 using UnityEngine;
 using RhythmGame.ScoreBoard;
+using UnityEditor;
 
 namespace RhythmGame.Visual
 {
@@ -179,8 +180,9 @@ namespace RhythmGame.Visual
 #if SOS_EDITOR
             private JudgeData m_JudgeData;
 #endif
-            private bool IsJudged = false;
-            private bool IsBeenTouch = false;
+            [SerializeField] private bool IsJudged = false;
+            [SerializeField] private bool IsBeenTouch = false;
+            [SerializeField] public bool IsBeenTouchJudge = false;
             [Header("JudgeEffect")]
             public JudgeEffect JudgeEffectPrefab;
             public void When(float time, float duration)
@@ -189,11 +191,31 @@ namespace RhythmGame.Visual
                     Rebuild();
 
                 //已被触摸判定
-                if (time > JudgeTime && !IsJudged && IsBeenTouch)
+                if (IsBeenTouch)
                 {
-                    PlayJudgeEffect();
-                    CreateDataAndDoAddJudgeData(0, JudgeType.Best);
-                    IsJudged = true;
+                    //超过需要判定的时间
+                    if (App.CurrentTime > JudgeTime)
+                    {
+                        //未判定则判定并生成动画
+                        if (!IsJudged)
+                        {
+                            PlayJudgeEffect();
+                            gameObject.SetActive(false);
+                            IsJudged = true;
+                        }
+                    }
+                    //回归至判定之前的时间,且已经判定过,则进行回正
+                    else if (!IsBeenTouchJudge && time < JudgeTime + 0.32f && IsJudged)
+                    {
+                        Debug.LogWarning($"{time} {JudgeTime}");
+                        Selection.activeGameObject = this.gameObject;
+                        gameObject.SetActive(true);
+                        DistroyDataAndDoRemoveJudgeData();
+                        IsJudged = false;
+                        IsBeenTouch = false;
+                    }
+                    //已被触摸判定则直接跳过后续,若是恰好回正则延迟一帧进行新的判定
+                    return;
                 }
 
 #if SOS_EDITOR
@@ -203,10 +225,11 @@ namespace RhythmGame.Visual
                     {
                         PlayJudgeEffect();
                         CreateDataAndDoAddJudgeData(0, JudgeType.Best);
+                        gameObject.SetActive(false);
                     }
                     IsJudged = true;
                 }
-                else
+                else if (!IsBeenTouch && IsJudged)
                 {
                     gameObject.SetActive(true);
                     DistroyDataAndDoRemoveJudgeData();
@@ -261,22 +284,30 @@ namespace RhythmGame.Visual
                     {
                         CreateDataAndDoAddJudgeData(Offset, JudgeType.Bad);
                         gameObject.SetActive(false);
+                        IsBeenTouch = true;
                         IsJudged = true;
+                        IsBeenTouchJudge = true;
                         return;
                     }
                     else return;
                     PlayJudgeEffect();
                     gameObject.SetActive(false);
                     IsJudged = true;
+                    IsBeenTouch = true;
+                    IsBeenTouchJudge = true;
                 }
                 else if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
                 {
-                    float Offset = App.CurrentTime - JudgeTime;
-                    if (Mathf.Abs(Offset) < JudgeType.Good.ToSecond())
+                    if (!IsBeenTouch)
                     {
-                        CreateDataAndDoAddJudgeData(1, JudgeType.Best);
+                        float Offset = App.CurrentTime - JudgeTime;
+                        if (Mathf.Abs(Offset) < JudgeType.Good.ToSecond())
+                        {
+                            CreateDataAndDoAddJudgeData(Offset, JudgeType.Best);
+                            IsBeenTouch = true;
+                            IsBeenTouchJudge = true;
+                        }
                     }
-                    IsBeenTouch = true;
                 }
             }
         }

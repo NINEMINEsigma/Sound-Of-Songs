@@ -20,7 +20,7 @@ namespace RhythmGame.ScoreBoard
     {
         public static float ToSecond(this JudgeType type)
         {
-            return 0.01f * (int)type;
+            return 0.001f * (int)type;
         }
     }
 
@@ -89,6 +89,11 @@ namespace RhythmGame.Visual
 
         public override void Init()
         {
+            TotalMainScore.Init();
+            TotalPerfectScore.Init();
+            TotalGoodScore.Init();
+            TotalBadScore.Init();
+            TotalLostScore.Init();
             SetDirty();
         }
 
@@ -165,7 +170,7 @@ namespace RhythmGame.Visual
         public void RemoveJudgeData(JudgeData data)
         {
             ComboValue = 0;
-            ComboText.text = ComboValue.ToString();
+            ComboText.text = "";
             IsDirty = true;
             Datas.Remove(data);
             TotalMainScore.Init();
