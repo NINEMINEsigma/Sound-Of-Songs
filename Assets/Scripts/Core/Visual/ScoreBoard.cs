@@ -194,10 +194,10 @@ namespace RhythmGame.Visual
 
         public void RebuildImmediately()
         {
-            MainScoreBoard.SetText($"{TotalMainScore.S.Count} X {(int)(TotalMainScore.GetF() * 1000)}");
-            PerfectScoreBoard.SetText($"{TotalPerfectScore.S.Count} P {(int)(TotalPerfectScore.GetF() * 1000)}");
-            GoodScoreBoard.SetText($"{TotalGoodScore.S.Count} G {(int)(TotalGoodScore.GetF() * 1000)}");
-            BadScoreBoard.SetText($"{TotalBadScore.S.Count} B {(int)(TotalBadScore.GetF() * 1000)}");
+            MainScoreBoard.SetText($"{TotalMainScore.S.Count} X {(int)(TotalMainScore.GetE() * 1000)}");
+            PerfectScoreBoard.SetText($"{TotalPerfectScore.S.Count} P {(int)(TotalPerfectScore.GetE() * 1000)}");
+            GoodScoreBoard.SetText($"{TotalGoodScore.S.Count} G {(int)(TotalGoodScore.GetE() * 1000)}");
+            BadScoreBoard.SetText($"{TotalBadScore.S.Count} B {(int)(TotalBadScore.GetE() * 1000)}");
             LostScoreBoard.SetText($"Lost {TotalLostScore.S.Count}");
             IsDirty = false;
         }

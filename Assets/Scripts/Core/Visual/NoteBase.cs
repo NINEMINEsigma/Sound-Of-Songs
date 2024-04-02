@@ -177,9 +177,7 @@ namespace RhythmGame.Visual
                 IsDirty = true;
             }
 
-#if SOS_EDITOR
             private JudgeData m_JudgeData;
-#endif
             [SerializeField] private bool IsJudged = false;
             [SerializeField] private bool IsBeenTouch = false;
             [SerializeField] public bool IsBeenTouchJudge = false;
@@ -205,10 +203,8 @@ namespace RhythmGame.Visual
                         }
                     }
                     //回归至判定之前的时间,且已经判定过,则进行回正
-                    else if (!IsBeenTouchJudge && time < JudgeTime + 0.32f && IsJudged)
+                    else if (!IsBeenTouchJudge && time < JudgeTime + JudgeType.Bad.ToSecond() && IsJudged)
                     {
-                        Debug.LogWarning($"{time} {JudgeTime}");
-                        Selection.activeGameObject = this.gameObject;
                         gameObject.SetActive(true);
                         DistroyDataAndDoRemoveJudgeData();
                         IsJudged = false;
@@ -225,7 +221,7 @@ namespace RhythmGame.Visual
                     {
                         PlayJudgeEffect();
                         CreateDataAndDoAddJudgeData(0, JudgeType.Best);
-                        gameObject.SetActive(false);
+                        //gameObject.SetActive(false);
                     }
                     IsJudged = true;
                 }
@@ -241,6 +237,8 @@ namespace RhythmGame.Visual
                 if (!(IsBeenTouch || IsJudged) && (time - JudgeTime > JudgeType.Bad.ToSecond()))
                 {
                     CreateDataAndDoAddJudgeData(JudgeType.Bad.ToSecond(), JudgeType.Lost);
+                    gameObject.SetActive(false);
+                    IsJudged = true;
                 }
             }
 
@@ -303,7 +301,7 @@ namespace RhythmGame.Visual
                         float Offset = App.CurrentTime - JudgeTime;
                         if (Mathf.Abs(Offset) < JudgeType.Good.ToSecond())
                         {
-                            CreateDataAndDoAddJudgeData(Offset, JudgeType.Best);
+                            CreateDataAndDoAddJudgeData(JudgeType.Best.ToSecond(), JudgeType.Best);
                             IsBeenTouch = true;
                             IsBeenTouchJudge = true;
                         }

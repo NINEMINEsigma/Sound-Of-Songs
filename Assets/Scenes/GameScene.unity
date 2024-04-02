@@ -876,7 +876,7 @@ MonoBehaviour:
       valueType: 0
       shiftType: 0
       controlType: 1
-      speed: 0.1
+      speed: 0.01
       initialPhase: 0
   - key: _NearPanel
     value:
@@ -2443,9 +2443,18 @@ MonoBehaviour:
     - 0
     Size: 0.3
   - Position:
-    - 0
+    - -5
     - 0
     - 100
+    Normal:
+    - 1
+    - 0
+    - 0
+    Size: 0.3
+  - Position:
+    - 0
+    - 0
+    - 200
     Normal:
     - 1
     - 0

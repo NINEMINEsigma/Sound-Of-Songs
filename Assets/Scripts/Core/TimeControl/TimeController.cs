@@ -89,5 +89,12 @@ namespace RhythmGame.Time
             }
             Architecture.GetController<RhythmGame.Visual.ScoreBoard>().Init();
         }
+
+        public void Replay()
+        {
+            StopSong();
+            MainAudioSource.CurrentTime = -3;
+            PlaySong();
+        }
     }
 }
