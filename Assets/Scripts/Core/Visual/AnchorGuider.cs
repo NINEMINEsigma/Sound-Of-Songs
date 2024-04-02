@@ -31,7 +31,8 @@ namespace RhythmGame.Visual
             for (int i = 0, e = Input.touchCount; i < e; i++)
             {
                 var current = Input.GetTouch(i);
-                if (current.phase != TouchPhase.Ended && current.phase != TouchPhase.Canceled)
+                //if (current.phase != TouchPhase.Ended && current.phase != TouchPhase.Canceled)
+                if (current.phase == TouchPhase.Began)
                 {
                     Ray ray = MainCamera.ScreenPointToRay(current.position);
                     if (Physics.Raycast(ray, out RaycastHit hit))
