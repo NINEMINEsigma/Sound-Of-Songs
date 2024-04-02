@@ -6,6 +6,7 @@ using AD.Utility;
 using AD.Math;
 using RhythmGame.Time;
 using UnityEngine;
+using RhythmGame.ScoreBoard;
 
 namespace RhythmGame.Visual
 {
@@ -32,7 +33,7 @@ namespace RhythmGame.Visual
             public RebuildException(NoteBase note) : base(note, "Failed On Rebuild") { }
         }
 
-        public interface IController : RhythmGame.IController, RhythmGame.IListenTime
+        public interface IController : RhythmGame.IController, IListenTime, IListenTouch
         {
 
         }
@@ -175,27 +176,108 @@ namespace RhythmGame.Visual
                 IsDirty = true;
             }
 
+#if SOS_EDITOR
+            private JudgeData m_JudgeData;
+#endif
             private bool IsJudged = false;
+            private bool IsBeenTouch = false;
             [Header("JudgeEffect")]
             public JudgeEffect JudgeEffectPrefab;
             public void When(float time, float duration)
             {
                 if (this.gameObject.activeInHierarchy)
                     Rebuild();
+
+                //已被触摸判定
+                if (time > JudgeTime && !IsJudged && IsBeenTouch)
+                {
+                    PlayJudgeEffect();
+                    CreateDataAndDoAddJudgeData(0, JudgeType.Best);
+                    IsJudged = true;
+                }
+
 #if SOS_EDITOR
                 if (time > JudgeTime)
                 {
                     if (!IsJudged)
                     {
-                        JudgeEffectPrefab.PrefabInstantiate().transform.position = this.transform.position;
+                        PlayJudgeEffect();
+                        CreateDataAndDoAddJudgeData(0, JudgeType.Best);
                     }
                     IsJudged = true;
                 }
                 else
                 {
+                    gameObject.SetActive(true);
+                    DistroyDataAndDoRemoveJudgeData();
                     IsJudged = false;
+                    IsBeenTouch = false;
                 }
 #endif
+                //没有被判定且超出判定区间
+                if (!(IsBeenTouch || IsJudged) && (time - JudgeTime > JudgeType.Bad.ToSecond()))
+                {
+                    CreateDataAndDoAddJudgeData(JudgeType.Bad.ToSecond(), JudgeType.Lost);
+                }
+            }
+
+            private void CreateDataAndDoAddJudgeData(float offset, JudgeType type)
+            {
+                m_JudgeData = new(JudgeTime, offset, type);
+                App.instance.GetController<ScoreBoard>().AddJudgeData(m_JudgeData);
+            }
+            private void DistroyDataAndDoRemoveJudgeData()
+            {
+                if (m_JudgeData != null)
+                {
+                    App.instance.GetController<ScoreBoard>().RemoveJudgeData(m_JudgeData);
+                    m_JudgeData = null;
+                }
+            }
+            private void PlayJudgeEffect()
+            {
+                JudgeEffectPrefab.PrefabInstantiate().transform.position = this.transform.position;
+            }
+
+            public void OnCatching(Touch touch)
+            {
+                if (IsJudged || IsBeenTouch) return;
+                if (touch.phase == TouchPhase.Began)
+                {
+                    float Offset = App.CurrentTime - JudgeTime;
+                    if (Mathf.Abs(Offset) < JudgeType.Best.ToSecond())
+                    {
+                        CreateDataAndDoAddJudgeData(Offset, JudgeType.Best);
+                    }
+                    else if (Mathf.Abs(Offset) < JudgeType.Perfect.ToSecond())
+                    {
+                        CreateDataAndDoAddJudgeData(Offset, JudgeType.Perfect);
+                    }
+                    else if (Mathf.Abs(Offset) < JudgeType.Good.ToSecond())
+                    {
+                        CreateDataAndDoAddJudgeData(Offset, JudgeType.Good);
+                    }
+                    else if (Mathf.Abs(Offset) < JudgeType.Bad.ToSecond())
+                    {
+                        CreateDataAndDoAddJudgeData(Offset, JudgeType.Bad);
+                        gameObject.SetActive(false);
+                        IsJudged = true;
+                        return;
+                    }
+                    else return;
+                    PlayJudgeEffect();
+                    gameObject.SetActive(false);
+                    IsJudged = true;
+                }
+                else if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
+                {
+                    float Offset = App.CurrentTime - JudgeTime;
+                    if (Mathf.Abs(Offset) < JudgeType.Good.ToSecond())
+                    {
+                        CreateDataAndDoAddJudgeData(1, JudgeType.Best);
+                    }
+                    IsBeenTouch = true;
+                }
             }
         }
     }

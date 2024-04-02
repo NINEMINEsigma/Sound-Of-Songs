@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using AD;
 using AD.BASE;
 using AD.UI;
 using RhythmGame.ScoreBoard;
+using RhythmGame.Time;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -11,11 +13,28 @@ namespace RhythmGame.ScoreBoard
 {
     public enum JudgeType
     {
-        Best, Perfect, Good, Bad, Lost
+        Best = 16, Perfect = 50, Good = 80, Bad = 110, Lost = 999
+    }
+
+    public static class JudgeTypeHelper
+    {
+        public static float ToSecond(this JudgeType type)
+        {
+            return 0.01f * (int)type;
+        }
     }
 
     public class JudgeData
     {
+        public JudgeData() { }
+        public JudgeData(float time,float offset, JudgeType type)
+        {
+            Time = time;
+            Offset = offset;
+            Type = type;
+        }
+
+        public float Time;
         public float Offset;
         public JudgeType Type;
     }
@@ -76,7 +95,10 @@ namespace RhythmGame.Visual
         private void Start()
         {
             ComboText.SetText("");
-            App.instance.RegisterController(this);
+            ADGlobalSystem.OpenCoroutine(() => !App.instance.Contains<GuideLine>() || !App.instance.Contains<TimeController>(), () =>
+            {
+                App.instance.RegisterController(this);
+            });
         }
 
         public List<JudgeData> Datas = new();
@@ -140,6 +162,19 @@ namespace RhythmGame.Visual
             }
         }
 
+        public void RemoveJudgeData(JudgeData data)
+        {
+            ComboValue = 0;
+            ComboText.text = ComboValue.ToString();
+            IsDirty = true;
+            Datas.Remove(data);
+            TotalMainScore.Init();
+            TotalPerfectScore.Init();
+            TotalGoodScore.Init();
+            TotalBadScore.Init();
+            TotalLostScore.Init();
+        }
+
         public void Rebuild()
         {
             if (IsDirty)
@@ -154,10 +189,10 @@ namespace RhythmGame.Visual
 
         public void RebuildImmediately()
         {
-            MainScoreBoard.SetText($"{TotalMainScore.S.Count} X {TotalMainScore.GetE()}");
-            PerfectScoreBoard.SetText($"{TotalPerfectScore.S.Count} P {TotalPerfectScore.GetE()}");
-            GoodScoreBoard.SetText($"{TotalGoodScore.S.Count} G {TotalGoodScore.GetE()}");
-            BadScoreBoard.SetText($"{TotalBadScore.S.Count} B {TotalBadScore.GetE()}");
+            MainScoreBoard.SetText($"{TotalMainScore.S.Count} X {(int)(TotalMainScore.GetF() * 1000)}");
+            PerfectScoreBoard.SetText($"{TotalPerfectScore.S.Count} P {(int)(TotalPerfectScore.GetF() * 1000)}");
+            GoodScoreBoard.SetText($"{TotalGoodScore.S.Count} G {(int)(TotalGoodScore.GetF() * 1000)}");
+            BadScoreBoard.SetText($"{TotalBadScore.S.Count} B {(int)(TotalBadScore.GetF() * 1000)}");
             LostScoreBoard.SetText($"Lost {TotalLostScore.S.Count}");
             IsDirty = false;
         }

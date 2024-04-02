@@ -31,7 +31,7 @@ namespace RhythmGame.Visual.Note
         }
     }
 
-    public class JudgeEffect : MonoBehaviour, IController
+    public class JudgeEffect : MonoBehaviour, RhythmGame.IController, IListenTime
     {
 
 

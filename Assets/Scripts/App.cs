@@ -10,6 +10,8 @@ namespace RhythmGame
 {
     public sealed class App : ADArchitecture<App>
     {
+        public static float CurrentTime;
+
         public const string ActualSongTime2Percentage = "SongTime";
         public float Internal_ActualSongTime2Percentage(float t)
         {
