@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 2678705375452937720}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 10}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalScale: {x: 0.75, y: 0.75, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -110,6 +110,9 @@ MonoBehaviour:
   - 0
   - 0
   m_JudgeTimeExpression: 0
+  IsJudged: 0
+  IsBeenTouch: 0
+  IsBeenTouchJudge: 0
   JudgeEffectPrefab: {fileID: 8853226732012850127, guid: 147c4dabea65f30448394a3fa7a8cdfc, type: 3}
 --- !u!65 &7433877228276429330
 BoxCollider:
@@ -122,5 +125,5 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 5.12, y: 5.12, z: 0.2}
+  m_Size: {x: 7, y: 7, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
