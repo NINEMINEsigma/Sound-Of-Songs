@@ -2,7 +2,9 @@ using System;
 using AD.BASE;
 using AD.Derivation.GameEditor;
 using AD.Math;
+using RhythmGame.Visual.Note;
 using UnityEngine;
+using static AD.Reflection.ReflectionExtension;
 
 namespace RhythmGame
 {
@@ -29,7 +31,7 @@ namespace RhythmGame
         public Vector3 StartVertex, EndVertex;
         public float StartTime, EndTime;
         public float ViewportWidth, ViewportHeight;
-        
+
 
         public void MatchData(IController controller)
         {
@@ -39,14 +41,17 @@ namespace RhythmGame
         public override void Init()
         {
             base.Init();
-            ArithmeticExtension.AddFunction(ActualSongTime2Percentage, new(new(typeof(App), nameof(Internal_ActualSongTime2Percentage), new Type[1] { typeof(float) }), this));
-            ArithmeticExtension.AddFunction(ViewportPositionX2WorldPositionX, new(new(typeof(App), nameof(Internal_ViewportPositionX2WorldPositionX), new Type[1] { typeof(float) }), this));
-            ArithmeticExtension.AddFunction(ViewportPositionY2WorldPositionY, new(new(typeof(App), nameof(Internal_ViewportPositionY2WorldPositionY), new Type[1] { typeof(float) }), this));
+            ArithmeticExtension.AddFunction(ActualSongTime2Percentage, new(ADReflectedMethod.Temp<float, float>(Internal_ActualSongTime2Percentage), this));
+            ArithmeticExtension.AddFunction(ViewportPositionX2WorldPositionX, new(ADReflectedMethod.Temp<float, float>(Internal_ViewportPositionX2WorldPositionX), this));
+            ArithmeticExtension.AddFunction(ViewportPositionY2WorldPositionY, new(ADReflectedMethod.Temp<float, float>(Internal_ViewportPositionY2WorldPositionY), this));
+
+            RegisterModel<JudgeEffectStack>()
+                ;
         }
     }
 
     [Serializable]
-    public class StartEndData:AD.Utility.StartEndData
+    public class StartEndData : AD.Utility.StartEndData
     {
         public void OnSerialize()
         {
@@ -78,7 +83,7 @@ namespace RhythmGame
             });
 
             PropertiesLayout.Label(nameof(this.EndValue));
-            var evip = PropertiesLayout.InputField(EndValue.ToString(), nameof(this.EndValue)) ;
+            var evip = PropertiesLayout.InputField(EndValue.ToString(), nameof(this.EndValue));
             evip.source.onSelect.AddListener(_ => evip.SetTextWithoutNotify(EndValueExpression));
             evip.source.onEndEdit.AddListener(T =>
             {

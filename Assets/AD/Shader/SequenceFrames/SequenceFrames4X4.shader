@@ -91,13 +91,13 @@ Shader "AD/SequenceFramesX/4X4"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                uint _XFramesCount = 4 , _YFramesCount = 4;
-                uint counter = clamp(_CurrentFramesCount,0,_XFramesCount*_YFramesCount);
+                const uint _XFramesCount = 4 , _YFramesCount = 4;
+                const float x = 4, y = 4;
+                uint counter = clamp(0,_XFramesCount*_YFramesCount,_CurrentFramesCount);
                 uint xc = counter % _XFramesCount;
                 uint yc = _YFramesCount - (counter - xc) / _YFramesCount;
-                float x = _XFramesCount, y = _YFramesCount;
                 // sample the texture
-                fixed4 col = tex2D(_MainFrames, float2((i.uv.x + xc)/x, (i.uv.y + yc)/y));
+                fixed4 col = tex2D(_MainFrames, float2((i.uv.x + xc)/x, (i.uv.y-1 + yc)/y));
                 
                 #ifdef UNITY_UI_ALPHACLIP
                 clip (col.a - 0.001);

@@ -100,9 +100,15 @@ Shader "AD/SequenceFrames"
                 uint yc = _YFramesCount - (counter - xc) / _YFramesCount;
                 float x = _XFramesCount, y = _YFramesCount;
                 float t = counter - (uint)counter;
+                
+                float next_counter = counter + 1;
+                uint next_xc = next_counter % _XFramesCount;
+                uint next_yc = _YFramesCount - (next_counter - xc) / _YFramesCount;
                 // sample the texture
-                fixed4 col = tex2D(_MainFrames, float2((i.uv.x + xc)/x, (i.uv.y + yc)/y)) * (1 - t) +
-                    tex2D(_MainFrames, float2(saturate((i.uv.x + 1 + xc)/x), saturate((i.uv.y + 1 + yc)/y))) * t;
+
+                fixed4 col = 
+                    tex2D(_MainFrames, float2((i.uv.x + xc)/x, (i.uv.y - 1 + yc ) / y)) * (1 - t) +
+                    tex2D(_MainFrames, float2((i.uv.x + next_xc)/x, (i.uv.y - 1 + next_yc ) / y)) * t;
                 
                 #ifdef UNITY_UI_ALPHACLIP
                 clip (col.a - 0.001);

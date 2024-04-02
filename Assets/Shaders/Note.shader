@@ -4,11 +4,20 @@ Shader "Project/Note"
     {
         [PerRendererData] _MainTex ("Texture", 2D) = "white" {}
         _FocusTex ("Judge Texture", 2D) = "white" {}
+
+        [Toggle] _IsJudged ("Is Judged",int) = 0
         _NearPanel ("Camera Control", float) = 0
     }
     SubShader
     {
-        // No culling or depth
+        Tags
+        { 
+            "Queue"="Transparent" 
+            "IgnoreProjector"="True" 
+            "RenderType"="Transparent" 
+            "PreviewType"="Plane"
+            "CanUseSpriteAtlas"="True"
+        }
         Cull Off ZWrite Off ZTest Always
 
         Pass
@@ -52,6 +61,7 @@ Shader "Project/Note"
             SAMPLER(sampler_FocusTex);
             half4 _FocusTex_ST;
             float _NearPanel;
+            int _IsJudged;
 
             Varyings UnlitVertex(Attributes v)
             {
@@ -74,6 +84,7 @@ Shader "Project/Note"
 
             half4 UnlitFragment(Varyings i) : SV_Target
             {
+                clip(-_IsJudged);
                 //uv postion : left-buttom (0,0) right-top (1,1)
                 float4 mainTex = i.color * SAMPLE_TEXTURE2D(_FocusTex, sampler_FocusTex, i.uv);
                 clip(mainTex.a-0.001);
@@ -135,9 +146,11 @@ Shader "Project/Note"
 
             sampler2D _MainTex;
             float _NearPanel;
+            float _IsJudged;
 
             fixed4 frag (v2f i) : SV_Target
             {
+                clip(-_IsJudged);
                 fixed4 col = tex2D(_MainTex, i.uv);
                 float a = i.worldPos.z - _NearPanel + 5;
                 clip(a);
@@ -146,6 +159,5 @@ Shader "Project/Note"
             }
             ENDCG
         }
-        
     }
 }

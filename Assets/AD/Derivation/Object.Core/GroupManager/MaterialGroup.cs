@@ -112,7 +112,7 @@ namespace AD.Utility.Object
                 try
                 {
                     if (current.key == key)
-                        current.value.Update(current.key, value);
+                        current.value.Update(current.key, value * current.value.speed);
                 }
                 catch { }
             }

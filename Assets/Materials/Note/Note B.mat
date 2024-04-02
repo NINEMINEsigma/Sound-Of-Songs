@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Note A
+  m_Name: Note B
   m_Shader: {fileID: 4800000, guid: b56e972fab6a6dc4ba0ff9c672861a2f, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
@@ -25,7 +25,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _FocusTex:
-        m_Texture: {fileID: 2800000, guid: 0a2d17d72bee9404098e8fba1a154e1b, type: 3}
+        m_Texture: {fileID: 2800000, guid: af505cff0369a834184244ca45f08573, type: 3}
         m_Scale: {x: 1.1, y: 1.1}
         m_Offset: {x: -0.05, y: -0.05}
     - _MainTex:
@@ -43,7 +43,8 @@ Material:
     m_Ints: []
     m_Floats:
     - _EnableExternalAlpha: 0
-    - _NearPanel: 96.44571
+    - _IsJudged: 0
+    - _NearPanel: 1041.2161
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}

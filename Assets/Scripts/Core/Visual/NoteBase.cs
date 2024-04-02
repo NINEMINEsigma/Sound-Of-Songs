@@ -18,7 +18,7 @@ namespace RhythmGame.Visual
             }
         }
 
-        public class RebuildException: NoteException
+        public class RebuildException : NoteException
         {
             public RebuildException(NoteBase note, params object[] args)
                 : base(note, "Failed On Rebuild , Args is :\n" + args.Contravariance(T =>
@@ -77,6 +77,17 @@ namespace RhythmGame.Visual
                     m_LocalPostion = value;
                 }
             }
+            [SerializeField] private string[] m_LocalEulerAngles = new string[3] { "0", "0", "0" };
+            [RhythmData]
+            public string[] LocalEulerAngles
+            {
+                get => m_LocalEulerAngles;
+                set
+                {
+                    IsDirty = true;
+                    m_LocalEulerAngles = value;
+                }
+            }
             [SerializeField] private string m_JudgeTimeExpression = "0";
             [RhythmData]
             public string JudgeTimeExpression
@@ -88,7 +99,8 @@ namespace RhythmGame.Visual
                     m_JudgeTimeExpression = value;
                 }
             }
-            public float JudgeTime => JudgeTimeExpression.MakeArithmeticParse();
+            private float m_JudgeTime;
+            public float JudgeTime => m_JudgeTime;
 
             private Vector2 m_Position;
             public Vector2 Position
@@ -98,7 +110,10 @@ namespace RhythmGame.Visual
                     return m_Position;
                 }
             }
-
+            public Vector3 EulerAngles
+            {
+                get => LocalEulerAngles.MakeArithmeticVec3Parse();
+            }
 
             /// <summary>
             /// 重建Mesh将发生在<see cref="TransformRebuild"/>之后
@@ -122,34 +137,16 @@ namespace RhythmGame.Visual
                 CameraCore cameraCore = App.instance.GetController<CameraCore>();
                 float depth = cameraCore.GetAnchorDepth(JudgeTime, timeController.MainAudioSource.CurrentClip.length);
                 Vector3 AnchorGuiderPosition = guideLine.GetAnchorPoint(depth, ref m_CurrentGuideLineVertexIndex);
-                //float DurDepth =
-                //    (JudgeTime.MakeArithmeticParse() / timeController.MainAudioSource.CurrentClip.length) *
-                //    (App.instance.MaxDepth - App.instance.MinDepth) + App.instance.MinDepth;
-                //while (m_CurrentGuideLineVertexIndex + 1 < guideLine.RealVertexs.Count)
-                //{
-                //    if (guideLine.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position.z >= DurDepth)
-                //    {
-                //        float start = guideLine.RealVertexs[m_CurrentGuideLineVertexIndex].Position.z;
-                //        float end = guideLine.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position.z;
-                //        float Zduration = end - start;
-                //        //判定时间/总时长获得百分比,乘以总长度获得从MinDepth开始的距离,加上MinDepth获得世界坐标下的深度
-                //        //据此深度坐标,套入公式获得这个区间内的百分比
-                //        float Zt = (DurDepth - start) / (float)Zduration;
-                //        AnchorGuiderPosition
-                //            = Vector3.Lerp(guideLine.RealVertexs[m_CurrentGuideLineVertexIndex].Position, guideLine.RealVertexs[m_CurrentGuideLineVertexIndex + 1].Position, Zt);
-                //        break;
-                //    }
-                //    m_CurrentGuideLineVertexIndex++;
-                //}
-                ////Final
                 transform.position = new(
                     AnchorGuiderPosition.x + Position.x * App.instance.ViewportWidth,
                     AnchorGuiderPosition.y + Position.y * App.instance.ViewportHeight,
                     AnchorGuiderPosition.z);
+                transform.eulerAngles = EulerAngles;
             }
 
             public void RebuildImmediately()
             {
+                m_JudgeTime = JudgeTimeExpression.MakeArithmeticParse();
                 RebuildListener.Invoke();
                 TransformRebuild();
                 MeshRebuild();
@@ -178,11 +175,27 @@ namespace RhythmGame.Visual
                 IsDirty = true;
             }
 
+            private bool IsJudged = false;
+            [Header("JudgeEffect")]
+            public JudgeEffect JudgeEffectPrefab;
             public void When(float time, float duration)
             {
                 if (this.gameObject.activeInHierarchy)
                     Rebuild();
-
+#if SOS_EDITOR
+                if (time > JudgeTime)
+                {
+                    if (!IsJudged)
+                    {
+                        JudgeEffectPrefab.PrefabInstantiate().transform.position = this.transform.position;
+                    }
+                    IsJudged = true;
+                }
+                else
+                {
+                    IsJudged = false;
+                }
+#endif
             }
         }
     }

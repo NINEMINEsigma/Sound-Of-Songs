@@ -742,7 +742,15 @@ namespace AD.BASE
         {
             Register<_Model>(model);
             model.Architecture = this;
-            model.Init();
+            try
+            {
+                model.Init();
+            }
+            catch(Exception ex)
+            {
+                AddMessage($"When Model Init : {ex.Message}");
+                Debug.LogException(ex);
+            }
             return instance;
         }
 
@@ -755,7 +763,15 @@ namespace AD.BASE
         {
             Register<_System>(system);
             system.Architecture = this;
-            system.Init();
+            try
+            {
+                system.Init();
+            }
+            catch (Exception ex)
+            {
+                AddMessage($"When System Init : {ex.Message}");
+                Debug.LogException(ex);
+            }
             return instance;
         }
 
@@ -768,7 +784,11 @@ namespace AD.BASE
         {
             Register<_Controller>(controller);
             controller.Architecture = this;
-            controller.Init();
+            try
+            {
+                controller.Init();
+            }
+            catch (Exception ex) { AddMessage($"When Init : {ex.Message}"); Debug.LogException(ex); }
             return instance;
         }
 

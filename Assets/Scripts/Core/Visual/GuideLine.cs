@@ -173,7 +173,7 @@ namespace RhythmGame.Visual
             //Get Anchor Position
             //为了能够支持倒退
             m_CurrentGuideLineVertexIndex = 0;
-            AnchorGuider.position = GetAnchorPoint(App.instance.CameraSafeAreaPanel, ref m_CurrentGuideLineVertexIndex);
+            AnchorGuider.position = GetAnchorPoint(App.instance.CameraSafeAreaPanel, ref m_CurrentGuideLineVertexIndex).SetZ(AnchorGuider.position.z);
             if (m_CurrentGuideLineVertexIndex + 2 >= this.RealVertexs.Count) m_CurrentGuideLineVertexIndex = 0;
             //Update Anchor Material
             MainMaterialGroup.UpdateTarget("_Offset", App.instance.CameraSafeAreaPanel / 2.0f);

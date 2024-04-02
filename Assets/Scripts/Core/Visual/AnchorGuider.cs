@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using AD.BASE;
+using AD.Utility;
 using UnityEngine;
 
 namespace RhythmGame.Visual

@@ -97,7 +97,7 @@ Shader "AD/SequenceFramesX/6X6"
                 uint yc = _YFramesCount - (counter - xc) / _YFramesCount;
                 float x = _XFramesCount, y = _YFramesCount;
                 // sample the texture
-                fixed4 col = tex2D(_MainFrames, float2((i.uv.x + xc)/x, (i.uv.y + yc)/y));
+                fixed4 col = tex2D(_MainFrames, float2((i.uv.x + xc)/x, (i.uv.y-1 + yc)/y));
                 
                 #ifdef UNITY_UI_ALPHACLIP
                 clip (col.a - 0.001);

@@ -1000,6 +1000,30 @@ namespace AD.Reflection
             private MethodInfo method;
             public int ArgsTotal { get; private set; }
 
+            public static ADReflectedMethod Temp(Action action) => new(action, 0);
+            public static ADReflectedMethod Temp<T>(Action<T> action) => new(action, 1);
+            public static ADReflectedMethod Temp<T1,T2>(Action<T1, T2> action) => new(action, 2);
+            public static ADReflectedMethod Temp<T1, T2,T3>(Action<T1, T2,T3> action) => new(action, 3);
+            public static ADReflectedMethod Temp<T1, T2, T3,T4>(Action<T1, T2, T3,T4> action) => new(action, 4);
+
+            public static ADReflectedMethod Temp<Result>(Func<Result> action) => new(action, 0);
+            public static ADReflectedMethod Temp<T, Result>(Func<T, Result> action) => new(action, 1);
+            public static ADReflectedMethod Temp<T1, T2, Result>(Func<T1, T2, Result> action) => new(action, 2);
+            public static ADReflectedMethod Temp<T1, T2, T3, Result>(Func<T1, T2, T3, Result> action) => new(action, 3);
+            public static ADReflectedMethod Temp<T1, T2, T3, T4, Result>(Func<T1, T2, T3, T4, Result> action) => new(action, 4);
+
+            public ADReflectedMethod(Delegate @delegate,int argsTotal)
+            {
+                this.method = @delegate.Method;
+                this.ArgsTotal = argsTotal;
+            }
+
+            public ADReflectedMethod(MethodInfo method, int argsTotal)
+            {
+                this.method = method;
+                ArgsTotal = argsTotal;
+            }
+
             public ADReflectedMethod(Type type, string methodName, Type[] genericParameters, Type[] parameterTypes)
             {
                 MethodInfo nonGenericMethod = type.GetMethod(methodName, parameterTypes);
@@ -1028,9 +1052,9 @@ namespace AD.Reflection
                 ArgsTotal = parameterTypes == null ? 0 : parameterTypes.Length;
             }
 
-            public object Invoke(object obj, object[] parameters = null)
+            public object Invoke(object obj, object[] parameters)
             {
-                if (parameters.Length != ArgsTotal) throw new ADException("The number of parameters is incorrect");
+                if (ArgsTotal != 0 && parameters.Length != ArgsTotal) throw new ADException("The number of parameters is incorrect");
                 return method.Invoke(obj, parameters);
             }
         }
