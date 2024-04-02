@@ -721,6 +721,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Selected: 0
   ElementArea: Text
+--- !u!1 &269769192
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 269769193}
+  m_Layer: 0
+  m_Name: Object Layer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &269769193
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 269769192}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -14.840154, y: 24.927683, z: -31.259918}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &347279050
 GameObject:
   m_ObjectHideFlags: 0
@@ -3446,7 +3477,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NoteA: {fileID: 2678705375452937727, guid: 62d3157dd5e59064eadac494d8157315, type: 3}
   NoteB: {fileID: 5796724016508043405, guid: e2758173180b0b94da41242bbf0cf442, type: 3}
-  ParRoot: {fileID: 0}
+  ParRoot: {fileID: 269769193}
 --- !u!1 &1309994661
 GameObject:
   m_ObjectHideFlags: 0
@@ -3634,7 +3665,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: a6a5ca8be9011b04e9dd22b9dacb844f, type: 2}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.12941177}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.2}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4079,6 +4110,8 @@ MonoBehaviour:
       - Key: {fileID: 1025407073}
         Value:
         - {fileID: 1582910863}
+      - Key: {fileID: 269769192}
+        Value: []
       OnAdd:
         m_PersistentCalls:
           m_Calls: []
