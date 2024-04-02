@@ -205,6 +205,7 @@ MonoBehaviour:
   m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
+  m_CursorLockBehavior: 0
 --- !u!1 &154877985
 GameObject:
   m_ObjectHideFlags: 0
@@ -817,6 +818,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: -908543735
   m_SortingOrder: 0
@@ -1285,6 +1287,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: -1236132543
   m_SortingOrder: 0
@@ -1341,7 +1344,7 @@ MonoBehaviour:
     TargetPitch_Attribute_Name: MasterPitch
     TargetPitchshifterPitch_Attribute_Name: PitchShifterPitch
     TargetOutputSpeed: {fileID: 0}
-    TargetPitchValue: 0.1
+    TargetPitchValue: 1
 --- !u!82 &432076931
 AudioSource:
   m_ObjectHideFlags: 0
@@ -3202,6 +3205,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: -1414011583
   m_SortingOrder: 0
@@ -4093,22 +4097,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MySceneComponents:
     All:
-      Data:
-      - Key: {fileID: 776543258}
-        Value:
-        - {fileID: 1744037418}
-        - {fileID: 151172673}
-        - {fileID: 1450660504}
-        - {fileID: 361329061}
-        - {fileID: 1135598181}
-      - Key: {fileID: 1458790986}
-        Value:
-        - {fileID: 519420028}
-      - Key: {fileID: 1025407073}
-        Value:
-        - {fileID: 1582910863}
-      - Key: {fileID: 904992141}
-        Value: []
+      Data: []
       OnAdd:
         m_PersistentCalls:
           m_Calls: []
@@ -4329,11 +4318,6 @@ PrefabInstance:
 --- !u!4 &1744037417 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2167730616229911391, guid: 5ff5e20bb829e624a803702e94d45f49, type: 3}
-  m_PrefabInstance: {fileID: 1744037416}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1744037418 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2167730616229911385, guid: 5ff5e20bb829e624a803702e94d45f49, type: 3}
   m_PrefabInstance: {fileID: 1744037416}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1840357005
