@@ -16,6 +16,11 @@ namespace RhythmGame.Editor
         public NoteBase NoteA, NoteB;
         public Transform ParRoot;
 
+        public string GetRandomValue()
+        {
+            return Mathf.Clamp(Random.value - 0.5f, -0.15f, 0.15f).ToString();
+        }
+
         public override void Init()
         {
             int baseTime = 1;
@@ -37,12 +42,12 @@ namespace RhythmGame.Editor
                     NoteBase CurDouble = (Random.value > 0.5 ? NoteA.PrefabInstantiate() : NoteB.PrefabInstantiate());
                     CurDouble.transform.SetParent(ParRoot, false);
                     CurDouble.JudgeTimeExpression = current.JudgeTimeExpression;
-                    CurDouble.LocalPostion = new string[2] { "{WorldX(" + ((Random.value - 0.5f) * 12).ToString() + ")}", "{WorldY(" + ((Random.value - 0.5f) * 5).ToString() + ")}" };
+                    CurDouble.LocalPostion = new string[2] { GetRandomValue(), GetRandomValue() };
                     CurDouble.LocalEulerAngles = new string[3]
                     {  "0","0",((Random.value - 0.5f) * 180).ToString() };
                 }
                 current.transform.SetParent(ParRoot, false);
-                current.LocalPostion = new string[2] { "{WorldX(" + ((Random.value - 0.5f) * 15).ToString() + ")}", "{WorldY(" + ((Random.value - 0.5f) * 7).ToString() + ")}" };
+                current.LocalPostion = new string[2] { GetRandomValue(), GetRandomValue() };
                 current.LocalEulerAngles = new string[3]
                 {  "0","0",((Random.value - 0.5f) * 180).ToString() };
                 if (i % 5 == 0 && i != 0)
@@ -50,28 +55,28 @@ namespace RhythmGame.Editor
                     float x = Random.value * 7 - 3.5f, y = Random.value * 5 - 2.5f;
                     line.Vertexs.Add(new VertexData(new AD.Utility.MeshExtension.VertexEntry()
                     {
-                        Position = new Vector3(0, 0, i * 100),
+                        Position = new Vector3(0, 0, i * 50),
                         Normal = Vector3.right,
                         Size = 0.3f,
                         Type = AD.Utility.MeshExtension.BuildNormalType.JustDirection
                     }));
                     line.Vertexs.Add(new VertexData(new AD.Utility.MeshExtension.VertexEntry()
                     {
-                        Position = new Vector3(x, y, i * 100 + 50),
+                        Position = new Vector3(x, y, i * 50 + 25),
                         Normal = Vector3.right,
                         Size = 0.3f,
                         Type = AD.Utility.MeshExtension.BuildNormalType.JustDirection
                     }));
                     line.Vertexs.Add(new VertexData(new AD.Utility.MeshExtension.VertexEntry()
                     {
-                        Position = new Vector3(x, y, (i + 5) * 100 - 250),
+                        Position = new Vector3(x, y, (i + 5) * 50 - 125),
                         Normal = Vector3.right,
                         Size = 0.3f,
                         Type = AD.Utility.MeshExtension.BuildNormalType.JustDirection
                     }));
                     line.Vertexs.Add(new VertexData(new AD.Utility.MeshExtension.VertexEntry()
                     {
-                        Position = new Vector3(0, 0, (i + 5) * 100 - 200),
+                        Position = new Vector3(0, 0, (i + 5) * 50 - 100),
                         Normal = Vector3.right,
                         Size = 0.3f,
                         Type = AD.Utility.MeshExtension.BuildNormalType.JustDirection

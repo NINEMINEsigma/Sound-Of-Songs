@@ -44,6 +44,9 @@ namespace RhythmGame.Visual
         /// </summary>
         public class NoteBase : MonoBehaviour, IVisualBase, IController
         {
+            public string m_NoteType;
+            [RhythmData] public string NoteType { get => m_NoteType; set => m_NoteType = value; }
+
             [SerializeField] private bool m_IsDirty;
             public bool IsDirty { get => m_IsDirty; private set => m_IsDirty = value; }
 
@@ -271,32 +274,44 @@ namespace RhythmGame.Visual
             public void OnCatching(Touch touch)
             {
                 if (IsJudged || IsBeenTouch) return;
+
                 if (touch.phase == TouchPhase.Began)
                 {
                     float Offset = App.CurrentTime - JudgeTime;
-                    if (Mathf.Abs(Offset) < JudgeType.Best.ToSecond())
+                    if (Mathf.Abs(Offset) < JudgeType.Good.ToSecond())
                     {
-                        CreateDataAndDoAddJudgeData(Offset, JudgeType.Best);
-                    }
-                    else if (Mathf.Abs(Offset) < JudgeType.Perfect.ToSecond())
-                    {
-                        CreateDataAndDoAddJudgeData(Offset, JudgeType.Perfect);
-                    }
-                    else if (Mathf.Abs(Offset) < JudgeType.Good.ToSecond())
-                    {
-                        CreateDataAndDoAddJudgeData(Offset, JudgeType.Good);
+                        //尝试判定
+                        var lockList = App.instance.GetModel<TouchLock>().TouchLockList;
+                        if (lockList.ContainsKey(touch.fingerId))
+                        {
+                            lockList[touch.fingerId] = this.NoteType;
+                        }
+                        else
+                        {
+                            lockList.Add(touch.fingerId, this.NoteType);
+                        }
+                        //成功的判定
+                        if (Mathf.Abs(Offset) < JudgeType.Best.ToSecond())
+                        {
+                            CreateDataAndDoAddJudgeData(Offset, JudgeType.Best);
+                        }
+                        else if (Mathf.Abs(Offset) < JudgeType.Perfect.ToSecond())
+                        {
+                            CreateDataAndDoAddJudgeData(Offset, JudgeType.Perfect);
+                        }
+                        else
+                        {
+                            CreateDataAndDoAddJudgeData(Offset, JudgeType.Good);
+                        }
                     }
                     else if (Mathf.Abs(Offset) < JudgeType.Bad.ToSecond())
                     {
-                        CreateDataAndDoAddJudgeData(Offset, JudgeType.Bad);
-                        gameObject.SetActive(false);
-                        IsBeenTouch = true;
-                        IsJudged = true;
-                        IsBeenTouchJudge = true;
+                        MakeBadJudge(Offset);
                         return;
                     }
                     else return;
                     PlayJudgeEffect();
+
                     gameObject.SetActive(false);
                     IsJudged = true;
                     IsBeenTouch = true;
@@ -304,16 +319,42 @@ namespace RhythmGame.Visual
                 }
                 else if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
                 {
+                    //如果首先被判定为正确,那么后续错误也可以无视
                     if (!IsBeenTouch)
                     {
                         float Offset = App.CurrentTime - JudgeTime;
                         if (Mathf.Abs(Offset) < JudgeType.Good.ToSecond())
                         {
+                            //尝试判定
+                            var lockList = App.instance.GetModel<TouchLock>().TouchLockList;
+                            if (lockList.ContainsKey(touch.fingerId))
+                            {
+                                if (lockList[touch.fingerId] != this.NoteType)
+                                {
+                                    MakeBadJudge(Offset);
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                lockList.Add(touch.fingerId, this.NoteType);
+                            }
+                            //成功的判定
                             CreateDataAndDoAddJudgeData(JudgeType.Best.ToSecond(), JudgeType.Best);
                             IsBeenTouch = true;
                             IsBeenTouchJudge = true;
                         }
                     }
+                }
+
+                void MakeBadJudge(float Offset)
+                {
+                    CreateDataAndDoAddJudgeData(Offset, JudgeType.Bad);
+                    gameObject.SetActive(false);
+                    IsBeenTouch = true;
+                    IsJudged = true;
+                    IsBeenTouchJudge = true;
+                    return;
                 }
             }
         }

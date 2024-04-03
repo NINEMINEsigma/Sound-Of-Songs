@@ -25,6 +25,8 @@ namespace RhythmGame.Time
             MainAudioSource.Play();
             App.instance.StartTime = 0;
             App.instance.EndTime = MainAudioSource.CurrentClip.length;
+
+            Architecture.RegisterModel<TouchLock>();
         }
 
         private void Start()

@@ -6,6 +6,7 @@ using AD.UI;
 using AD.Utility;
 using RhythmGame.Time;
 using RhythmGame.Visual;
+using RhythmGame.Visual.Note;
 using UnityEngine;
 
 namespace RhythmGame
@@ -66,10 +67,16 @@ namespace RhythmGame
         private void LateUpdate()
         {
             Rebuild();
+            if (Architecture == null || !Architecture.Contains<TouchLock>()) return;
+            var lockList = Architecture.GetModel<TouchLock>().TouchLockList;
             for (int i = 0, e = Input.touchCount; i < e; i++)
             {
                 var current = Input.GetTouch(i);
-                if (current.phase != TouchPhase.Ended && current.phase != TouchPhase.Canceled)
+                if ((current.phase == TouchPhase.Ended || current.phase == TouchPhase.Canceled) && lockList.ContainsKey(current.fingerId))
+                {
+                    lockList.Remove(current.fingerId);
+                }
+                else
                 {
                     Ray ray = MainCamera.ScreenPointToRay(current.position);
                     if (Physics.Raycast(ray, out RaycastHit hit))
