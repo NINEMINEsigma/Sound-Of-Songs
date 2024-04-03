@@ -192,14 +192,29 @@ namespace RhythmGame.Visual
             }
         }
 
+        public const int FullScore = 1000000;
+
         public void RebuildImmediately()
         {
-            MainScoreBoard.SetText($"{TotalMainScore.S.Count} X {(int)(TotalMainScore.GetE() * 1000)}");
-            PerfectScoreBoard.SetText($"{TotalPerfectScore.S.Count} P {(int)(TotalPerfectScore.GetE() * 1000)}");
-            GoodScoreBoard.SetText($"{TotalGoodScore.S.Count} G {(int)(TotalGoodScore.GetE() * 1000)}");
-            BadScoreBoard.SetText($"{TotalBadScore.S.Count} B {(int)(TotalBadScore.GetE() * 1000)}");
+            MainScoreBoard.SetText($"{TotalMainScore.S.Count} X {GetFormatScore(0, JudgeType.Bad.ToSecond(), FullScore, TotalMainScore.GetE(), 7)}");
+            PerfectScoreBoard.SetText($"{TotalPerfectScore.S.Count} P {GetFormatScore(JudgeType.Best.ToSecond(), JudgeType.Good.ToSecond(), FullScore, TotalPerfectScore.GetE(), 7)}");
+            GoodScoreBoard.SetText($"{TotalGoodScore.S.Count} G {GetFormatScore(JudgeType.Good.ToSecond(), JudgeType.Bad.ToSecond(), FullScore, TotalGoodScore.GetE(), 7)}");
+            BadScoreBoard.SetText($"{TotalBadScore.S.Count} B {GetFormatScore(JudgeType.Bad.ToSecond(), JudgeType.Lost.ToSecond(), FullScore, TotalBadScore.GetE(), 7)}");
             LostScoreBoard.SetText($"Lost {TotalLostScore.S.Count}");
             IsDirty = false;
+        }
+
+        public static string GetFormatScore(float min,float max,int fullScore,float value,int length)
+        {
+            float t = (value - min) / (max - min);
+            int finalValue = Mathf.RoundToInt(Mathf.Lerp(fullScore, 0, t));
+            string str = finalValue.ToString();
+            length -= str.Length;
+            while (length-->0)
+            {
+                str = "0" + str;
+            }
+            return str;
         }
 
         public void SetDirty()
