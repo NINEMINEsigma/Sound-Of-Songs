@@ -160,7 +160,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
     Android: com.NINEMINE.SoundOfSongs
-    Standalone: com.NINEMINE.SoundOfSongs
+    Standalone: com.NINEMINE.Sound-Of-Songs
   buildNumber:
     Standalone: 0
     iPhone: 0
@@ -652,7 +652,7 @@ PlayerSettings:
     PS4: UNITY_VISUAL_SCRIPTING
     Server: UNITY_VISUAL_SCRIPTING
     Stadia: UNITY_VISUAL_SCRIPTING
-    Standalone: UNITY_VISUAL_SCRIPTING;EASY3
+    Standalone: UNITY_VISUAL_SCRIPTING;EASY3;SOS_EDITOR
     WebGL: UNITY_VISUAL_SCRIPTING
     Windows Store Apps: UNITY_VISUAL_SCRIPTING
     XboxOne: UNITY_VISUAL_SCRIPTING

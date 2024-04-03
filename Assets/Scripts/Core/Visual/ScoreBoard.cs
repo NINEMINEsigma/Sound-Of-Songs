@@ -193,13 +193,17 @@ namespace RhythmGame.Visual
         }
 
         public const int FullScore = 1000000;
+        public const int ShortFullScore = 1000;
 
         public void RebuildImmediately()
         {
             MainScoreBoard.SetText($"{TotalMainScore.S.Count} X {GetFormatScore(0, JudgeType.Bad.ToSecond(), FullScore, TotalMainScore.GetE(), 7)}");
-            PerfectScoreBoard.SetText($"{TotalPerfectScore.S.Count} P {GetFormatScore(JudgeType.Best.ToSecond(), JudgeType.Good.ToSecond(), FullScore, TotalPerfectScore.GetE(), 7)}");
-            GoodScoreBoard.SetText($"{TotalGoodScore.S.Count} G {GetFormatScore(JudgeType.Good.ToSecond(), JudgeType.Bad.ToSecond(), FullScore, TotalGoodScore.GetE(), 7)}");
-            BadScoreBoard.SetText($"{TotalBadScore.S.Count} B {GetFormatScore(JudgeType.Bad.ToSecond(), JudgeType.Lost.ToSecond(), FullScore, TotalBadScore.GetE(), 7)}");
+            PerfectScoreBoard.SetText(
+                $"{TotalPerfectScore.S.Count} P {GetFormatScore(JudgeType.Best.ToSecond(), JudgeType.Good.ToSecond(), ShortFullScore, TotalPerfectScore.GetE() , 4)}");
+            GoodScoreBoard.SetText(
+                $"{TotalGoodScore.S.Count} G {GetFormatScore(JudgeType.Good.ToSecond(), JudgeType.Bad.ToSecond(), ShortFullScore, TotalGoodScore.GetE() , 4)}");
+            BadScoreBoard.SetText(
+                $"{TotalBadScore.S.Count} B {GetFormatScore(JudgeType.Bad.ToSecond(), JudgeType.Lost.ToSecond(), ShortFullScore, TotalBadScore.GetE(), 4)}");
             LostScoreBoard.SetText($"Lost {TotalLostScore.S.Count}");
             IsDirty = false;
         }
@@ -207,7 +211,7 @@ namespace RhythmGame.Visual
         public static string GetFormatScore(float min,float max,int fullScore,float value,int length)
         {
             float t = (value - min) / (max - min);
-            int finalValue = Mathf.RoundToInt(Mathf.Lerp(fullScore, 0, t));
+            int finalValue = Mathf.RoundToInt(fullScore * (1 - t));
             string str = finalValue.ToString();
             length -= str.Length;
             while (length-->0)
