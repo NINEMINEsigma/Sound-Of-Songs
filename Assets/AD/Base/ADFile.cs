@@ -445,6 +445,7 @@ namespace AD.BASE
                 IsError = false;
                 IsEmpty = true;
             }
+            this.FileData = null;
         }
 
         public void Keep()

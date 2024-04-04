@@ -480,9 +480,15 @@ namespace AD.Math
 
         protected ArithmeticInfo(bool isLegitimate = true) { this.m_isLegitimate = isLegitimate; }
 
+        private static string BuildAnalytyExpression = null;
         public static bool Parse(string expression, out ArithmeticInfo result, bool isUnSafe = false)
         {
             //预处理
+            if (BuildAnalytyExpression != null && BuildAnalytyExpression == expression)
+            {
+                BuildAnalytyExpression = null;
+                throw new ArithmeticException("Duplicate expressions(\n\n\t" + expression + "\n\n) are being parsed repeatedly");
+            }
             expression = expression.Trim();
             if (expression.Length > 2 && expression[0] == '(' && expression[^1] == ')')
             {
@@ -498,9 +504,11 @@ namespace AD.Math
             //非简单语句时进行以下解析
             result = new(true);
 
+            BuildAnalytyExpression = expression;
             var reader = new ArithmeticReader(expression, result);
             reader.BuildAnalyty(isUnSafe);
             result.isLegitimate = result.m_isLegitimate = true;
+            BuildAnalytyExpression = null;
 
             return result;
         }

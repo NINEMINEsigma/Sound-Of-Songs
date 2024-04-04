@@ -7,6 +7,7 @@ using AD.BASE;
 using AD.Utility.Pipe;
 using Unity.VisualScripting;
 using UnityEngine;
+using AD.SAL;
 
 namespace AD.Reflection
 {
@@ -1113,3 +1114,20 @@ namespace AD.Reflection
 
     }
 }
+
+//AD source code annotation language
+namespace AD.SAL
+{
+    [System.AttributeUsage(AttributeTargets.Parameter, Inherited = false, AllowMultiple = true)]
+    public sealed class _In_Attribute : Attribute
+    {
+
+    }
+
+    [System.AttributeUsage(AttributeTargets.Parameter, Inherited = false, AllowMultiple = true)]
+    public sealed class _Out_Attribute : Attribute
+    {
+
+    }
+}
+
