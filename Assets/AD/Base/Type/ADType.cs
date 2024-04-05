@@ -2,10 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using AD.Reflection;
 using AD.Utility;
 using Unity.Collections;
 using UnityEngine;
+
+#region L
 
 namespace AD.Types
 {
@@ -19,21 +22,21 @@ namespace AD.Types
 
         public ADMember[] members;
         public Type type;
-        public bool isPrimitive { get; protected set; } = false;
-        public bool isValueType { get; protected set; } = false;
-        public bool isCollection { get; protected set; } = false;
-        public bool isDictionary { get; protected set; } = false;
-        public bool isTuple { get; protected set; } = false;
-        public bool isEnum { get; protected set; } = false;
-        public bool isReflectedType { get; protected set; } = false;
-        public bool isUnsupported { get; protected set; } = false;
-        public int priority { get; protected set; } = 0;
+        public bool IsPrimitive { get; protected set; } = false;
+        public bool IsValueType { get; protected set; } = false;
+        public bool IsCollection { get; protected set; } = false;
+        public bool IsDictionary { get; protected set; } = false;
+        public bool IsTuple { get; protected set; } = false;
+        public bool IsEnum { get; protected set; } = false;
+        public bool IsReflectedType { get; protected set; } = false;
+        public bool IsUnsupported { get; protected set; } = false;
+        public int Priority { get; protected set; } = 0;
 
         protected ADType(Type type)
         {
             ADType.AddType(type, this);
             this.type = type;
-            this.isValueType = ReflectionExtension.IsValueType(type);
+            this.IsValueType = ReflectionExtension.IsValueType(type);
         }
 
         public abstract void Write(object obj, ADWriter stream);
@@ -116,7 +119,7 @@ namespace AD.Types
                 Init();
 
             var existingType = GetADType(type);
-            if (existingType != null && existingType.priority > es3Type.priority)
+            if (existingType != null && existingType.Priority > es3Type.Priority)
                 return;
 
             lock (_lock)
@@ -128,15 +131,14 @@ namespace AD.Types
         internal static ADType CreateADType(Type type, bool throwException = true)
         {
             ADType adType = null;
-
             if (ReflectionExtension.IsEnum(type)) adType = CreateEnumType(type);
             else if (ReflectionExtension.TypeIsArray(type)) adType = CreateArrayType(type, throwException);
             else if (ReflectionExtension.IsGenericType(type)
                 && ReflectionExtension.ImplementsInterface(type, typeof(IEnumerable))) adType = CreateGenericImplementsInterface(type, throwException);
             else if (ReflectionExtension.IsPrimitive(type)) adType = CreatePrimitiveType(type);
-            else adType = CreateElseType(type);
+            //else adType = CreateElseType(type);
 
-            if (adType.type == null || adType.isUnsupported)
+            if (adType.type == null || adType.IsUnsupported)
             {
                 if (throwException)
                     throw new NotSupportedException(string.Format("ADType.type is null when trying to create an ADType for {0}, possibly because the element type is not supported.", type));
@@ -150,13 +152,11 @@ namespace AD.Types
 
         private static ADType CreateEnumType(Type type)
         {
-            //return new ES3Type_enum(type);
-            throw new NotImplementedException();
+            return new ADType_enum(type);
         }
         private static ADType CreateArrayType(Type type,bool throwException)
         {
-            throw new NotImplementedException();
-            /*int rank = ReflectionExtension.GetArrayRank(type);
+            int rank = ReflectionExtension.GetArrayRank(type);
             if (rank == 1)
                 return new ADArrayType(type);
             else if (rank == 2)
@@ -166,11 +166,10 @@ namespace AD.Types
             else if (throwException)
                 throw new NotSupportedException("Only arrays with up to three dimensions are supported by ADType.");
             else
-                return null;*/
+                return null;
         }
         private static ADType CreateGenericImplementsInterface(Type type, bool throwException)
         {
-            throw new NotImplementedException();/*
             Type genericType = ReflectionExtension.GetGenericTypeDefinition(type);
             if (typeof(List<>).IsAssignableFrom(genericType))
                 return new ADListType(type);
@@ -185,30 +184,30 @@ namespace AD.Types
             else if (genericType == typeof(Unity.Collections.NativeArray<>))
                 return new ADNativeArrayType(type);
             else if (throwException)
-                throw new NotSupportedException("Generic type \"" + type.ToString() + "\" is not supported by Easy Save.");
+                throw new NotSupportedException("Generic type \"" + type.ToString() + "\" is not supported by AD.");
             else
-                return null;*/
+                return null;
         }
         private static ADType CreatePrimitiveType(Type type)
         {
             return null;
         }
-        private static ADType CreateElseType(Type type)
-        {
-            throw new NotImplementedException();
-            /*if (ReflectionExtension.IsAssignableFrom(typeof(Component), type))
-                return new ES3ReflectedComponentType(type);
-            else if (ReflectionExtension.IsValueType(type))
-                return new ES3ReflectedValueType(type);
-            else if (ReflectionExtension.IsAssignableFrom(typeof(ScriptableObject), type))
-                return new ES3ReflectedScriptableObjectType(type);
-            else if (ReflectionExtension.IsAssignableFrom(typeof(UnityEngine.Object), type))
-                return new ES3ReflectedUnityObjectType(type);
-            else if (type.Name.StartsWith("Tuple`"))
-                return new ADTupleType(type);
-            else
-                return new ES3ReflectedObjectType(type);*/
-        }
+
+        //private static ADType CreateElseType(Type type)
+        //{
+        //    if (ReflectionExtension.IsAssignableFrom(typeof(Component), type))
+        //        return new ADReflectedComponentType(type);
+        //    else if (ReflectionExtension.IsValueType(type))
+        //        return new ADReflectedValueType(type);
+        //    else if (ReflectionExtension.IsAssignableFrom(typeof(ScriptableObject), type))
+        //        return new ADReflectedScriptableObjectType(type);
+        //    else if (ReflectionExtension.IsAssignableFrom(typeof(UnityEngine.Object), type))
+        //        return new ADReflectedUnityObjectType(type);
+        //    else if (type.Name.StartsWith("Tuple`"))
+        //        return new ADTupleType(type);
+        //    else
+        //        return new ADReflectedObjectType(type);
+        //}
 
         internal static void Init()
         {
@@ -282,6 +281,7 @@ namespace AD.Types
 
 }
 
+//Collection Types
 namespace AD.Types
 {
     [UnityEngine.Scripting.Preserve]
@@ -295,17 +295,17 @@ namespace AD.Types
         public ADCollectionType(Type type) : base(type)
         {
             elementType = ADType.GetOrCreateADType(ReflectionExtension.GetElementTypes(type)[0], false);
-            isCollection = true;
+            IsCollection = true;
 
             // If the element type is null (i.e. unsupported), make this ES3Type null.
             if (elementType == null)
-                isUnsupported = true;
+                IsUnsupported = true;
         }
 
         public ADCollectionType(Type type, ADType elementType) : base(type)
         {
             this.elementType = elementType;
-            isCollection = true;
+            IsCollection = true;
         }
 
         protected virtual bool ReadICollection<T>(ADReader reader, ICollection<T> collection, ADType elementType)
@@ -688,7 +688,7 @@ namespace AD.Types
 
             reader.EndReadCollection();
 
-            length2 = length2 / length1;
+            length2 /= length1;
             int length3 = items.Count / length2 / length1;
 
             var array = ReflectionExtension.ArrayCreateInstance(elementType.type, new int[] { length1, length2, length3 });
@@ -783,9 +783,9 @@ namespace AD.Types
 
             // If either the key or value type is unsupported, make this type NULL.
             if (keyType == null || valueType == null)
-                isUnsupported = true; ;
+                IsUnsupported = true; ;
 
-            isDictionary = true;
+            IsDictionary = true;
         }
 
         public ADConcurrentDictionaryType(Type type, ADType keyType, ADType valueType) : base(type)
@@ -795,9 +795,9 @@ namespace AD.Types
 
             // If either the key or value type is unsupported, make this type NULL.
             if (keyType == null || valueType == null)
-                isUnsupported = true; ;
+                IsUnsupported = true; ;
 
-            isDictionary = true;
+            IsDictionary = true;
         }
 
         public override void Write(object obj, ADWriter writer)
@@ -912,9 +912,9 @@ namespace AD.Types
 
             // If either the key or value type is unsupported, make this type NULL.
             if (keyType == null || valueType == null)
-                isUnsupported = true; ;
+                IsUnsupported = true; ;
 
-            isDictionary = true;
+            IsDictionary = true;
         }
 
         public ADDictionaryType(Type type, ADType keyType, ADType valueType) : base(type)
@@ -924,9 +924,9 @@ namespace AD.Types
 
             // If either the key or value type is unsupported, make this type NULL.
             if (keyType == null || valueType == null)
-                isUnsupported = true; ;
+                IsUnsupported = true; ;
 
-            isDictionary = true;
+            IsDictionary = true;
         }
 
         public override void Write(object obj, ADWriter writer)
@@ -1539,10 +1539,10 @@ namespace AD.Types
             {
                 adTypes[i] = ADType.GetOrCreateADType(subTypes[i], false);
                 if (adTypes[i] == null)
-                    isUnsupported = true;
+                    IsUnsupported = true;
             }
 
-            isTuple = true;
+            IsTuple = true;
         }
 
         public override void Write(object obj, ADWriter writer)
@@ -1589,8 +1589,42 @@ namespace AD.Types
     #endregion
 }
 
+//NET Types
 namespace AD.Types
 {
+    [UnityEngine.Scripting.Preserve]
+    [ADProperties("bytes")]
+    public class ADType_BigInteger : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_BigInteger() : base(typeof(BigInteger))
+        {
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            BigInteger casted = (BigInteger)obj;
+            writer.WriteProperty("bytes", casted.ToByteArray(), ADType_byteArray.Instance);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return new BigInteger(reader.ReadProperty<byte[]>(ADType_byteArray.Instance));
+        }
+    }
+
+    public class ADType_BigIntegerArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_BigIntegerArray() : base(typeof(BigInteger[]), ADType_BigInteger.Instance)
+        {
+            Instance = this;
+        }
+    }
+
     [UnityEngine.Scripting.Preserve]
     [ADProperties()]
     public class ADType_Type : ADType
@@ -1639,7 +1673,7 @@ namespace AD.Types
                 {
                     var adType = ADType.GetOrCreateADType(baseType, false);
                     // If it's a Dictionary or Collection, we need to write it as a field with a property name.
-                    if (adType != null && (adType.isDictionary || adType.isCollection))
+                    if (adType != null && (adType.IsDictionary || adType.IsCollection))
                         writer.WriteProperty("_Values", obj, adType);
                 }
 
@@ -1690,6 +1724,8 @@ namespace AD.Types
     }
 }
 
+#endregion
+
 namespace AD.Types
 {
     #region String
@@ -1701,7 +1737,7 @@ namespace AD.Types
 
         public ADType_string() : base(typeof(string))
         {
-            isPrimitive = true;
+            IsPrimitive = true;
             Instance = this;
         }
 
@@ -1727,4 +1763,1007 @@ namespace AD.Types
     }
 
     #endregion
+
+    #region byteArray
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_byte : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_byte() : base(typeof(byte))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((byte)obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)reader.Read_byte();
+        }
+    }
+
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_byteArray : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_byteArray() : base(typeof(byte[]))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((byte[])obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)reader.Read_byteArray();
+        }
+    }
+    #endregion
+
+    #region bool
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_bool : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_bool() : base(typeof(bool))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((bool)obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)reader.Read_bool();
+        }
+    }
+
+    public class ADType_boolArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_boolArray() : base(typeof(bool[]), ADType_bool.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+    #endregion
+
+    #region char
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_char : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_char() : base(typeof(char))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((char)obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)reader.Read_char();
+        }
+    }
+    public class ADType_charArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_charArray() : base(typeof(char[]), ADType_char.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+    #endregion
+
+    #region DateTime
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_DateTime : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_DateTime() : base(typeof(DateTime))
+        {
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WriteProperty("ticks", ((DateTime)obj).Ticks, ADType_long.Instance);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            reader.ReadPropertyName();
+            return new DateTime(reader.Read<long>(ADType_long.Instance));
+        }
+    }
+
+    public class ADType_DateTimeArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_DateTimeArray() : base(typeof(DateTime[]), ADType_DateTime.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region decimal
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_decimal : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_decimal() : base(typeof(decimal))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((decimal)obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)reader.Read_decimal();
+        }
+    }
+
+    public class ADType_decimalArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_decimalArray() : base(typeof(decimal[]), ADType_decimal.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region double
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_double : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_double() : base(typeof(double))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((double)obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)reader.Read_double();
+        }
+    }
+
+    public class ADType_doubleArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_doubleArray() : base(typeof(double[]), ADType_double.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region enum
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_enum : ADType
+    {
+        public static ADType Instance = null;
+        private Type underlyingType = null;
+
+        public ADType_enum(Type type) : base(type)
+        {
+            IsPrimitive = true;
+            IsEnum = true;
+            Instance = this;
+            underlyingType = Enum.GetUnderlyingType(type);
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            if (underlyingType == typeof(int)) writer.WritePrimitive((int)obj);
+            else if (underlyingType == typeof(bool)) writer.WritePrimitive((bool)obj);
+            else if (underlyingType == typeof(byte)) writer.WritePrimitive((byte)obj);
+            else if (underlyingType == typeof(char)) writer.WritePrimitive((char)obj);
+            else if (underlyingType == typeof(decimal)) writer.WritePrimitive((decimal)obj);
+            else if (underlyingType == typeof(double)) writer.WritePrimitive((double)obj);
+            else if (underlyingType == typeof(float)) writer.WritePrimitive((float)obj);
+            else if (underlyingType == typeof(long)) writer.WritePrimitive((long)obj);
+            else if (underlyingType == typeof(sbyte)) writer.WritePrimitive((sbyte)obj);
+            else if (underlyingType == typeof(short)) writer.WritePrimitive((short)obj);
+            else if (underlyingType == typeof(uint)) writer.WritePrimitive((uint)obj);
+            else if (underlyingType == typeof(ulong)) writer.WritePrimitive((ulong)obj);
+            else if (underlyingType == typeof(ushort)) writer.WritePrimitive((ushort)obj);
+            else
+                throw new System.InvalidCastException("The underlying type " + underlyingType + " of Enum " + type + " is not supported");
+
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            if (underlyingType == typeof(int)) return Enum.ToObject(type, reader.Read_int());
+            else if (underlyingType == typeof(bool)) return Enum.ToObject(type, reader.Read_bool());
+            else if (underlyingType == typeof(byte)) return Enum.ToObject(type, reader.Read_byte());
+            else if (underlyingType == typeof(char)) return Enum.ToObject(type, reader.Read_char());
+            else if (underlyingType == typeof(decimal)) return Enum.ToObject(type, reader.Read_decimal());
+            else if (underlyingType == typeof(double)) return Enum.ToObject(type, reader.Read_double());
+            else if (underlyingType == typeof(float)) return Enum.ToObject(type, reader.Read_float());
+            else if (underlyingType == typeof(long)) return Enum.ToObject(type, reader.Read_long());
+            else if (underlyingType == typeof(sbyte)) return Enum.ToObject(type, reader.Read_sbyte());
+            else if (underlyingType == typeof(short)) return Enum.ToObject(type, reader.Read_short());
+            else if (underlyingType == typeof(uint)) return Enum.ToObject(type, reader.Read_uint());
+            else if (underlyingType == typeof(ulong)) return Enum.ToObject(type, reader.Read_ulong());
+            else if (underlyingType == typeof(ushort)) return Enum.ToObject(type, reader.Read_ushort());
+            else
+                throw new System.InvalidCastException("The underlying type " + underlyingType + " of Enum " + type + " is not supported");
+        }
+    }
+
+
+    #endregion
+
+    #region ref
+    public class ADRef
+    {
+        public long id;
+        public ADRef(long id)
+        {
+            this.id = id;
+        }
+    }
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_ADRef : ADType
+    {
+        public static ADType Instance = new ADType_ADRef();
+
+        public ADType_ADRef() : base(typeof(long))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive(((long)obj).ToString());
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)new ADRef(reader.Read_ref());
+        }
+    }
+
+    public class ADType_ADRefArray : ADArrayType
+    {
+        public static ADType Instance = new ADType_ADRefArray();
+
+        public ADType_ADRefArray() : base(typeof(ADRef[]), ADType_ADRef.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+    public class ADType_ADRefDictionary : ADDictionaryType
+    {
+        public static ADType Instance = new ADType_ADRefDictionary();
+
+        public ADType_ADRefDictionary() : base(typeof(Dictionary<ADRef, ADRef>), ADType_ADRef.Instance, ADType_ADRef.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region float
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_float : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_float() : base(typeof(float))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((float)obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)reader.Read_float();
+        }
+    }
+
+    public class ADType_floatArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_floatArray() : base(typeof(float[]), ADType_float.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region int
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_int : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_int() : base(typeof(int))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((int)obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)reader.Read_int();
+        }
+    }
+
+    public class ADType_intArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_intArray() : base(typeof(int[]), ADType_int.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region intptr
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_IntPtr : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_IntPtr() : base(typeof(IntPtr))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((long)(IntPtr)obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)(IntPtr)reader.Read_long();
+        }
+    }
+
+    public class ADType_IntPtrArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_IntPtrArray() : base(typeof(IntPtr[]), ADType_IntPtr.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region long
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_long : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_long() : base(typeof(long))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((long)obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)reader.Read_long();
+        }
+    }
+
+    public class ADType_longArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_longArray() : base(typeof(long[]), ADType_long.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region sbyte
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_sbyte : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_sbyte() : base(typeof(sbyte))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((sbyte)obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)reader.Read_sbyte();
+        }
+    }
+
+    public class ADType_sbyteArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_sbyteArray() : base(typeof(sbyte[]), ADType_sbyte.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region short
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_short : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_short() : base(typeof(short))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((short)obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)reader.Read_short();
+        }
+    }
+
+    public class ADType_shortArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_shortArray() : base(typeof(short[]), ADType_short.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region uint
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_uint : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_uint() : base(typeof(uint))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((uint)obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)reader.Read_uint();
+        }
+    }
+
+    public class ADType_uintArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_uintArray() : base(typeof(uint[]), ADType_uint.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region uintptr
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_UIntPtr : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_UIntPtr() : base(typeof(UIntPtr))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((ulong)obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (object)reader.Read_ulong();
+        }
+    }
+
+    public class ADType_UIntPtrArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_UIntPtrArray() : base(typeof(UIntPtr[]), ADType_UIntPtr.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region ulong
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_ulong : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_ulong() : base(typeof(ulong))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((ulong)obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)reader.Read_ulong();
+        }
+    }
+
+    public class ADType_ulongArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_ulongArray() : base(typeof(ulong[]), ADType_ulong.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region ushort
+
+    [UnityEngine.Scripting.Preserve]
+    public class ADType_ushort : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_ushort() : base(typeof(ushort))
+        {
+            IsPrimitive = true;
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            writer.WritePrimitive((ushort)obj);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return (T)(object)reader.Read_ushort();
+        }
+    }
+
+    public class ADType_ushortArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_ushortArray() : base(typeof(ushort[]), ADType_ushort.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region Vector
+
+    [UnityEngine.Scripting.Preserve]
+    [ADPropertiesAttribute("x", "y")]
+    public class ADType_Vector2 : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_Vector2() : base(typeof(UnityEngine.Vector2))
+        {
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            UnityEngine.Vector2 casted = (UnityEngine.Vector2)obj;
+            writer.WriteProperty("x", casted.x, ADType_float.Instance);
+            writer.WriteProperty("y", casted.y, ADType_float.Instance);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return new UnityEngine.Vector2(reader.ReadProperty<float>(ADType_float.Instance), reader.ReadProperty<float>(ADType_float.Instance));
+        }
+    }
+
+    public class ADType_Vector2Array : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_Vector2Array() : base(typeof(UnityEngine.Vector2[]), ADType_Vector2.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+    [UnityEngine.Scripting.Preserve]
+    [ADProperties("x", "y", "z")]
+    public class ADType_Vector3 : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_Vector3() : base(typeof(UnityEngine.Vector3))
+        {
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            UnityEngine.Vector3 casted = (UnityEngine.Vector3)obj;
+            writer.WriteProperty("x", casted.x, ADType_float.Instance);
+            writer.WriteProperty("y", casted.y, ADType_float.Instance);
+            writer.WriteProperty("z", casted.z, ADType_float.Instance);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return new UnityEngine.Vector3(reader.ReadProperty<float>(ADType_float.Instance),
+                                reader.ReadProperty<float>(ADType_float.Instance),
+                                reader.ReadProperty<float>(ADType_float.Instance));
+        }
+    }
+
+    public class ADType_Vector3Array : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_Vector3Array() : base(typeof(UnityEngine.Vector3[]), ADType_Vector3.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+    [UnityEngine.Scripting.Preserve]
+    [ADPropertiesAttribute("x", "y", "z", "w")]
+    public class ADType_Vector4 : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_Vector4() : base(typeof(UnityEngine.Vector4))
+        {
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            UnityEngine.Vector4 casted = (UnityEngine.Vector4)obj;
+            writer.WriteProperty("x", casted.x, ADType_float.Instance);
+            writer.WriteProperty("y", casted.y, ADType_float.Instance);
+            writer.WriteProperty("z", casted.z, ADType_float.Instance);
+            writer.WriteProperty("w", casted.w, ADType_float.Instance);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return new UnityEngine.Vector4(reader.ReadProperty<float>(ADType_float.Instance),
+                                reader.ReadProperty<float>(ADType_float.Instance),
+                                reader.ReadProperty<float>(ADType_float.Instance),
+                                reader.ReadProperty<float>(ADType_float.Instance));
+        }
+
+        public static bool Equals(UnityEngine.Vector4 a, UnityEngine.Vector4 b)
+        {
+            return (Mathf.Approximately(a.x, b.x) && Mathf.Approximately(a.y, b.y) && Mathf.Approximately(a.z, b.z) && Mathf.Approximately(a.w, b.w));
+        }
+    }
+
+    public class ADType_Vector4Array : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_Vector4Array() : base(typeof(UnityEngine.Vector4[]), ADType_Vector4.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+    #endregion
+
+    #region Color
+
+    [UnityEngine.Scripting.Preserve]
+    [ADPropertiesAttribute("r", "g", "b", "a")]
+    public class ADType_Color : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_Color() : base(typeof(Color))
+        {
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            Color casted = (Color)obj;
+            writer.WriteProperty("r", casted.r, ADType_float.Instance);
+            writer.WriteProperty("g", casted.g, ADType_float.Instance);
+            writer.WriteProperty("b", casted.b, ADType_float.Instance);
+            writer.WriteProperty("a", casted.a, ADType_float.Instance);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return new Color(reader.ReadProperty<float>(ADType_float.Instance),
+                                reader.ReadProperty<float>(ADType_float.Instance),
+                                reader.ReadProperty<float>(ADType_float.Instance),
+                                reader.ReadProperty<float>(ADType_float.Instance));
+        }
+    }
+
+    public class ADType_ColorArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_ColorArray() : base(typeof(Color[]), ADType_Color.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+    [UnityEngine.Scripting.Preserve]
+    [ADPropertiesAttribute("r", "g", "b", "a")]
+    public class ADType_Color32 : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_Color32() : base(typeof(Color32))
+        {
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            Color32 casted = (Color32)obj;
+            writer.WriteProperty("r", casted.r, ADType_byte.Instance);
+            writer.WriteProperty("g", casted.g, ADType_byte.Instance);
+            writer.WriteProperty("b", casted.b, ADType_byte.Instance);
+            writer.WriteProperty("a", casted.a, ADType_byte.Instance);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return new Color32(reader.ReadProperty<byte>(ADType_byte.Instance),
+                                reader.ReadProperty<byte>(ADType_byte.Instance),
+                                reader.ReadProperty<byte>(ADType_byte.Instance),
+                                reader.ReadProperty<byte>(ADType_byte.Instance));
+        }
+
+        public static bool Equals(Color32 a, Color32 b)
+        {
+            if (a.r != b.r || a.g != b.g || a.b != b.b || a.a != b.a)
+                return false;
+            return true;
+        }
+    }
+
+    public class ADType_Color32Array : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_Color32Array() : base(typeof(Color32[]), ADType_Color32.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region Quaternion
+
+    [UnityEngine.Scripting.Preserve]
+    [ADPropertiesAttribute("x", "y", "z", "w")]
+    public class ADType_Quaternion : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_Quaternion() : base(typeof(UnityEngine.Quaternion))
+        {
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            var casted = (UnityEngine.Quaternion)obj;
+            writer.WriteProperty("x", casted.x, ADType_float.Instance);
+            writer.WriteProperty("y", casted.y, ADType_float.Instance);
+            writer.WriteProperty("z", casted.z, ADType_float.Instance);
+            writer.WriteProperty("w", casted.w, ADType_float.Instance);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return new UnityEngine.Quaternion(reader.ReadProperty<float>(ADType_float.Instance),
+                                    reader.ReadProperty<float>(ADType_float.Instance),
+                                    reader.ReadProperty<float>(ADType_float.Instance),
+                                    reader.ReadProperty<float>(ADType_float.Instance));
+        }
+    }
+
+    public class ADType_QuaternionArray : ADArrayType
+    {
+        public static ADType Instance;
+
+        public ADType_QuaternionArray() : base(typeof(UnityEngine.Quaternion[]), ADType_Quaternion.Instance)
+        {
+            Instance = this;
+        }
+    }
+
+
+    #endregion
+
+    #region Rect 
+
+    [UnityEngine.Scripting.Preserve]
+    [ADPropertiesAttribute("x", "y", "width", "height")]
+    public class ADType_Rect : ADType
+    {
+        public static ADType Instance = null;
+
+        public ADType_Rect() : base(typeof(UnityEngine.Rect))
+        {
+            Instance = this;
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            var instance = (UnityEngine.Rect)obj;
+
+            writer.WriteProperty("x", instance.x, ADType_float.Instance);
+            writer.WriteProperty("y", instance.y, ADType_float.Instance);
+            writer.WriteProperty("width", instance.width, ADType_float.Instance);
+            writer.WriteProperty("height", instance.height, ADType_float.Instance);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            return new Rect(reader.ReadProperty<float>(ADType_float.Instance),
+                            reader.ReadProperty<float>(ADType_float.Instance),
+                            reader.ReadProperty<float>(ADType_float.Instance),
+                            reader.ReadProperty<float>(ADType_float.Instance));
+        }
+    }
+
+
+    #endregion
 }
+

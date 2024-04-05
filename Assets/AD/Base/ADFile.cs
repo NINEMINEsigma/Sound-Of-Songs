@@ -5,6 +5,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using Unity.VisualScripting;
 using System.Collections.Generic;
+using System.IO.Compression;
 
 namespace AD.BASE
 {
@@ -18,10 +19,10 @@ namespace AD.BASE
         public bool IsError { get; private set; } = false;
         public bool IsEmpty { get; private set; } = false;
         public Exception ErrorException { get; private set; } = null;
-        public bool IsSync = false;
         public bool IsKeepFileControl { get; private set; } = false;
 
         private Stream FileStream;
+        public ADSettings MySetting { get; private set; }
         public byte[] FileData { get; private set; } = null;
 
         private bool isDelete = false;
@@ -75,7 +76,7 @@ namespace AD.BASE
             SetErrorStatus(new ADException("Empty"));
         }
 
-        public ADFile(string filePath, bool isTryCreate, bool isRefresh, bool isSync, bool isKeepFileControl)
+        public ADFile(string filePath, bool isTryCreate, bool isRefresh, bool isKeepFileControl)
         {
             try
             {
@@ -90,7 +91,6 @@ namespace AD.BASE
                     return;
                 }
                 else FileC.CreateFile(filePath);
-                IsSync = isSync;
                 InitFileStream(isRefresh, isKeepFileControl);
             }
             catch (Exception ex)
@@ -99,7 +99,7 @@ namespace AD.BASE
             }
         }
 
-        public ADFile(string filePath, bool isTryCreate, bool isRefresh, bool isSync, Stream stream)
+        public ADFile(string filePath, bool isTryCreate, bool isRefresh, Stream stream)
         {
             try
             {
@@ -114,7 +114,6 @@ namespace AD.BASE
                     return;
                 }
                 else FileC.CreateFile(filePath);
-                IsSync = isSync;
                 InitFileStream(isRefresh, stream);
             }
             catch (Exception ex)
@@ -123,7 +122,7 @@ namespace AD.BASE
             }
         }
 
-        public ADFile(bool isCanOverwrite, string filePath, bool isRefresh, bool isSync, bool isKeepFileControl)
+        public ADFile(bool isCanOverwrite, string filePath, bool isRefresh, bool isKeepFileControl)
         {
             try
             {
@@ -138,7 +137,6 @@ namespace AD.BASE
                 }
                 else FileC.CreateFile(filePath);
                 Timestamp = File.GetLastWriteTime(filePath).ToUniversalTime();
-                IsSync = isSync;
                 InitFileStream(isRefresh, isKeepFileControl);
             }
             catch (Exception ex)
@@ -147,7 +145,7 @@ namespace AD.BASE
             }
         }
 
-        public ADFile(bool isCanOverwrite, string filePath, bool isRefresh, bool isSync, Stream stream)
+        public ADFile(bool isCanOverwrite, string filePath, bool isRefresh, Stream stream)
         {
             try
             {
@@ -162,8 +160,21 @@ namespace AD.BASE
                 }
                 else FileC.CreateFile(filePath);
                 Timestamp = File.GetLastWriteTime(filePath).ToUniversalTime();
-                IsSync = isSync;
                 InitFileStream(isRefresh, stream);
+            }
+            catch (Exception ex)
+            {
+                SetErrorStatus(ex);
+            }
+        }
+
+        public ADFile(ADSettings settings,bool isRefresh, ADStreamEnum.FileMode fileMode)
+        {
+            try
+            {
+                this.MySetting = settings;
+                this.IsKeepFileControl = true;
+                InitFileStream(isRefresh, ADFile.CreateStream(settings, fileMode));
             }
             catch (Exception ex)
             {
@@ -191,7 +202,6 @@ namespace AD.BASE
             this.IsEmpty = true;
             this.ErrorException = ex;
             Timestamp = DateTime.UtcNow;
-            IsSync = false;
             Debug.LogException(ex);
         }
 
@@ -199,7 +209,7 @@ namespace AD.BASE
         {
             if (this.IsEmpty || this.ErrorException != null)
             {
-                Debug.LogError("This File Was Drop in Error");
+                Debug.LogWarning("This File Was Drop in a error : " + this.ErrorException.Message);
                 Debug.LogException(ErrorException);
                 return true;
             }
@@ -316,10 +326,8 @@ namespace AD.BASE
             catch (Exception ex)
             {
                 SetErrorStatus(ex);
-#if UNITY_EDITOR
                 Debug.LogError("ADFile.Deserialize<T>(bool,Encoding) : T is " + typeof(T).FullName + " , is failed on " + FilePath + "\nsource : " + source);
                 Debug.LogException(ex);
-#endif
             }
             obj = default(T);
             return false;
@@ -355,10 +363,8 @@ namespace AD.BASE
             catch (Exception ex)
             {
                 SetErrorStatus(ex);
-#if UNITY_EDITOR
                 Debug.LogError("ADFile.Deserialize<T>() : T is " + typeof(T).FullName + " , is failed on " + FilePath);
                 Debug.LogException(ex);
-#endif
                 obj = default(T);
                 return false;
             }
@@ -448,18 +454,36 @@ namespace AD.BASE
             this.FileData = null;
         }
 
-        public void Keep()
+        public void Keep(ADStreamEnum.FileMode mode)
         {
-            if (!IsKeepFileControl)
+            if (MySetting != null)
             {
                 Close();
-                InitFileStream(false, true);
+                IsKeepFileControl = true;
+                InitFileStream(false, ADFile.CreateStream(MySetting, mode));
+            }
+            else SetErrorStatus(new ADException("Setting is missing or destroy"));
+        }
+
+        public void Keep(bool isRefresh)
+        {
+            if(MySetting!=null)
+            {
+                Close();
+                IsKeepFileControl = true;
+                InitFileStream(isRefresh, ADFile.CreateStream(MySetting, ADStreamEnum.FileMode.Write));
+            }
+            else if (!IsKeepFileControl)
+            {
+                Close();
+                InitFileStream(isRefresh, true);
             }
         }
 
         public void Dispose()
         {
             this.Close();
+            this.MySetting = null;
             this.FileData = null;
         }
 
@@ -515,6 +539,123 @@ namespace AD.BASE
             }
             return true;
         }
+
+        private const string _ErrorCannotWriteToResourcesWhenEditorTime
+            = "Cannot write directly to Resources folder. Try writing to a directory outside of Resources, and then manually move the file there.";
+        private const string _ErrorCannotWriteToResourcesWhenRuntime
+            = "Cannot write to Resources folder at runtime. Use a different save location at runtime instead.";
+
+        public static Stream CreateStream(ADSettings settings, ADStreamEnum.FileMode fileMode)
+        {
+            bool isWriteStream = (fileMode != ADStreamEnum.FileMode.Read);
+            Stream stream = null;
+
+            // Check that the path is in a valid format. This will throw an exception if not.
+            string fullPath = settings.FullPath;
+            new FileInfo(fullPath);
+
+            try
+            {
+                if (settings.location == ADStreamEnum.Location.InternalMS)
+                {
+                    // There's no point in creating an empty MemoryStream if we're only reading from it.
+                    if (!isWriteStream)
+                        return null;
+                    stream = new MemoryStream(settings.bufferSize);
+                }
+                else if (settings.location == ADStreamEnum.Location.File)
+                {
+                    if (!isWriteStream && !FileC.FileExists(fullPath))
+                        return null;
+                    stream = new ADFileStream(fullPath, fileMode, settings.bufferSize, false);
+                }
+                else if (settings.location == ADStreamEnum.Location.PlayerPrefs)
+                {
+                    if (isWriteStream)
+                        stream = new ADPlayerPrefsStream(fullPath, settings.bufferSize, (fileMode == ADStreamEnum.FileMode.Append));
+                    else
+                    {
+                        if (!PlayerPrefs.HasKey(fullPath))
+                            return null;
+                        stream = new ADPlayerPrefsStream(fullPath);
+                    }
+                }
+                else if (settings.location == ADStreamEnum.Location.Resources)
+                {
+                    if (!isWriteStream)
+                    {
+                        var resourcesStream = new ADResourcesStream(fullPath);
+                        if (resourcesStream.Exists)
+                            stream = resourcesStream;
+                        else
+                        {
+                            resourcesStream.Dispose();
+                            return null;
+                        }
+                    }
+                    else if (UnityEngine.Application.isEditor)
+                        throw new System.NotSupportedException(_ErrorCannotWriteToResourcesWhenEditorTime);
+                    else
+                        throw new System.NotSupportedException(_ErrorCannotWriteToResourcesWhenRuntime);
+                }
+
+                return CreateStream(stream, settings, fileMode);
+            }
+            catch (System.Exception e)
+            {
+                stream?.Dispose();
+                throw e;
+            }
+        }
+
+        public static Stream CreateStream(Stream stream, ADSettings settings, ADStreamEnum.FileMode fileMode)
+        {
+            try
+            {
+                bool isWriteStream = (fileMode != ADStreamEnum.FileMode.Read);
+
+#if !DISABLE_ENCRYPTION
+                // Encryption
+                if (settings.encryptionType != ADStreamEnum.EncryptionType.None && stream.GetType() != typeof(UnbufferedCryptoStream))
+                {
+                    EncryptionAlgorithm alg = null;
+                    if (settings.encryptionType == ADStreamEnum.EncryptionType.AES)
+                        alg = new AESEncryptionAlgorithm();
+                    stream = new UnbufferedCryptoStream(stream, !isWriteStream, settings.encryptionPassword, settings.bufferSize, alg);
+                }
+#endif
+
+                // Compression
+                if (settings.compressionType != ADStreamEnum.CompressionType.None && stream.GetType() != typeof(GZipStream))
+                {
+                    if (settings.compressionType == ADStreamEnum.CompressionType.Gzip)
+                        stream = isWriteStream ? new GZipStream(stream, CompressionMode.Compress) : new GZipStream(stream, CompressionMode.Decompress);
+                }
+
+                return stream;
+            }
+            catch (System.Exception e)
+            {
+                if (stream != null)
+                    stream.Dispose();
+                if (e.GetType() == typeof(System.Security.Cryptography.CryptographicException))
+                    throw new System.Security.Cryptography.CryptographicException("Could not decrypt file. Please ensure that you are using the same password used to encrypt the file.");
+                else
+                    throw e;
+            }
+        }
+
+        public static void CopyTo(Stream source, Stream destination)
+        {
+#if UNITY_2019_1_OR_NEWER
+            source.CopyTo(destination);
+#else
+            byte[] buffer = new byte[2048];
+            int bytesRead;
+            while ((bytesRead = source.Read(buffer, 0, buffer.Length)) > 0)
+                destination.Write(buffer, 0, bytesRead);
+#endif
+        }
     }
 
     [Serializable]
@@ -554,7 +695,7 @@ namespace AD.BASE
 
         public void Build(string path)
         {
-            ADFile file = new(path, true, false, false, true);
+            ADFile file = new(path, true, false, true);
             file.ReplaceAllData(ADFile.ToBytes(this));
             file.Dispose();
         }
@@ -569,7 +710,7 @@ namespace AD.BASE
             foreach (var asset in SourceAssetsDatas)
             {
                 string fileName = Path.GetFileName(asset.Key);
-                ADFile file = new(Path.Combine(directory, fileName), true, false, false, true);
+                ADFile file = new(Path.Combine(directory, fileName), true, false, true);
                 file.ReplaceAllData(SourceAssetsDatas[asset.Key]);
                 file.SaveFileData();
                 file.Dispose();

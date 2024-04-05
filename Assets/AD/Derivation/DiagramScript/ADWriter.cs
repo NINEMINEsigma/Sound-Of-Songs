@@ -184,7 +184,7 @@ namespace AD.Utility
 				if (type == null)
 					throw new NotSupportedException("Types of " + valueType + " are not supported");
 
-				if (!type.isCollection && !type.isDictionary)
+				if (!type.IsCollection && !type.IsDictionary)
 				{
 					StartWriteObject(null);
 					WriteType(valueType);
@@ -196,23 +196,23 @@ namespace AD.Utility
 				}
 			}
 
-			if (type.isUnsupported)
+			if (type.IsUnsupported)
 			{
-				if (type.isCollection || type.isDictionary)
+				if (type.IsCollection || type.IsDictionary)
 					throw new NotSupportedException(type.type + " is not supported because it's element type is not supported");
 				else
 					throw new NotSupportedException("Types of " + type.type + " are not supported");
 			}
 
-			if (type.isPrimitive || type.isEnum)
+			if (type.IsPrimitive || type.IsEnum)
 				type.Write(value, this);
-			else if (type.isCollection)
+			else if (type.IsCollection)
 			{
 				StartWriteCollection();
 				((ADCollectionType)type).Write(value, this);
 				EndWriteCollection();
 			}
-			else if (type.isDictionary)
+			else if (type.IsDictionary)
 			{
 				StartWriteDictionary();
 				((ADDictionaryType)type).Write(value, this);

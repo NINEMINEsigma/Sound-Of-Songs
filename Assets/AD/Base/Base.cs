@@ -525,7 +525,7 @@ namespace AD.BASE
 
         public virtual void Save(string path)
         {
-            ADFile file = new(path, true, false, false, true);
+            ADFile file = new(path, true, false, true);
             file.Serialize(What());
             file.Dispose();
         }
@@ -3191,7 +3191,7 @@ namespace AD.BASE
 
         static DebugExtension()
         {
-            ADFile file = new(LogPath, true, false, false, false);
+            ADFile file = new(LogPath, true, false, false);
             file.Dispose();
             Application.logMessageReceived += LogHandler;
         }

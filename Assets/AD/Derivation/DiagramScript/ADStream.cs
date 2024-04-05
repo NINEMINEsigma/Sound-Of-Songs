@@ -28,7 +28,7 @@ namespace AD.IO
     public class BufferOverflowException : IOException
     {
         public BufferOverflowException(IIOBase iob, int min, int max, int index)
-            : base(iob, "Buffer Errir : index(" + index.ToString() + ") need greater than " + min.ToString() + " and less than " + max.ToString()) { }
+            : base(iob, "Buffer Error : index(" + index.ToString() + ") need greater than " + min.ToString() + " and less than " + max.ToString()) { }
 
         public static void Assertion(IIOBase iob, int min, int max, int index)
         {

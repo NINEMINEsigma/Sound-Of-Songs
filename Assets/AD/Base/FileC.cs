@@ -352,7 +352,7 @@ namespace AD.BASE
             //请求网络数据从第fileLength到最后的字节；
             Request.SetRequestHeader("Range", "bytes=" + file.Length + "-");
 
-            if (Request.downloadProgress<1)
+            if (Request.downloadProgress < 1)
             {
                 Request.SendWebRequest();
                 while (!Request.isDone)
@@ -688,5 +688,62 @@ namespace AD.BASE
         }
 
         #endregion
+
+        #region SS
+
+#if UNITY_SWITCH
+        public static readonly string persistentDataPath = "";
+        public static readonly string dataPath = "";
+#else   
+        public static readonly string persistentDataPath = Application.persistentDataPath;
+        public static readonly string dataPath = Application.dataPath;
+#endif
+        public const string backupFileSuffix = ".bac";
+        public const string temporaryFileSuffix = ".tmp";
+
+        public static DateTime GetTimestamp(string filePath)
+        {
+            if (!FileExists(filePath))
+                return new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            return File.GetLastWriteTime(filePath).ToUniversalTime();
+        }
+
+        #endregion
+    }
+
+    public class ApplicationPersistentDataPathHelper
+    {
+        public ApplicationPersistentDataPathHelper(params string[] args)
+        {
+            string[] strs = new string[args.Length + 1];
+            strs[0] = FileC.persistentDataPath;
+            for (int i = 0, e = args.Length; i < e; i++)
+            {
+                strs[i + 1] = args[i];
+            }
+            SourcePath = Path.Combine(strs);
+        }
+
+        public string SourcePath;
+
+        public static implicit operator string(ApplicationPersistentDataPathHelper helper) { return helper.SourcePath; }
+    }
+
+    public class ApplicationDataPathHelper
+    {
+        public ApplicationDataPathHelper(params string[] args)
+        {
+            string[] strs = new string[args.Length + 1];
+            strs[0] = FileC.dataPath;
+            for (int i = 0, e = args.Length; i < e; i++)
+            {
+                strs[i + 1] = args[i];
+            }
+            SourcePath = Path.Combine(strs);
+        }
+
+        public string SourcePath;
+
+        public static implicit operator string(ApplicationDataPathHelper helper) { return helper.SourcePath; }
     }
 }

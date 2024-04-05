@@ -254,7 +254,7 @@ namespace AD.Utility
         protected virtual T ReadObject<T>(ADType type)
         {
             if (StartReadObject())
-                return default(T);
+                return default;
 
             object obj = type.Read<T>(this);
 
@@ -276,13 +276,13 @@ namespace AD.Utility
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public virtual T Read<T>(ADType type)
         {
-            if (type == null || type.isUnsupported)
+            if (type == null || type.IsUnsupported)
                 throw new NotSupportedException("Type of " + type + " is not currently supported, and could not be loaded using reflection.");
-            else if (type.isPrimitive)
+            else if (type.IsPrimitive)
                 return (T)type.Read<T>(this);
-            else if (type.isCollection)
+            else if (type.IsCollection)
                 return (T)((ADCollectionType)type).Read(this);
-            else if (type.isDictionary)
+            else if (type.IsDictionary)
                 return (T)((ADDictionaryType)type).Read(this);
             else
                 return ReadObject<T>(type);
@@ -291,12 +291,12 @@ namespace AD.Utility
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public virtual void ReadInto<T>(object obj, ADType type)
         {
-            if (type == null || type.isUnsupported)
+            if (type == null || type.IsUnsupported)
                 throw new NotSupportedException("Type of " + obj.GetType() + " is not currently supported, and could not be loaded using reflection.");
 
-            else if (type.isCollection)
+            else if (type.IsCollection)
                 ((ADCollectionType)type).ReadInto(this, obj);
-            else if (type.isDictionary)
+            else if (type.IsDictionary)
                 ((ADDictionaryType)type).ReadInto(this, obj);
             else
                 ReadObject<T>(obj, type);
@@ -433,7 +433,7 @@ namespace AD.Utility
             else if (!IsQuotationMark(c))
                 throw new FormatException("Expected ',' separating properties or '\"' before property name, found '" + c + "'.");
 
-            var propertyName = Read_string();
+            string propertyName = Read_string();
             if (propertyName == null)
                 throw new FormatException("Stream isn't positioned before a property.");
 
