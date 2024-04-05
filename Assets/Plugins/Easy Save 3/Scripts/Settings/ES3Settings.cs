@@ -356,6 +356,7 @@ public class ES3Settings : System.ICloneable
         newSettings.encoding = encoding;
         newSettings.typeChecking = typeChecking;
         newSettings.safeReflection = safeReflection;
+        newSettings.referenceMode = referenceMode;
         newSettings.memberReferenceMode = memberReferenceMode;
         newSettings.assemblyNames = assemblyNames;
         newSettings.saveChildren = saveChildren;

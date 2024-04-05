@@ -30,12 +30,16 @@ public class ES3ScriptingDefineSymbols
         foreach (var target in GetAllNamedBuildTargets())
         {
             string[] defines;
-            PlayerSettings.GetScriptingDefineSymbols(target, out defines);
-            if(!defines.Contains(symbol))
+            try
             {
-                ArrayUtility.Add(ref defines, symbol);
-                PlayerSettings.SetScriptingDefineSymbols(target, defines);
+                PlayerSettings.GetScriptingDefineSymbols(target, out defines);
+                if (!defines.Contains(symbol))
+                {
+                    ArrayUtility.Add(ref defines, symbol);
+                    PlayerSettings.SetScriptingDefineSymbols(target, defines);
+                }
             }
+            catch { }
         }
 #else
         string definesString = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
@@ -56,6 +60,10 @@ public class ES3ScriptingDefineSymbols
         {
             // We exclude 'Unknown' because this can throw errors when used with certain methods.
             if (staticField.Name == "Unknown")
+                continue;
+
+            // A bug at Unity's end means that Stadia can throw an error.
+            if (staticField.Name == "Stadia")
                 continue;
 
             if (staticField.FieldType == typeof(NamedBuildTarget))

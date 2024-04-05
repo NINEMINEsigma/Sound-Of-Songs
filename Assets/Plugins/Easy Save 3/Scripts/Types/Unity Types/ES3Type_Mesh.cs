@@ -24,9 +24,7 @@ namespace ES3Types
                 return;
             }
 
-#if UNITY_2017_3
 			writer.WriteProperty("indexFormat", instance.indexFormat);
-#endif
             writer.WriteProperty("name", instance.name);
             writer.WriteProperty("vertices", instance.vertices, ES3Type_Vector3Array.Instance);
 			writer.WriteProperty("triangles", instance.triangles, ES3Type_intArray.Instance);
@@ -40,7 +38,7 @@ namespace ES3Types
 			writer.WriteProperty("uv3", instance.uv3, ES3Type_Vector2Array.Instance);
 			writer.WriteProperty("uv4", instance.uv4, ES3Type_Vector2Array.Instance);
 			writer.WriteProperty("colors32", instance.colors32, ES3Type_Color32Array.Instance);
-			writer.WriteProperty("subMeshCount", instance.subMeshCount, ES3Type_int.Instance);
+            writer.WriteProperty("subMeshCount", instance.subMeshCount, ES3Type_int.Instance);
 			for(int i=0; i<instance.subMeshCount; i++)
 				writer.WriteProperty("subMesh"+i, instance.GetTriangles(i), ES3Type_intArray.Instance);
 
@@ -95,11 +93,9 @@ namespace ES3Types
 
                 switch (propertyName)
 				{
-#if UNITY_2017_3
 					case "indexFormat":
 						instance.indexFormat = reader.Read<UnityEngine.Rendering.IndexFormat>();
 						break;
-#endif
                     case "name":
                         instance.name = reader.Read<string>(ES3Type_string.Instance);
                         break;

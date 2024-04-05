@@ -17,26 +17,31 @@ MonoBehaviour:
     path: SaveFile.es3
     encryptionType: 0
     compressionType: 0
-    encryptionPassword: 
+    encryptionPassword: password
     directory: 0
     format: 0
     prettyPrint: 1
-    bufferSize: 4096
+    bufferSize: 2048
     saveChildren: 1
     postprocessRawCachedData: 0
     typeChecking: 1
     safeReflection: 1
-    memberReferenceMode: 2
+    memberReferenceMode: 0
     referenceMode: 2
     serializationDepthLimit: 64
     assemblyNames:
     - Assembly-CSharp
     - Assembly-CSharp-firstpass
-    showAdvancedSettings: 1
-  addMgrToSceneAutomatically: 1
+    showAdvancedSettings: 0
+  addMgrToSceneAutomatically: 0
   autoUpdateReferences: 1
   addAllPrefabsToManager: 1
   collectDependenciesDepth: 4
+  collectDependenciesTimeout: 10
+  updateReferencesWhenSceneChanges: 1
+  updateReferencesWhenSceneIsSaved: 1
+  updateReferencesWhenSceneIsOpened: 1
+  referenceFolders: []
   logDebugInfo: 0
   logWarnings: 1
   logErrors: 1

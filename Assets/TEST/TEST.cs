@@ -13,7 +13,7 @@ public class TEST : MonoBehaviour
 
     public void Start()
     {
-        m_File = new ADFile(Application.streamingAssetsPath + "/Test.txt", true, false, false);
+        m_File = new ADFile(new ADSettings( Application.streamingAssetsPath + "/Test.txt"));
         testingData = new()
         {
             //next = new()

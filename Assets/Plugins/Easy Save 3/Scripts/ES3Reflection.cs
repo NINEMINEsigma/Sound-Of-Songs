@@ -52,8 +52,16 @@ namespace ES3Internal
 #else
                     var assemblies = AppDomain.CurrentDomain.GetAssemblies();
                     foreach (var assembly in assemblies)
-                        if (assemblyNames.Contains(assembly.GetName().Name))
-                            assemblyList.Add(assembly);
+                    {
+                        // This try/catch block is here to catch errors such as assemblies containing double-byte characters in their path.
+                        // This obviously won't work if exceptions are disabled.
+                        try
+                        {
+                            if (assemblyNames.Contains(assembly.GetName().Name))
+                                assemblyList.Add(assembly);
+                        }
+                        catch { }
+                    }
 #endif
                     _assemblies = assemblyList.ToArray();
                 }

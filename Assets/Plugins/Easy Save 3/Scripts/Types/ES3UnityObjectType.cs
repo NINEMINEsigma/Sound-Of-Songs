@@ -32,10 +32,10 @@ namespace ES3Types
 				throw new ArgumentException("Only types of UnityEngine.Object can be written with this method, but argument given is type of "+obj.GetType());
 
 			// If this object is in the instance manager, store it's instance ID with it.
-			var refMgr = ES3ReferenceMgrBase.Current;
 			if(mode != ES3.ReferenceMode.ByValue)
 			{
-                if(refMgr == null)
+                var refMgr = ES3ReferenceMgrBase.Current;
+                if (refMgr == null)
                     throw new InvalidOperationException("An Easy Save 3 Manager is required to load references. To add one to your scene, exit playmode and go to Tools > Easy Save 3 > Add Manager to Scene");
                 writer.WriteRef(instance);
 				if(mode == ES3.ReferenceMode.ByRef)

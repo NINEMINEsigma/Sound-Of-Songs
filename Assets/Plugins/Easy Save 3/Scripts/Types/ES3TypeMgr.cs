@@ -82,7 +82,7 @@ namespace ES3Internal
 				Type genericType = ES3Reflection.GetGenericTypeDefinition(type);
                 if (typeof(List<>).IsAssignableFrom(genericType))
                     es3Type = new ES3ListType(type);
-                else if (typeof(IDictionary).IsAssignableFrom(genericType))
+                else if (typeof(Dictionary<,>).IsAssignableFrom(genericType))
                     es3Type = new ES3DictionaryType(type);
                 else if (genericType == typeof(Queue<>))
                     es3Type = new ES3QueueType(type);

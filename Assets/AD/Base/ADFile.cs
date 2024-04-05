@@ -169,13 +169,13 @@ namespace AD.BASE
             }
         }
 
-        public ADFile(ADSettings settings,bool isRefresh, ADStreamEnum.FileMode fileMode)
+        public ADFile(ADSettings settings)
         {
             try
             {
                 this.MySetting = settings;
-                this.IsKeepFileControl = true;
-                InitFileStream(isRefresh, ADFile.CreateStream(settings, fileMode));
+                this.IsKeepFileControl = false;
+                this.FilePath = settings.FullPath;
             }
             catch (Exception ex)
             {
@@ -377,7 +377,7 @@ namespace AD.BASE
             result = default;
             try
             {
-                using ADReader reader = ADReader.Create(IsKeepFileControl ? FileStream : ADFile.CreateStream(settings, ADStreamEnum.FileMode.Write), settings, true);
+                using ADReader reader = ADReader.Create(IsKeepFileControl ? FileStream : ADFile.CreateStream(settings, ADStreamEnum.FileMode.Read), settings, true);
                 result = reader.Read<T>(key);
             }
             catch (Exception ex)

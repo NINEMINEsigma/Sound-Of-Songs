@@ -490,9 +490,54 @@ public abstract class ADWriter : IDisposable
 		EndWriteFile();
 		Dispose();
 
-		//// If we're writing to a location which can become corrupted, rename the backup file to the file we want.
-		//// This prevents corrupt data.
-        //if(settings.location == AD.Location.File || settings.location == AD.Location.PlayerPrefs)
-		//    ADIO.CommitBackup(settings);
+		// If we're writing to a location which can become corrupted, rename the backup file to the file we want.
+		// This prevents corrupt data.
+        if(settings.location == ADStreamEnum.Location.File || settings.location == ADStreamEnum.Location.PlayerPrefs)
+		    CommitBackup();
 	}
+
+    private void CommitBackup()
+    {
+        var temporaryFilePath = settings.FullPath + FileC.temporaryFileSuffix;
+
+        if (settings.location == ADStreamEnum.Location.File)
+        {
+            var oldFileBackup = settings.FullPath + FileC.temporaryFileSuffix + ".bak";
+
+            // If there's existing save data to overwrite ...
+            if (FileC.FileExists(settings.FullPath))
+            {
+                // Delete any old backups.
+                FileC.DeleteFile(oldFileBackup);
+                // Rename the old file so we can restore it if it fails.
+                FileC.CopyFile(settings.FullPath, oldFileBackup);
+
+                try
+                {
+                    // Delete the old file so that we can move it.
+                    FileC.DeleteFile(settings.FullPath);
+                    // Now rename the temporary file to the name of the save file.
+                    FileC.MoveFile(temporaryFilePath, settings.FullPath);
+                }
+                catch (Exception e)
+                {
+                    // If any exceptions occur, restore the original save file.
+                    try { FileC.DeleteFile(settings.FullPath); } catch { }
+                    FileC.MoveFile(oldFileBackup, settings.FullPath);
+                    throw e;
+                }
+
+                FileC.DeleteFile(oldFileBackup);
+            }
+            // Else just rename the temporary file to the main file.
+            else
+                FileC.MoveFile(temporaryFilePath, settings.FullPath);
+        }
+        else if (settings.location == ADStreamEnum.Location.PlayerPrefs)
+        {
+            PlayerPrefs.SetString(settings.FullPath, PlayerPrefs.GetString(temporaryFilePath));
+            PlayerPrefs.DeleteKey(temporaryFilePath);
+            PlayerPrefs.Save();
+        }
+    }
 }

@@ -76,6 +76,7 @@ namespace ES3Types
 		{
 			if(members == null)
 				GetMembers(writer.settings.safeReflection);
+
 			for(int i=0; i<members.Length; i++)
 			{
 				var property = members[i];
@@ -169,6 +170,7 @@ namespace ES3Types
 		protected void GetMembers(bool safe, string[] memberNames)
 		{
 			var serializedMembers = ES3Reflection.GetSerializableMembers(type, safe, memberNames);
+
 			members = new ES3Member[serializedMembers.Length];
 			for(int i=0; i<serializedMembers.Length; i++)
 				members[i] = new ES3Member(serializedMembers[i]);

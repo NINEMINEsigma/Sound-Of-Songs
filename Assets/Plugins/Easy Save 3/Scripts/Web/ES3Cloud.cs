@@ -71,10 +71,11 @@ public class ES3Cloud : ES3WebClass
 			if(data == null || data.Length == 0)
 				return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
-            if (!double.TryParse(text, out double timestamp))
-                throw new FormatException("Could not convert downloaded data to a timestamp. Data downloaded was: " + text);
+			double timestamp;
+			if(!double.TryParse(text, out timestamp))
+				throw new FormatException("Could not convert downloaded data to a timestamp. Data downloaded was: " + text);
 
-            return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(timestamp);
+			return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(timestamp);
 		}
 	}
 

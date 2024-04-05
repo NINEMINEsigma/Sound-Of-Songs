@@ -544,7 +544,9 @@ namespace ES3Types
                         instance.renderQueue = reader.Read<System.Int32>(ES3Type_int.Instance);
                         break;
                     case "shaderKeywords":
-                        instance.shaderKeywords = reader.Read<System.String[]>();
+                        var keywords = reader.Read<System.String[]>();
+                        foreach (var keyword in keywords)
+                            instance.EnableKeyword(keyword);
                         break;
                     case "globalIlluminationFlags":
                         instance.globalIlluminationFlags = reader.Read<UnityEngine.MaterialGlobalIlluminationFlags>();

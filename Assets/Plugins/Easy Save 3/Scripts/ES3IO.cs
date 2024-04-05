@@ -57,6 +57,11 @@ namespace ES3Internal
             char slashChar = UsesForwardSlash(path) ? '/' : '\\';
 
             int slash = path.LastIndexOf(slashChar);
+
+            // If this path ends in a slash it is assumed to already be a path to a Directory.
+            if (slash == path.Length - 1)
+                return path;
+
             // Ignore trailing slash if necessary.
             if (slash == (path.Length - 1))
                 slash = path.Substring(0, slash).LastIndexOf(slashChar);
@@ -100,9 +105,11 @@ namespace ES3Internal
                 Directory.Delete(directoryPath, true);
         }
 
+        // Note: Paths not ending in a slash are assumed to be a path to a file. 
+        // In this case the Directory containing the file will be searched.
         public static string[] GetFiles(string path, bool getFullPaths = true)
         {
-            var paths = Directory.GetFiles(path);
+            var paths = Directory.GetFiles(GetDirectoryPath(path));
             if (!getFullPaths)
             {
                 for (int i = 0; i < paths.Length; i++)

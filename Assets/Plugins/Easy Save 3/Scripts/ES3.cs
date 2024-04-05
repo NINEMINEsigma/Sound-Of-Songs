@@ -1,6 +1,4 @@
-﻿#define EASY3
-
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,6 +23,7 @@ public class ES3
     public enum CompressionType { None, Gzip};
     public enum Format 			{ JSON };
 	public enum ReferenceMode	{ ByRef, ByValue, ByRefAndValue};
+    public enum ImageType       { JPEG, PNG };
 
     #region ES3.Save
 
@@ -294,14 +293,16 @@ public class ES3
 
     /// <summary>Saves a Texture2D as a PNG or JPG, depending on the file extension used for the filePath.</summary>
     /// <param name="texture">The Texture2D we want to save as a JPG or PNG.</param>
+    /// <param name="quality">Quality to encode with, where 1 is minimum and 100 is maximum. Note that this only applies to JPGs.</param>
     /// <param name="imagePath">The relative or absolute path of the PNG or JPG file we want to create.</param>
     public static void SaveImage(Texture2D texture, int quality, string imagePath)
     {
-        SaveImage(texture, new ES3Settings(imagePath));
+        SaveImage(texture, quality, new ES3Settings(imagePath));
     }
 
     /// <summary>Saves a Texture2D as a PNG or JPG, depending on the file extension used for the filePath.</summary>
     /// <param name="texture">The Texture2D we want to save as a JPG or PNG.</param>
+    /// <param name="quality">Quality to encode with, where 1 is minimum and 100 is maximum. Note that this only applies to JPGs.</param>
     /// <param name="imagePath">The relative or absolute path of the PNG or JPG file we want to create.</param>
     public static void SaveImage(Texture2D texture, int quality, string imagePath, ES3Settings settings)
     {
@@ -310,10 +311,11 @@ public class ES3
 
     /// <summary>Saves a Texture2D as a PNG or JPG, depending on the file extension used for the filePath.</summary>
     /// <param name="texture">The Texture2D we want to save as a JPG or PNG.</param>
+    /// <param name="quality">Quality to encode with, where 1 is minimum and 100 is maximum. Note that this only applies to JPGs.</param>
     /// <param name="settings">The settings we want to use to override the default settings.</param>
     public static void SaveImage(Texture2D texture, int quality, ES3Settings settings)
     {
-        // Get the file extension to determine what format we want to save the ViewImage as.
+        // Get the file extension to determine what format we want to save the image as.
         string extension = ES3IO.GetExtension(settings.path).ToLower();
         if (string.IsNullOrEmpty(extension))
             throw new System.ArgumentException("File path must have a file extension when using ES3.SaveImage.");
@@ -326,6 +328,18 @@ public class ES3
             throw new System.ArgumentException("File path must have extension of .png, .jpg or .jpeg when using ES3.SaveImage.");
 
         ES3.SaveRaw(bytes, settings);
+    }
+
+
+    /// <summary>Saves a Texture2D as a PNG or JPG, depending on the file extension used for the filePath.</summary>
+    /// <param name="texture">The Texture2D we want to save as a JPG or PNG.</param>
+    /// <param name="quality">Quality to encode with, where 1 is minimum and 100 is maximum. Note that this only applies to JPGs.</param>
+    public static byte[] SaveImageToBytes(Texture2D texture, int quality, ES3.ImageType imageType)
+    {
+        if (imageType == ImageType.JPEG)
+            return texture.EncodeToJPG(quality);
+        else
+            return texture.EncodeToPNG();
     }
 
     #endregion

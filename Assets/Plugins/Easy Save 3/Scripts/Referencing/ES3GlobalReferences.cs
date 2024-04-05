@@ -66,7 +66,10 @@ namespace ES3Internal
             if (obj == null)
                 return -1;
 
-            return !refId.TryGetValue(obj, out long id) ? -1 : id;
+            long id;
+            if (!refId.TryGetValue(obj, out id))
+                return -1;
+            return id;
         }
 
         public UnityEngine.Object Get(long id)
