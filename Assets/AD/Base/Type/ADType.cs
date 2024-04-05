@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using AD.Reflection;
-using AD.Utility;
 using Unity.Collections;
 using UnityEngine;
+using AD.BASE.IO;
 
 #region L
 
@@ -76,6 +76,99 @@ namespace AD.Types
             return reader.ReadPropertyName();
         }
 
+        #region Reflection Methods
+
+        protected void WriteProperties(object obj, ADWriter writer)
+        {
+            if (members == null)
+                GetMembers(writer.settings.safeReflection);
+            for (int i = 0; i < members.Length; i++)
+            {
+                var property = members[i];
+                writer.WriteProperty(property.name, property.reflectedMember.GetValue(obj), ADType.GetOrCreateADType(property.type));
+            }
+        }
+
+        protected object ReadProperties(ADReader reader, object obj)
+        {
+            // Iterate through each property in the file and try to load it using the appropriate
+            // ES3Member in the members array.
+            foreach (string propertyName in reader.Properties)
+            {
+                // Find the property.
+                ADMember property = null;
+                for (int i = 0; i < members.Length; i++)
+                {
+                    if (members[i].name == propertyName)
+                    {
+                        property = members[i];
+                        break;
+                    }
+                }
+
+                // If this is a class which derives directly from a Collection, we need to load it's dictionary first.
+                if (propertyName == "_Values")
+                {
+                    var baseType = ADType.GetOrCreateADType(ReflectionExtension.BaseType(obj.GetType()));
+                    if (baseType.IsDictionary)
+                    {
+                        var dict = (IDictionary)obj;
+                        var loaded = (IDictionary)baseType.Read<IDictionary>(reader);
+                        foreach (DictionaryEntry kvp in loaded)
+                            dict[kvp.Key] = kvp.Value;
+                    }
+                    else if (baseType.IsCollection)
+                    {
+                        var loaded = (IEnumerable)baseType.Read<IEnumerable>(reader);
+
+                        var type = baseType.GetType();
+
+                        if (type == typeof(ADListType))
+                            foreach (var item in loaded)
+                                ((IList)obj).Add(item);
+                        else if (type == typeof(ADQueueType))
+                        {
+                            var method = baseType.type.GetMethod("Enqueue");
+                            foreach (var item in loaded)
+                                method.Invoke(obj, new object[] { item });
+                        }
+                        else if (type == typeof(ADStackType))
+                        {
+                            var method = baseType.type.GetMethod("Push");
+                            foreach (var item in loaded)
+                                method.Invoke(obj, new object[] { item });
+                        }
+                        else if (type == typeof(ADHashSetType))
+                        {
+                            var method = baseType.type.GetMethod("Add");
+                            foreach (var item in loaded)
+                                method.Invoke(obj, new object[] { item });
+                        }
+                    }
+                }
+
+                if (property == null)
+                    reader.Skip();
+                else
+                {
+                    var type = ADType.GetOrCreateADType(property.type);
+
+                    if (ReflectionExtension.IsAssignableFrom(typeof(ADDictionaryType), type.GetType()))
+                        property.reflectedMember.SetValue(obj, ((ADDictionaryType)type).Read(reader));
+                    else if (ReflectionExtension.IsAssignableFrom(typeof(ADCollectionType), type.GetType()))
+                        property.reflectedMember.SetValue(obj, ((ADCollectionType)type).Read(reader));
+                    else
+                    {
+                        object readObj = reader.Read<object>(type);
+                        property.reflectedMember.SetValue(obj, readObj);
+                    }
+                }
+            }
+            return obj;
+        }
+
+        #endregion
+
         #endregion
 
         #region ADTypeMgr
@@ -136,7 +229,7 @@ namespace AD.Types
             else if (ReflectionExtension.IsGenericType(type)
                 && ReflectionExtension.ImplementsInterface(type, typeof(IEnumerable))) adType = CreateGenericImplementsInterface(type, throwException);
             else if (ReflectionExtension.IsPrimitive(type)) adType = CreatePrimitiveType(type);
-            //else adType = CreateElseType(type);
+            else adType = CreateElseType(type);
 
             if (adType.type == null || adType.IsUnsupported)
             {
@@ -193,21 +286,34 @@ namespace AD.Types
             return null;
         }
 
-        //private static ADType CreateElseType(Type type)
-        //{
-        //    if (ReflectionExtension.IsAssignableFrom(typeof(Component), type))
-        //        return new ADReflectedComponentType(type);
-        //    else if (ReflectionExtension.IsValueType(type))
-        //        return new ADReflectedValueType(type);
-        //    else if (ReflectionExtension.IsAssignableFrom(typeof(ScriptableObject), type))
-        //        return new ADReflectedScriptableObjectType(type);
-        //    else if (ReflectionExtension.IsAssignableFrom(typeof(UnityEngine.Object), type))
-        //        return new ADReflectedUnityObjectType(type);
-        //    else if (type.Name.StartsWith("Tuple`"))
-        //        return new ADTupleType(type);
-        //    else
-        //        return new ADReflectedObjectType(type);
-        //}
+        private static ADType CreateElseType(Type type)
+        {
+            //if (ReflectionExtension.IsAssignableFrom(typeof(Component), type))
+            //    return new ADReflectedComponentType(type);
+            //else if (ReflectionExtension.IsValueType(type))
+            if (ReflectionExtension.IsValueType(type))
+                return new ADReflectedValueType(type);
+            //else if (ReflectionExtension.IsAssignableFrom(typeof(ScriptableObject), type))
+            //    return new ADReflectedScriptableObjectType(type);
+            //else if (ReflectionExtension.IsAssignableFrom(typeof(UnityEngine.Object), type))
+            //    return new ADReflectedUnityObjectType(type);
+            else if (type.Name.StartsWith("Tuple`"))
+                return new ADTupleType(type);
+            else
+                return new ADReflectedObjectType(type);
+        }
+
+        protected void GetMembers(bool safe)
+        {
+            GetMembers(safe, null);
+        }
+        protected void GetMembers(bool safe, string[] memberNames)
+        {
+            var serializedMembers = ReflectionExtension.GetSerializableMembers(type, safe, memberNames);
+            members = new ADMember[serializedMembers.Length];
+            for (int i = 0; i < serializedMembers.Length; i++)
+                members[i] = new ADMember(serializedMembers[i]);
+        }
 
         internal static void Init()
         {
@@ -2054,18 +2160,18 @@ namespace AD.Types
     #endregion
 
     #region ref
-    public class ADRef
-    {
-        public long id;
-        public ADRef(long id)
-        {
-            this.id = id;
-        }
-    }
-
-    [UnityEngine.Scripting.Preserve]
-    public class ADType_ADRef : ADType
-    {
+    //public class ADRef
+    //{
+    //    public long id;
+    //    public ADRef(long id)
+    //    {
+    //        this.id = id;
+    //    }
+    //}
+    //
+    //[UnityEngine.Scripting.Preserve]
+    //public class ADType_ADRef : ADType
+    /*{
         public static ADType Instance = new ADType_ADRef();
 
         public ADType_ADRef() : base(typeof(long))
@@ -2084,8 +2190,8 @@ namespace AD.Types
             return (T)(object)new ADRef(reader.Read_ref());
         }
     }
-
-    public class ADType_ADRefArray : ADArrayType
+    //
+    //public class ADType_ADRefArray : ADArrayType
     {
         public static ADType Instance = new ADType_ADRefArray();
 
@@ -2094,8 +2200,8 @@ namespace AD.Types
             Instance = this;
         }
     }
-
-    public class ADType_ADRefDictionary : ADDictionaryType
+    //
+    //public class ADType_ADRefDictionary : ADDictionaryType
     {
         public static ADType Instance = new ADType_ADRefDictionary();
 
@@ -2103,7 +2209,7 @@ namespace AD.Types
         {
             Instance = this;
         }
-    }
+    }*/
 
 
     #endregion
@@ -2767,3 +2873,69 @@ namespace AD.Types
     #endregion
 }
 
+namespace AD.Types
+{
+    #region Object
+
+    [UnityEngine.Scripting.Preserve]
+    internal class ADReflectedValueType : ADType
+    {
+        public ADReflectedValueType(Type type) : base(type)
+        {
+            IsReflectedType = true;
+            GetMembers(true);
+        }
+
+        public override void Write(object obj, ADWriter writer)
+        {
+            WriteProperties(obj, writer);
+        }
+
+        public override object Read<T>(ADReader reader)
+        {
+            object obj = ReflectionExtension.CreateInstance(this.type) ?? 
+                throw new NotSupportedException(
+                    "Cannot create an instance of " + this.type + ". However, you may be able to add support for it using a custom ADType file." +
+                    " For more information see: http://docs.moodkie.com/easy-save-3/ad-guides/controlling-serialization-using-adtypes/");
+            // Make sure we return the result of ReadProperties as properties aren't assigned by reference.
+            return ReadProperties(reader, obj);
+        }
+
+        public override void ReadInto<T>(ADReader reader, object obj)
+        {
+            throw new NotSupportedException("Cannot perform self-assigning load on a value type.");
+        }
+    }
+
+
+    [UnityEngine.Scripting.Preserve]
+    internal class ADReflectedObjectType : ADObjectType
+    {
+        public ADReflectedObjectType(Type type) : base(type)
+        {
+            IsReflectedType = true;
+            GetMembers(true);
+        }
+
+        protected override void WriteObject(object obj, ADWriter writer)
+        {
+            WriteProperties(obj, writer);
+        }
+
+        protected override object ReadObject<T>(ADReader reader)
+        {
+            var obj = ReflectionExtension.CreateInstance(this.type);
+            ReadProperties(reader, obj);
+            return obj;
+        }
+
+        protected override void ReadObject<T>(ADReader reader, object obj)
+        {
+            ReadProperties(reader, obj);
+        }
+    }
+
+
+
+    #endregion
+}

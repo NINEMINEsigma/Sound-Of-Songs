@@ -6,6 +6,8 @@ using UnityEngine;
 using Unity.VisualScripting;
 using System.Collections.Generic;
 using System.IO.Compression;
+using AD.BASE.IO;
+using static UnityEngine.Rendering.DebugUI;
 
 namespace AD.BASE
 {
@@ -14,18 +16,22 @@ namespace AD.BASE
     {
         public static implicit operator bool(ADFile file) => file.ErrorException == null;
 
-        public string FilePath { get; private set; } = "";
+        public string FilePath { get => m_FilePath; private set => m_FilePath = value; }
         public DateTime Timestamp { get; private set; } = DateTime.UtcNow;
-        public bool IsError { get; private set; } = false;
-        public bool IsEmpty { get; private set; } = false;
+        public bool IsError { get => isError; private set => isError = value; }
+        public bool IsEmpty { get => isEmpty; private set => isEmpty = value; }
         public Exception ErrorException { get; private set; } = null;
-        public bool IsKeepFileControl { get; private set; } = false;
-
+        public bool IsKeepFileControl { get => isKeepFileControl; private set => isKeepFileControl = value; }
         private Stream FileStream;
-        public ADSettings MySetting { get; private set; }
+        public ADSettings MySetting { get => mySetting; private set => mySetting = value; }
         public byte[] FileData { get; private set; } = null;
 
-        private bool isDelete = false;
+        [SerializeField] private string m_FilePath = "";
+        [SerializeField] private ADSettings mySetting;
+        [SerializeField] private bool isDelete = false;
+        [SerializeField] private bool isError = false;
+        [SerializeField] private bool isEmpty = false;
+        [SerializeField] private bool isKeepFileControl = false;
 
         public void Delete()
         {
@@ -69,11 +75,6 @@ namespace AD.BASE
         ~ADFile()
         {
             Dispose();
-        }
-
-        public ADFile()
-        {
-            SetErrorStatus(new ADException("Empty"));
         }
 
         public ADFile(string filePath, bool isTryCreate, bool isRefresh, bool isKeepFileControl)
@@ -370,6 +371,43 @@ namespace AD.BASE
             }
         }
 
+        public bool Deserialize<T>(out T result, string key = "default")
+        {
+            ADSettings settings = MySetting ?? new ADSettings(FilePath);
+            result = default;
+            try
+            {
+                using ADReader reader = ADReader.Create(IsKeepFileControl ? FileStream : ADFile.CreateStream(settings, ADStreamEnum.FileMode.Write), settings, true);
+                result = reader.Read<T>(key);
+            }
+            catch (Exception ex)
+            {
+                SetErrorStatus(ex);
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Save in AD.BASE.IO mode. <see cref="AD.BASE.IO.ADJSONWriter"/>
+        /// </summary>
+        public bool Serialize<T>(T obj, string key = "default")
+        {
+            ADSettings settings = MySetting ?? new ADSettings(FilePath);
+            try
+            {
+                using ADWriter writer = ADWriter.Create(IsKeepFileControl ? FileStream : ADFile.CreateStream(settings, ADStreamEnum.FileMode.Write), settings, true, true);
+                writer.Write<T>(key, obj);
+                writer.Save();
+            }
+            catch (Exception ex)
+            {
+                SetErrorStatus(ex);
+                return false;
+            }
+            return true;
+        }
+
         public bool Serialize<T>(T obj, System.Text.Encoding encoding, bool isAllowSerializeAsBinary = true)
         {
             if (DebugMyself())
@@ -414,6 +452,9 @@ namespace AD.BASE
             }
         }
 
+        /// <summary>
+        /// Saved entirely in binary
+        /// </summary>
         public bool Serialize<T>(T obj)
         {
             if (DebugMyself())

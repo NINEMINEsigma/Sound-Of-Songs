@@ -18,7 +18,7 @@ namespace AD.BASE
         public enum EncryptionType { None, AES };
         public enum CompressionType { None, Gzip };
         public enum Format { JSON };
-        public enum ReferenceMode { ByRef, ByValue, ByRefAndValue };
+        //public enum ReferenceMode { ByRef, ByValue, ByRefAndValue };
         public enum FileMode { Read, Write, Append }
     }
 
@@ -366,7 +366,7 @@ namespace AD.BASE
             = "The 'path' field of this ADSettings is null, indicating that it was not possible to load the default settings from Resources. " +
               "Please check that the AD Default Settings.prefab exists in Assets/Plugins/Resources/AD/";
 
-        private const string _DefaultSaveFilePath = "SaveFile.ad";
+        private const string _DefaultSaveFilePath = "SaveFile.asset";
 
         #endregion
 
@@ -479,11 +479,11 @@ namespace AD.BASE
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public bool safeReflection = true;
         /// <summary>Whether UnityEngine.Object members should be stored by value, reference or both.</summary>
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        /*[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public ADStreamEnum.ReferenceMode memberReferenceMode = ADStreamEnum.ReferenceMode.ByRef;
         /// <summary>Whether the main save methods should save UnityEngine.Objects by value, reference, or both.</summary>
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public ADStreamEnum.ReferenceMode referenceMode = ADStreamEnum.ReferenceMode.ByRefAndValue;
+        public ADStreamEnum.ReferenceMode referenceMode = ADStreamEnum.ReferenceMode.ByRefAndValue;*/
 
         /// <summary>How many levels of hierarchy Easy Save will serialise. This is used to protect against cyclic references.</summary>
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
@@ -511,7 +511,7 @@ namespace AD.BASE
                     if (directory == ADStreamEnum.Directory.PersistentDataPath)
                         return new ApplicationPersistentDataPathHelper(path).SourcePath;
                     if (directory == ADStreamEnum.Directory.DataPath)
-                        return new ApplicationDataPathHelper(path);
+                        return new ApplicationDataPathHelper(path).SourcePath;
                     throw new System.NotImplementedException("File directory \"" + directory + "\" has not been implemented.");
                 }
                 else if (location == ADStreamEnum.Location.Resources)
@@ -569,8 +569,8 @@ namespace AD.BASE
                     this.location = locationType;
                 else if (setting is ADStreamEnum.CompressionType compressionTypeType)
                     this.compressionType = compressionTypeType;
-                else if (setting is ADStreamEnum.ReferenceMode referenceModeType)
-                    this.referenceMode = referenceModeType;
+                //else if (setting is ADStreamEnum.ReferenceMode referenceModeType)
+                //    this.referenceMode = referenceModeType;
                 else if (setting is ADStreamEnum.Format formatType)
                     this.format = formatType;
                 else if (setting is ADStreamEnum.Directory directoryType)
@@ -635,7 +635,7 @@ namespace AD.BASE
             newSettings.encoding = encoding;
             newSettings.typeChecking = typeChecking;
             newSettings.safeReflection = safeReflection;
-            newSettings.memberReferenceMode = memberReferenceMode;
+            //newSettings.memberReferenceMode = memberReferenceMode;
             //newSettings.assemblyNames = assemblyNames;
             newSettings.saveChildren = saveChildren;
             newSettings.serializationDepthLimit = serializationDepthLimit;

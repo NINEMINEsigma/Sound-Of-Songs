@@ -12,7 +12,74 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65607e91c1e7ad44ebed10772bf8beff, type: 3}
   m_Name: Script Copy Helper
   m_EditorClassIdentifier: 
-  replaceStrTarget: 
-  replaceString: 
-  targetPath: 
-  Text: 
+  ReplacePairs:
+  - key: ES3Reflection
+    value: ReflectionExtension
+  - key: ES3TypeMgr
+    value: ADType
+  - key: ES3
+    value: AD
+  - key: es3
+    value: ad
+  targetPath: E:\Sound Of Songs\Assets\Plugins\Easy Save 3\Scripts\Types\Reflected
+    Types\ES3ReflectedObjectType.cs
+  savePath: 
+  Text: '
+
+    [UnityEngine.Scripting.Preserve]
+
+    internal class ADReflectedObjectType
+    : ADObjectType
+
+    {
+
+    public ADReflectedObjectType(Type type) : base(type)
+
+    {
+
+    isReflectedType
+    = true;
+
+    GetMembers(true);
+
+    }
+
+
+    protected override void WriteObject(object
+    obj, ADWriter writer)
+
+    {
+
+    WriteProperties(obj, writer);
+
+    }
+
+
+    protected
+    override object ReadObject<T>(ADReader reader)
+
+    {
+
+    var obj = ReflectionExtension.CreateInstance(this.type);
+
+    ReadProperties(reader,
+    obj);
+
+    return obj;
+
+    }
+
+
+    protected override void ReadObject<T>(ADReader
+    reader, object obj)
+
+    {
+
+    ReadProperties(reader, obj);
+
+    }
+
+    }
+
+'
+  isNeedClearUsingAndNamespaceStruct: 1
