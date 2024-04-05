@@ -62,6 +62,32 @@ public class ScriptCopyHelperEditor : AbstractCustomADEditor
                     that.Text = that.Text.Replace(that.replaceStrTarget, that.replaceString, System.StringComparison.Ordinal);
                 }
             });
+            this.HorizontalBlock(() =>
+            {
+                if (GUILayout.Button("Trim"))
+                {
+                    that.Text = that.Text.Trim();
+                    var lines = that.Text.Split('\n');
+                    that.Text = "";
+                    foreach (var line in lines)
+                    {
+                        if (line.StartsWith("using")) continue;
+                        if (line.StartsWith("namespace{"))
+                        { 
+                            that.Text += "{\n";
+                            continue;
+                        }
+                        if (line.StartsWith("namespace")) continue;
+                        that.Text += line + "\n";
+                    }
+                }
+                if (GUILayout.Button("Save"))
+                {
+                    ADFile file = new ADFile(that.targetPath, false, false, false);
+                    file.ReplaceAllData(System.Text.Encoding.UTF8.GetBytes(that.Text));
+                    file.SaveFileData();
+                }
+            });
             that.Text = EditorGUILayout.TextField(that.Text, GUILayout.Height(650));
         });
     }
