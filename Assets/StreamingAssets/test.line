@@ -1,0 +1,19 @@
+import Script
+build "test" "liu"
+LoadSong "F:/Sound-Of-Songs/Assets/StreamingAssets\test.ogg"
+Set "delay" -0.007
+Set "bpm" 184.082
+Timing "0" "1" "0" "1" "Linear"
+Vertex "0" "0" "0" "1" "0" "0" "0.3"
+Vertex "0" "0.5" "Beat(19,0,4)" "1" "0" "0" "0.3"
+Note 0 "{Beat(19,0,4)}" "0.5" "0" "0"
+Note 1 "{Beat(19,0,4)}" "-0.5" "0" "0"
+Vertex "0" "0.5" "Beat(19,2,4)" "1" "0" "0" "1"
+Note 1 "{Beat(19,2,4)}" "0.5" "0" "0"
+Note 0 "{Beat(19,2,4)}" "-0.5" "0" "0"
+Vertex "0" "0" "Beat(20,0,4)" "1" "0" "0" "0.3"
+Note 1 "{Beat(19,2,4)}" "0" "0" "0"
+Vertex "0" "0" "Beat(20,2,4)" "1" "0" "0" "0.3"
+Note 1 "{Beat(20,2,4)}" "0.5" "0.2" "0"
+Note 0 "{Beat(20,2,4)}" "-0.5" "-0.2" "0"
+Vertex "0" "0" "134" "1" "0" "0" "0.3"

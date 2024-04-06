@@ -8,6 +8,7 @@ using AD.Utility.Pipe;
 using Unity.VisualScripting;
 using UnityEngine;
 using AD.SAL;
+using AD.Math;
 
 namespace AD.Reflection
 {
@@ -170,7 +171,8 @@ namespace AD.Reflection
                 if (currentArgsStrs[j][0] == '\"' && currentArgsStrs[j][^1] == '\"')
                     currentArgs[j] = currentArgsStrs[j][1..^1];
                 else if (currentArgsStrs[j][0] == '$')
-                    currentArgs[j] = float.Parse(currentArgsStrs[j][1..]);
+                    //currentArgs[j] = float.Parse(currentArgsStrs[j][1..]);
+                    currentArgs[j] = ArithmeticExtension.TryParse(currentArgsStrs[j][1..], out var resultInfo) ? resultInfo : throw new ReflectionException("Parse Error : ResultValue");
                 else if (!self.FullAutoRun(out currentArgs[j], currentArgsStrs[j]).result)
                     throw new ReflectionException("Parse Error : ResultValue");
             }
@@ -324,6 +326,15 @@ namespace AD.Reflection
         public static object RunMethodByName(this object self, string methodName, BindingFlags flags, params object[] args)
         {
             return self.GetType().GetMethod(methodName, flags).Invoke(self, args);
+        }
+
+        public static bool TryRunMethodByName(this object self, string methodName, out object result, BindingFlags flags, params object[] args)
+        {
+            result = null;
+            MethodInfo method = self.GetType().GetMethod(methodName, flags);
+            if (method == null) return false;
+            result = method.Invoke(self, args);
+            return true;
         }
 
         public static FieldInfo[] GetAllFields(this object self)

@@ -1484,10 +1484,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f022ede4737c096489813705081d6c42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SourcePairs:
-  - Clip: {fileID: 8300000, guid: 6cc44070707d577459c11fe4839a64fa, type: 3}
-    Name: 
-    CilpName: 
+  SourcePairs: []
   _Mixer: {fileID: 432076930}
   LoopAtAll: 0
   Sampling: 0
@@ -2269,13 +2266,17 @@ MonoBehaviour:
   MainGuideLine: {fileID: 621260700}
   LineCilper: {fileID: 2100000, guid: 91302dd0551973a46b9486a5b3fe90df, type: 2}
   Viewport: {fileID: 206574509}
-  m_TimingPairs:
-  - StartTimeExpression: 0
-    EndTimeExpression: 1
-    StartValueExpression: 0
-    EndValueExpression: 1
-    EaseCurveTypeExpression: Linear
+  m_TimingPairs: []
   m_IsDirty: 0
+  NoteA: {fileID: 2678705375452937727, guid: 62d3157dd5e59064eadac494d8157315, type: 3}
+  NoteB: {fileID: 5796724016508043405, guid: e2758173180b0b94da41242bbf0cf442, type: 3}
+  ParRoot: {fileID: 269769193}
+  TargetFile:
+    m_FilePath: 
+    isDelete: 0
+    isError: 0
+    isEmpty: 0
+    isKeepFileControl: 0
 --- !u!1 &577923589
 GameObject:
   m_ObjectHideFlags: 0
@@ -2457,52 +2458,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4243272484bc258448f1ac5740927396, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Vertexs:
-  - Position:
-    - 0
-    - 0
-    - 0
-    Normal:
-    - 1
-    - 0
-    - 0
-    Size: 0.3
-  - Position:
-    - 5
-    - 0
-    - 50
-    Normal:
-    - 1
-    - 0
-    - 0
-    Size: 0.3
-  - Position:
-    - -5
-    - 0
-    - 100
-    Normal:
-    - 1
-    - 0
-    - 0
-    Size: 0.3
-  - Position:
-    - 0
-    - 0
-    - 200
-    Normal:
-    - 1
-    - 0
-    - 0
-    Size: 0.3
-  - Position:
-    - 0
-    - 0
-    - 10000
-    Normal:
-    - 1
-    - 0
-    - 0
-    Size: 0.3
+  m_Vertexs: []
   m_RealVertexs: []
   m_MeshFilter: {fileID: 621260702}
   m_MeshRenderer: {fileID: 621260701}
@@ -3470,7 +3426,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1135598181}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 93e95b7aeda0abe4a904d1d110e00468, type: 3}
   m_Name: 
@@ -4096,22 +4052,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MySceneComponents:
     All:
-      Data:
-      - Key: {fileID: 776543258}
-        Value:
-        - {fileID: 1943489835}
-        - {fileID: 151172673}
-        - {fileID: 1450660504}
-        - {fileID: 361329061}
-        - {fileID: 1135598181}
-      - Key: {fileID: 1458790986}
-        Value:
-        - {fileID: 519420028}
-      - Key: {fileID: 1025407073}
-        Value:
-        - {fileID: 1582910863}
-      - Key: {fileID: 269769192}
-        Value: []
+      Data: []
       OnAdd:
         m_PersistentCalls:
           m_Calls: []
@@ -4545,11 +4486,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1905990690}
   m_CullTransparentMesh: 1
---- !u!1 &1943489835 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2167730616229911385, guid: 5ff5e20bb829e624a803702e94d45f49, type: 3}
-  m_PrefabInstance: {fileID: 1744037416}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1953428474
 GameObject:
   m_ObjectHideFlags: 0

@@ -438,14 +438,44 @@ namespace AD.Math
             }
         }
 
-        public static bool AddFunction(string name, ArithmeticFunction.FunctionEntry funcEntry)
+        public static void AddFunction(string name, ArithmeticFunction.FunctionEntry funcEntry)
         {
-            return ArithmeticFunction.FunctionPairs.TryAdd(name, funcEntry);
+            if (funcEntry == null)
+            {
+                ArithmeticFunction.FunctionPairs.Remove(name);
+            }
+            else
+            {
+                if (ArithmeticFunction.FunctionPairs.ContainsKey(name))
+                    ArithmeticFunction.FunctionPairs[name] = funcEntry;
+                else
+                    ArithmeticFunction.FunctionPairs.Add(name, funcEntry);
+            }
         }
 
-        public static bool AddVariable(string name, ArithmeticConstant variableEntry)
+        public static void AddVariable(string name, ArithmeticConstant variableEntry)
         {
-            return ArithmeticVariable.VariableConstantPairs.TryAdd(name, new VariableEntry() { RefIndex = 1, Value = variableEntry });
+            if (variableEntry == null)
+            {
+                ArithmeticVariable.VariableConstantPairs.Remove(name);
+            }
+            else
+            {
+                if (ArithmeticVariable.VariableConstantPairs.ContainsKey(name))
+                    ArithmeticVariable.VariableConstantPairs[name] = new VariableEntry() { RefIndex = 1, Value = variableEntry };
+                else
+                    ArithmeticVariable.VariableConstantPairs.Add(name, new VariableEntry() { RefIndex = 1, Value = variableEntry });
+            }
+        }
+
+        public static void RemoveFunction(string name)
+        {
+            ArithmeticFunction.FunctionPairs.Remove(name);
+        }
+
+        public static void RemoveVariable(string name)
+        {
+            ArithmeticVariable.VariableConstantPairs.Remove(name);
         }
     }
 

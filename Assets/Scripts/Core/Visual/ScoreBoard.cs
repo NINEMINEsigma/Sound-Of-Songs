@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using AD;
 using AD.BASE;
@@ -7,7 +6,6 @@ using AD.UI;
 using RhythmGame.ScoreBoard;
 using RhythmGame.Time;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace RhythmGame.ScoreBoard
 {
@@ -197,13 +195,13 @@ namespace RhythmGame.Visual
 
         public void RebuildImmediately()
         {
-            MainScoreBoard.SetText($"{TotalMainScore.S.Count} X {GetFormatScore(0, JudgeType.Bad.ToSecond(), FullScore, TotalMainScore.GetE(), 7)}");
-            PerfectScoreBoard.SetText(
-                $"{TotalPerfectScore.S.Count} P {GetFormatScore(JudgeType.Best.ToSecond(), JudgeType.Good.ToSecond(), ShortFullScore, TotalPerfectScore.GetE() , 4)}");
-            GoodScoreBoard.SetText(
-                $"{TotalGoodScore.S.Count} G {GetFormatScore(JudgeType.Good.ToSecond(), JudgeType.Bad.ToSecond(), ShortFullScore, TotalGoodScore.GetE() , 4)}");
-            BadScoreBoard.SetText(
-                $"{TotalBadScore.S.Count} B {GetFormatScore(JudgeType.Bad.ToSecond(), JudgeType.Lost.ToSecond(), ShortFullScore, TotalBadScore.GetE(), 4)}");
+            MainScoreBoard.SetText($"{TotalMainScore.S.Count}<b>-</b>{GetFormatScore(0, JudgeType.Bad.ToSecond(), FullScore, TotalMainScore.GetE(), 7)}");
+            PerfectScoreBoard.SetText($"Perfect {TotalPerfectScore.S.Count}");
+            //    $"{TotalPerfectScore.S.Count} P {GetFormatScore(JudgeType.Best.ToSecond(), JudgeType.Good.ToSecond(), ShortFullScore, TotalPerfectScore.GetE() , 4)}");
+            GoodScoreBoard.SetText($"Good {TotalGoodScore.S.Count}");
+            //    $"{TotalGoodScore.S.Count} G {GetFormatScore(JudgeType.Good.ToSecond(), JudgeType.Bad.ToSecond(), ShortFullScore, TotalGoodScore.GetE() , 4)}");
+            BadScoreBoard.SetText($"Bad {TotalBadScore.S.Count}");
+            //    $"{TotalBadScore.S.Count} B {GetFormatScore(JudgeType.Bad.ToSecond(), JudgeType.Lost.ToSecond(), ShortFullScore, TotalBadScore.GetE(), 4)}");
             LostScoreBoard.SetText($"Lost {TotalLostScore.S.Count}");
             IsDirty = false;
         }

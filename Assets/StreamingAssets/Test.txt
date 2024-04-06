@@ -1,9 +1,0 @@
-{
-	"Test" : {
-		"__type" : "Testing,Assembly-CSharp",
-		"value" : {
-			"x" : 5,
-			"y" : 5
-		}
-	}
-}

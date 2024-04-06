@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using AD;
 using AD.BASE;
@@ -37,22 +39,49 @@ namespace RhythmGame
         [SerializeField] private bool m_IsDirty;
         public bool IsDirty { get => m_IsDirty; set => m_IsDirty = value; }
 
+
+        [SerializeField] private NoteBase NoteA, NoteB;
+        [SerializeField] private Transform ParRoot;
+
+        public ADFile TargetFile;
         public override void Init()
         {
             Architecture.GetController<TimeController>().RemoveListener(this);
             Architecture.GetController<TimeController>().AddListener(this);
             MainGuideLine = Architecture.GetController<GuideLine>();
+
+            App.instance.NoteA = this.NoteA;
+            App.instance.NoteB = this.NoteB;
+            App.instance.ParRoot = this.ParRoot;
+
+            //Viewport
+            var vipo = Viewport.GetRect();
+            App.instance.ViewportWidth = (vipo[2].x - vipo[0].x);
+            App.instance.ViewportHeight = (vipo[2].y - vipo[0].y);
+            Debug.Log($"{App.instance.ViewportWidth},{App.instance.ViewportHeight}");
+
+            //TODO
+            try
+            {
+                TargetFile = new ADFile(Path.Combine(  Application.streamingAssetsPath ,
+                    "test.line"), false, true, false);
+                RhythmGameCommandScript.Read(TargetFile.GetString(true, System.Text.Encoding.UTF8).Split('\n'));
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+
+            MainGuideLine.RebuildImmediately();
+
             for (int i = 0, e = MainGuideLine.RealVertexs.Count; i < e; i++)
             {
                 var current = MainGuideLine.RealVertexs[i];
                 if (current.Position.z < App.instance.MinDepth) App.instance.MinDepth = current.Position.z;
                 if (current.Position.z > App.instance.MaxDepth) App.instance.MaxDepth = current.Position.z;
             }
-            //Viewport
-            var vipo = Viewport.GetRect();
-            App.instance.ViewportWidth = (vipo[2].x - vipo[0].x);
-            App.instance.ViewportHeight = (vipo[2].y - vipo[0].y);
-            Debug.Log($"{App.instance.ViewportWidth},{App.instance.ViewportHeight}");
+
+            SetDirty();
         }
 
         protected override void OnDestroy()

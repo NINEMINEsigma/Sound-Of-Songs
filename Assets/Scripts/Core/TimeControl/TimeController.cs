@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+using System.IO;
+using AD;
 using AD.BASE;
 using AD.UI;
 using AD.Utility.Object;
+using RhythmGame.Visual;
 using RhythmGame.Visual.Note;
 using UnityEngine;
 
@@ -9,6 +12,7 @@ namespace RhythmGame.Time
 {
     public class TimeController : ADController, IController
     {
+
         public List<IListenTime> Listeners;
 
         public MonoBehaviour MonoTarget => this;
@@ -20,11 +24,11 @@ namespace RhythmGame.Time
         public override void Init()
         {
             Listeners = new();
-            MainAudioSource.Stop();
-            MainAudioSource.CurrentTime = -3;
-            MainAudioSource.Play();
-            App.instance.StartTime = 0;
-            App.instance.EndTime = MainAudioSource.CurrentClip.length;
+            //MainAudioSource.Stop();
+            //MainAudioSource.CurrentTime = -3;
+            //MainAudioSource.Play();
+            //App.instance.StartTime = 0;
+            //App.instance.EndTime = MainAudioSource.CurrentClip.length;
 
             Architecture.RegisterModel<TouchLock>();
         }
@@ -46,7 +50,7 @@ namespace RhythmGame.Time
                     listener.When(MainAudioSource.CurrentTime, MainAudioSource.CurrentClip.length);
                 }
             }
-            else
+            else if (MainAudioSource.CurrentClip != null)
             {
                 TimeFillBar.SetPerecent(0, 0, MainAudioSource.CurrentClip.length);
                 foreach (var listener in Listeners)
@@ -97,6 +101,8 @@ namespace RhythmGame.Time
             StopSong();
             MainAudioSource.CurrentTime = -3;
             PlaySong();
+            App.instance.StartTime = 0;
+            App.instance.EndTime = MainAudioSource.CurrentClip.length;
         }
     }
 }

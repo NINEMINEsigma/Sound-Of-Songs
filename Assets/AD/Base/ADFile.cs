@@ -23,6 +23,7 @@ namespace AD.BASE
         public Exception ErrorException { get; private set; } = null;
         public bool IsKeepFileControl { get => isKeepFileControl; private set => isKeepFileControl = value; }
         private Stream FileStream;
+        internal Stream _MyStream => FileStream;
         public ADSettings MySetting { get => mySetting; private set => mySetting = value; }
         public byte[] FileData { get; private set; } = null;
 

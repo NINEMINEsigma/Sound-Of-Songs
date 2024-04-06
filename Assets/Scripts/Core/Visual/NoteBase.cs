@@ -224,7 +224,7 @@ namespace RhythmGame.Visual
                     {
                         PlayJudgeEffect();
                         CreateDataAndDoAddJudgeData(0, JudgeType.Best);
-                        //gameObject.SetActive(false);
+                        gameObject.SetActive(false);
                     }
                     IsJudged = true;
                 }

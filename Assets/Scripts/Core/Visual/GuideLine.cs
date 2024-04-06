@@ -46,9 +46,11 @@ namespace RhythmGame.Visual
         {
             try
             {
+                Vector3 pos = o.Position.MakeArithmeticVec3Parse();
+                pos.z = pos.z * App.instance.DepthMul;
                 MeshExtension.VertexEntry result = new()
                 {
-                    Position = o.Position.MakeArithmeticVec3Parse(),
+                    Position = pos,
                     Normal = o.Normal.MakeArithmeticVec3Parse(),
                     Size = o.Size.MakeArithmeticParse(),
                     Type = MeshExtension.BuildNormalType.JustDirection
@@ -107,24 +109,24 @@ namespace RhythmGame.Visual
             m_CurrentGuideLineVertexIndex = 0;
             m_MeshFilter.sharedMesh = new();
             App.instance.MatchData(this);
-            if (Vertexs.Count == 0)
-            {
-                Vertexs.Add(new(new MeshExtension.VertexEntry()
-                {
-                    Size = 0.3f,
-                    Normal = Vector3.right,
-                    Position = Vector3.zero,
-                    Type = MeshExtension.BuildNormalType.JustDirection
-                }));
-                Vertexs.Add(new(new MeshExtension.VertexEntry()
-                {
-                    Size = 0.3f,
-                    Normal = Vector3.right,
-                    Position = new(0, 0, 100),
-                    Type = MeshExtension.BuildNormalType.JustDirection
-                }));
-            }
-            RebuildImmediately();
+            //if (Vertexs.Count == 0)
+            //{
+            //    Vertexs.Add(new(new MeshExtension.VertexEntry()
+            //    {
+            //        Size = 0.3f,
+            //        Normal = Vector3.right,
+            //        Position = Vector3.zero,
+            //        Type = MeshExtension.BuildNormalType.JustDirection
+            //    }));
+            //    Vertexs.Add(new(new MeshExtension.VertexEntry()
+            //    {
+            //        Size = 0.3f,
+            //        Normal = Vector3.right,
+            //        Position = new(0, 0, 100),
+            //        Type = MeshExtension.BuildNormalType.JustDirection
+            //    }));
+            //}
+            //RebuildImmediately();
         }
 
         public void RebuildImmediately()

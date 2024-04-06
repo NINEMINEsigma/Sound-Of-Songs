@@ -207,7 +207,6 @@ namespace AD.Utility
             return result;
         }
 
-
         public static List<Result> Contravariance<Origin, Result>(this IEnumerable<Origin> self, Func<Origin, Result> transformer)
         {
             List<Result> result = new();
@@ -235,7 +234,6 @@ namespace AD.Utility
             return self;
         }
 
-
         public static List<T> RemoveNullAsNew<T>(this List<T> self)
         {
             List<T> result = new();
@@ -247,6 +245,75 @@ namespace AD.Utility
             return result;
         }
 
+        public static void CheckLength<T>(this T[] self, out T arg0)
+        {
+            if (self == null) throw new ArgumentNullException();
+            if (self.Length != 1) throw new ArgumentException("Passed argument 'self' is invalid size. Expected size is 1");
+            arg0 = self[0];
+        }
+
+        public static void CheckLength<T>(this T[] self, out T arg0,out T arg1)
+        {
+            if (self == null) throw new ArgumentNullException();
+            if (self.Length != 2) throw new ArgumentException("Passed argument 'self' is invalid size. Expected size is 2");
+            arg0 = self[0];
+            arg1 = self[1];
+        }
+
+        public static void CheckLength<T>(this T[] self, out T arg0, out T arg1,out T arg2)
+        {
+            if (self == null) throw new ArgumentNullException();
+            if (self.Length != 3) throw new ArgumentException("Passed argument 'self' is invalid size. Expected size is 3");
+            arg0 = self[0];
+            arg1 = self[1];
+            arg2 = self[2];
+        }
+
+        public static void CheckLength<T>(this T[] self, out T arg0, out T arg1, out T arg2,out T arg3)
+        {
+            if (self == null) throw new ArgumentNullException();
+            if (self.Length != 4) throw new ArgumentException("Passed argument 'self' is invalid size. Expected size is 4");
+            arg0 = self[0];
+            arg1 = self[1];
+            arg2 = self[2];
+            arg3 = self[3];
+        }
+
+        public static void CheckLength<T>(this T[] self, out T arg0, out T arg1, out T arg2, out T arg3,out T arg4)
+        {
+            if (self == null) throw new ArgumentNullException();
+            if (self.Length != 5) throw new ArgumentException("Passed argument 'self' is invalid size. Expected size is 5");
+            arg0 = self[0];
+            arg1 = self[1];
+            arg2 = self[2];
+            arg3 = self[3];
+            arg4 = self[4];
+        }
+
+        public static void CheckLength<T>(this T[] self, out T arg0, out T arg1, out T arg2, out T arg3, out T arg4,out T arg5)
+        {
+            if (self == null) throw new ArgumentNullException();
+            if (self.Length != 6) throw new ArgumentException("Passed argument 'self' is invalid size. Expected size is 6");
+            arg0 = self[0];
+            arg1 = self[1];
+            arg2 = self[2];
+            arg3 = self[3];
+            arg4 = self[4];
+            arg5 = self[5];
+        }
+
+        public static void CheckLength<T>(this T[] self, out T arg0, out T arg1, out T arg2, out T arg3, out T arg4, out T arg5,out T arg6)
+        {
+            if (self == null) throw new ArgumentNullException();
+            if (self.Length != 7) throw new ArgumentException("Passed argument 'self' is invalid size. Expected size is 7");
+            arg0 = self[0];
+            arg1 = self[1];
+            arg2 = self[2];
+            arg3 = self[3];
+            arg4 = self[4];
+            arg5 = self[5];
+            arg6 = self[6];
+        }
     }
 
     [System.Serializable]
