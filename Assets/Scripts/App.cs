@@ -141,8 +141,26 @@ namespace RhythmGame
 
         private static object GetArg(string T)
         {
-            if (T[0] == '\"') return T[1..^1];
-            else return ArithmeticExtension.TryParse(T, out var arithmeticInfo) ? arithmeticInfo.ReadValue() : 0f;
+            if (T.Contains('"'))
+            {
+                string result = T[(T.IndexOf('"') + 1)..T.LastIndexOf('"')];
+                DebugExtension.LogMessage("GetArg " + result);
+                return result;
+            }
+            else
+            {
+                if (ArithmeticExtension.TryParse(T, out var arithmeticInfo))
+                {
+                    float result = arithmeticInfo.ReadValue();
+                    DebugExtension.LogMessage("GetArg " + result.ToString());
+                    return result;
+                }
+                else
+                {
+                    DebugExtension.LogMessage("GetArg " + T + " is failed parse");
+                    return 0;
+                }
+            }
         }
 
         public static void Read(string[] lines)
@@ -152,16 +170,23 @@ namespace RhythmGame
                 if (string.IsNullOrEmpty(lineSingle)) continue;
                 if (lineSingle.StartsWith("//")) continue;
 
-                string line = lineSingle.Replace('\n', ' ');
-                DebugExtension.LogMessage("Current : " + line);
+                string line = lineSingle.Replace('\n', ' ').Trim(' ');
                 string[] strs;
-                if (line.Contains('|')) strs = line.Trim().Split('|');
-                else strs = line.Trim().Split(' ');
+                if (line[0] == '{')
+                {
+                    strs = new string[1] { line };
+                }
+                else
+                {
+                    if (line.Contains('|')) strs = line.Trim().Split('|');
+                    else strs = line.Trim(' ').Split(' ');
+                }
                 for (int i = 0; i < strs.Length; i++)
                 {
-                    strs[i] = strs[i].Trim();
+                    strs[i] = strs[i].Trim(' ');
                 }
-                if (strs.Length > 0)
+                DebugExtension.LogMessage("source [ length = " + strs.Length + " ] = " + strs.LinkAndInsert(' '));
+                if (strs.Length > 1)
                     Parse(strs[0], strs[1..]);
                 else
                     Parse(strs[0]);
@@ -221,11 +246,11 @@ namespace RhythmGame
                     if (!line.StartsWith("//"))
                     {
                         string[] strs;
-                        if (line.Contains('|')) strs = line.Trim().Split('|');
-                        else strs = line.Trim().Split(' ');
+                        if (line.Contains('|')) strs = line.Trim(' ').Split('|');
+                        else strs = line.Trim(' ').Split(' ');
                         for (int i = 0; i < strs.Length; i++)
                         {
-                            strs[i] = strs[i].Trim();
+                            strs[i] = strs[i].Trim(' ');
                         }
                         if (strs.Length > 0)
                             Parse(strs[0], strs[1..]);
@@ -242,18 +267,12 @@ namespace RhythmGame
 
         private static void ImportCommandType(string name)
         {
-            commanderType = ADGlobalSystem.FinalCheck(ReflectionExtension.Typen(name), "type is not find");
+            commanderType = ADGlobalSystem.FinalCheck(ReflectionExtension.Typen(name), $"type {name} is not find");
             DebugExtension.LogMessage("import " + commanderType.FullName);
         }
 
         private static void BuildCommandInstance(string[] args)
         {
-            //if (args.Length % 2 != 0) throw new ArgumentException("Passed argument 'args' is invalid size. Expected size is multiples of 2");
-            //commander = Activator.CreateInstance(commanderType);
-            //for (int i = 0, e = args.Length / 2; i < e; i++)
-            //{
-            //    commander.
-            //}
             if (args[0] == "void")
                 commander = ReflectionExtension.CreateInstance(commanderType);
             else
@@ -314,6 +333,11 @@ namespace RhythmGame
             public float LoadSong(string path)
             {
                 if (!RhythmGameCommandScript.IsEnableScriptReading) return -1;
+
+                path = path.Replace("...StreamingAssets", Application.streamingAssetsPath);
+                path = path.Replace("...PersistentData", Application.persistentDataPath);
+
+                DebugExtension.LogMessage("LoadSong " + path);
 
                 App.instance.GetController<TimeController>().Share(out var tc).MainAudioSource.LoadOnUrl(path, AudioSourceController.GetAudioType(path), true);
                 ADGlobalSystem.OpenCoroutine(() => tc.MainAudioSource.CurrentClip == null, () => tc.Replay());

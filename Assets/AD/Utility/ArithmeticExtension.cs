@@ -517,7 +517,7 @@ namespace AD.Math
             if (BuildAnalytyExpression != null && BuildAnalytyExpression == expression)
             {
                 BuildAnalytyExpression = null;
-                throw new ArithmeticException("Duplicate expressions(\n\n\t" + expression + "\n\n) are being parsed repeatedly");
+                throw new ArithmeticException("Duplicate expressions(\n\n\t" + expression + "\n\n) are being parsed repeatedly , it often means that this is not a parseable expression");
             }
             expression = expression.Trim();
             if (expression.Length > 2 && expression[0] == '(' && expression[^1] == ')')
