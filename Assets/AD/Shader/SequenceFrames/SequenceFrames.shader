@@ -8,6 +8,7 @@ Shader "AD/SequenceFrames"
         [IntRange] _YFramesCount ("Frams Count Of Y",Range(1,16)) = 4
         
         [PerRendererData]_CurrentFramesCount ("Current",Range(0,255)) = 0
+        _MainColorT ("Frames Color",Color) = (1,1,1,1)
         
         [Header(Stencil)]
         //[Enum(Never,1,Less,2,Equal,3,LEqual,4,Greater,5,NotEqual,6,GEqual,7,AlwaysRender,8)] 
@@ -83,6 +84,8 @@ Shader "AD/SequenceFrames"
             uint _YFramesCount;
             float _CurrentFramesCount;
 
+            float4 _MainColorT;
+
 
             v2f vert (appdata v)
             {
@@ -109,6 +112,11 @@ Shader "AD/SequenceFrames"
                 fixed4 col = 
                     tex2D(_MainFrames, float2((i.uv.x + xc)/x, (i.uv.y - 1 + yc ) / y)) * (1 - t) +
                     tex2D(_MainFrames, float2((i.uv.x + next_xc)/x, (i.uv.y - 1 + next_yc ) / y)) * t;
+
+                col.r = col.r * _MainColorT.r;
+                col.g = col.g * _MainColorT.g;
+                col.b = col.b * _MainColorT.b;
+                col.a = col.a * _MainColorT.a;
                 
                 #ifdef UNITY_UI_ALPHACLIP
                 clip (col.a - 0.001);
