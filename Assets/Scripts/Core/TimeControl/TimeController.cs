@@ -24,6 +24,8 @@ namespace RhythmGame.Time
 
         public override void Init()
         {
+            Application.targetFrameRate = 90;
+
             Listeners = new();
             //MainAudioSource.Stop();
             //MainAudioSource.CurrentTime = -3;
@@ -36,6 +38,7 @@ namespace RhythmGame.Time
 
         private void Start()
         {
+            if (!new ArithmeticVariable("delay")) ArithmeticExtension.AddVariable("delay", new(0));
             App.instance.Init();
             App.instance.RegisterController(this);
         }
@@ -51,14 +54,14 @@ namespace RhythmGame.Time
                     listener.When(MainAudioSource.CurrentTime, MainAudioSource.CurrentClip.length);
                 }
             }
-            else if (App.instance.MaxDepth != 0)
-            {
-                TimeFillBar.SetPerecent(0, 0, MainAudioSource.CurrentClip.length);
-                foreach (var listener in Listeners)
-                {
-                    listener.When(0, MainAudioSource.CurrentClip.length);
-                }
-            }
+            //else if (App.instance.MaxDepth != 0)
+            //{
+            //    TimeFillBar.SetPerecent(0, 0, MainAudioSource.CurrentClip.length);
+            //    foreach (var listener in Listeners)
+            //    {
+            //        listener.When(0, MainAudioSource.CurrentClip.length);
+            //    }
+            //}
 
             //Update Note Material
             MainMaterialGroup.UpdateTarget("_NearPanel", App.instance.CameraSafeAreaPanel);
@@ -112,6 +115,17 @@ namespace RhythmGame.Time
             MainAudioSource.CurrentTime = -3;
             PlaySong();
             ResetSongSetting();
+            foreach (var item in Listeners)
+            {
+                if (item.As<JudgeEffect>(out var effect))
+                {
+                    effect.gameObject.SetActive(false);
+                }
+                else if (item.As<IRebuildHandler>(out var handler))
+                {
+                    handler.RebuildImmediately();
+                }
+            }
         }
     }
 }

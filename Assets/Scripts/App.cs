@@ -12,7 +12,6 @@ using AD.Utility;
 using RhythmGame.Time;
 using RhythmGame.Visual;
 using RhythmGame.Visual.Note;
-using Unity.VisualScripting;
 using UnityEngine;
 using static AD.Reflection.ReflectionExtension;
 
@@ -324,6 +323,7 @@ namespace RhythmGame
 
     namespace Load
     {
+        [UnityEngine.Scripting.Preserve]
         public class Script
         {
             public Script() : this("", "") { }
@@ -430,13 +430,14 @@ namespace RhythmGame
                     MalodyBeatMapBM bm = obj as MalodyBeatMapBM;
                     MalodyBeatMapBMTimeMode bmT = bm.ToTimeMode();
                     Dictionary<float, int> coms = new();
+                    int indexcccc = 0;
                     for (int i = 0; i < bmT.note.Count; i++)
                     {
                         NoteTimeMode note = bmT.note[i];
                         string x = (0.8f * (note.column / ((float)bm.extra.test.divide - 1) - 0.5f)).ToString();
                         string y = (Mathf.Sin(note.column * i) * 0.5f).ToString();
                         float judgeTime = note.keyTime;
-                        Note((coms.TryGetValue(judgeTime, out int num) ? num : 0) % 2, judgeTime.ToString(), x, y, "45");
+                        Note(((coms.TryGetValue(judgeTime, out int num) ? num : 0) + indexcccc++) % 2, judgeTime.ToString(), x, y, (indexcccc * 36).ToString());
                         coms.TryAdd(judgeTime, 0);
                         coms[judgeTime] = coms[judgeTime] + 1;
                     }
@@ -511,8 +512,7 @@ namespace RhythmGame
                 _note.transform.SetParent(App.instance.ParRoot);
 
                 _note.JudgeTimeExpression = judgeTime;
-                ArithmeticVariable delay = new("delay");
-                if (delay) _note.JudgeTimeExpression += "+(" + delay.ReadValue().ToString() + ")";
+                _note.JudgeTimeExpression += "+({delay})";
                 _note.LocalPostion = new string[2] { posX, poxY };
                 _note.LocalEulerAngles = new string[3] { "0", "0", eulerZ };
                 _note.SetDirty();

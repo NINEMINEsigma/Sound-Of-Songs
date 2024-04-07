@@ -687,8 +687,9 @@ namespace AD.Math
             UpdateValue();
             if (this)
             {
-                VariableConstantPairs[m_key].RefIndex--;
-                if (VariableConstantPairs[m_key].RefIndex == 0) VariableConstantPairs.Remove(m_key);
+                //TODO
+                //VariableConstantPairs[m_key].RefIndex--;
+                //if (VariableConstantPairs[m_key].RefIndex == 0) VariableConstantPairs.Remove(m_key);
             }
         }
 

@@ -42,7 +42,7 @@ namespace RhythmGame.Visual
         /// <summary>
         /// 由创建者执行<see cref="App.MatchData(RhythmGame.IController)"/>
         /// </summary>
-        public class NoteBase : MonoBehaviour, IVisualBase, IController
+        public class NoteBase : MonoBehaviour, IVisualBase, IController, IRebuildHandler
         {
             public string m_NoteType;
             [RhythmData] public string NoteType { get => m_NoteType; set => m_NoteType = value; }
