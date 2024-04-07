@@ -1375,7 +1375,7 @@ MonoBehaviour:
     TargetPitch_Attribute_Name: MasterPitch
     TargetPitchshifterPitch_Attribute_Name: PitchShifterPitch
     TargetOutputSpeed: {fileID: 0}
-    TargetPitchValue: 0.5
+    TargetPitchValue: 1
 --- !u!82 &432076931
 AudioSource:
   m_ObjectHideFlags: 0

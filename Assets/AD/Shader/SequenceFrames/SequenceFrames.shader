@@ -7,7 +7,7 @@ Shader "AD/SequenceFrames"
         [IntRange] _XFramesCount ("Frams Count Of X",Range(1,16)) = 6
         [IntRange] _YFramesCount ("Frams Count Of Y",Range(1,16)) = 4
         
-        _CurrentFramesCount ("Current",Range(0,255)) = 0
+        [PerRendererData]_CurrentFramesCount ("Current",Range(0,255)) = 0
         
         [Header(Stencil)]
         //[Enum(Never,1,Less,2,Equal,3,LEqual,4,Greater,5,NotEqual,6,GEqual,7,AlwaysRender,8)] 
