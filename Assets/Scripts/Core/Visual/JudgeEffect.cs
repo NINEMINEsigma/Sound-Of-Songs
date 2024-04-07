@@ -73,6 +73,7 @@ namespace RhythmGame.Visual.Note
             if (ADGlobalSystem.instance)
             {
                 App.instance.GetModel<JudgeEffectStack>().Objects.Enqueue(this);
+                App.instance.GetController<TimeController>().RemoveListener(this);
             }
         }
 
