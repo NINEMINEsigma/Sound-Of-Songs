@@ -16,7 +16,7 @@ namespace RhythmGame
 {
     public class CameraCore : ADController, IController, IListenTime, IRebuildHandler, IInvariant<IRebuildHandler>
     {
-        public const float CameraOffsetZ = -10;
+        public const float CameraOffsetZ = -13;
 
 
         public float min, max;

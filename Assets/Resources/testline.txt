@@ -2,7 +2,7 @@ import Script
 build "test" "liu"
 {delay=0}
 {bpm=202}
-{_DepthMul=150}
+{_DepthMul=70}
 Timing "0" "1" "0" "1" "Linear"
 Vertex "0" "0" "0" "1" "0" "0" "0.3"
 Vertex "0" "0" "8.316" "1" "0" "0" "1"
