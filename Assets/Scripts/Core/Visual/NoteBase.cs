@@ -104,7 +104,7 @@ namespace RhythmGame.Visual
                     m_JudgeTimeExpression = value;
                 }
             }
-            private float m_JudgeTime;
+            [SerializeField] private float m_JudgeTime;
             public float JudgeTime => m_JudgeTime;
 
             private Vector2 m_Position;

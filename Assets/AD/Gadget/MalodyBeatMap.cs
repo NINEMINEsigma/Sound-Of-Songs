@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace AD.Derivation.Malody
+namespace AD.Gadget.Malody
 {
 #if UNITY_EDITOR
 

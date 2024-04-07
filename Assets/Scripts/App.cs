@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using AD;
 using AD.BASE;
 using AD.Derivation.GameEditor;
+using AD.Gadget.Malody;
 using AD.Math;
 using AD.Reflection;
 using AD.UI;
@@ -12,6 +14,7 @@ using RhythmGame.Visual;
 using RhythmGame.Visual.Note;
 using UnityEngine;
 using static AD.Reflection.ReflectionExtension;
+using static UnityEngine.GraphicsBuffer;
 
 namespace RhythmGame
 {
@@ -22,8 +25,7 @@ namespace RhythmGame
         public const string ActualSongTime2Percentage = "SongTime";
         public float Internal_ActualSongTime2Percentage(float t)
         {
-            ArithmeticVariable delay = new("delay");
-            return (t - (delay ? delay.ReadValue() : 0) - StartTime) / (EndTime - StartTime);
+            return (t - StartTime) / (EndTime - StartTime);
         }
         public const string ViewportPositionX2WorldPositionX = "WorldX";
         public float Internal_ViewportPositionX2WorldPositionX(float x)
@@ -54,7 +56,7 @@ namespace RhythmGame
                 else return 50;
             }
         }
-           
+
 
         public void MatchData(IController controller)
         {
@@ -64,6 +66,12 @@ namespace RhythmGame
         public override void Init()
         {
             base.Init();
+
+            MinDepth = Mathf.Infinity;
+            MaxDepth = 0;
+            StartVertex = EndVertex = Vector3.zero;
+            StartTime = EndTime = 0;
+
             ArithmeticExtension.AddFunction(ActualSongTime2Percentage, new(ADReflectedMethod.Temp<float, float>(Internal_ActualSongTime2Percentage), this));
             ArithmeticExtension.AddFunction(ViewportPositionX2WorldPositionX, new(ADReflectedMethod.Temp<float, float>(Internal_ViewportPositionX2WorldPositionX), this));
             ArithmeticExtension.AddFunction(ViewportPositionY2WorldPositionY, new(ADReflectedMethod.Temp<float, float>(Internal_ViewportPositionY2WorldPositionY), this));
@@ -84,7 +92,7 @@ namespace RhythmGame
                 float SongBpm = bpm.ReadValue();
                 float SecondPerBar = 60 / SongBpm;
                 second = SecondPerBar * (measure + beat / beat_p);
-                return Internal_ActualSongTime2Percentage(second);
+                return second;
             }
             return 0;
         }
@@ -267,6 +275,7 @@ namespace RhythmGame
 
         private static void ImportCommandType(string name)
         {
+            name = name.Trim();
             commanderType = ADGlobalSystem.FinalCheck(ReflectionExtension.Typen(name), $"type {name} is not find");
             DebugExtension.LogMessage("import " + commanderType.FullName);
         }
@@ -294,10 +303,10 @@ namespace RhythmGame
             }
         }
 
-        private static void IfRun(string indexName,string func)
+        private static void IfRun(string indexName, string func)
         {
             string index = "{" + indexName + "}";
-            if(index.MakeArithmeticParse()!=0)
+            if (index.MakeArithmeticParse() != 0)
             {
                 DoParse(func);
             }
@@ -337,12 +346,60 @@ namespace RhythmGame
                 path = path.Replace("...StreamingAssets", Application.streamingAssetsPath);
                 path = path.Replace("...PersistentData", Application.persistentDataPath);
 
-                DebugExtension.LogMessage("LoadSong " + path);
+                Debug.LogWarning("LoadSong " + path);
 
                 App.instance.GetController<TimeController>().Share(out var tc).MainAudioSource.LoadOnUrl(path, AudioSourceController.GetAudioType(path), true);
-                ADGlobalSystem.OpenCoroutine(() => tc.MainAudioSource.CurrentClip == null, () => tc.Replay());
+                ADGlobalSystem.OpenCoroutine(() =>
+                {
+                    bool result = tc.MainAudioSource.CurrentClip == null;
+                    if (!result)
+                        Debug.LogWarning(tc.MainAudioSource.CurrentSourcePair.CilpName);
+                    return result;
+                }, () =>
+                {
+                    tc.ResetSongSetting();
+
+                    var MainGuideLine = App.instance.GetController<GuideLine>();
+                    MainGuideLine.RebuildImmediately();
+                    for (int i = 0, e = MainGuideLine.RealVertexs.Count; i < e; i++)
+                    {
+                        var current = MainGuideLine.RealVertexs[i];
+                        if (current.Position.z < App.instance.MinDepth) App.instance.MinDepth = current.Position.z;
+                        if (current.Position.z > App.instance.MaxDepth) App.instance.MaxDepth = current.Position.z;
+                    }
+
+                    tc.Replay();
+
+                    App.instance.GetController<CameraCore>().min = App.instance.MinDepth;
+                    App.instance.GetController<CameraCore>().max = App.instance.MaxDepth;
+
+                    App.instance.GetController<CameraCore>().SetDirty();
+                });
 
                 return 0;
+            }
+
+            public float LoadMelodyBM(string path)
+            {
+                if (!RhythmGameCommandScript.IsEnableScriptReading) return -1;
+
+                if (AD.ADGlobalSystem.Input<MalodyBeatMapBM>(path, out object obj))
+                {
+                    MalodyBeatMapBM bm = obj as MalodyBeatMapBM;
+                    MalodyBeatMapBMTimeMode bmT = bm.ToTimeMode();
+                    Dictionary<float, int> coms = new();
+                    foreach (var note in bmT.note)
+                    {
+                        string x = (Mathf.Cos(note.column / (float)bm.extra.test.divide * Mathf.PI * 2) * 0.2f).ToString();
+                        string y = (Mathf.Sin(note.column / (float)bm.extra.test.divide * Mathf.PI * 2 + Mathf.PI) * 0.2f).ToString();
+                        float judgeTime = note.keyTime;
+                        Note((coms.TryGetValue(judgeTime, out int num) ? num : 0) % 2, judgeTime.ToString(), x, y, (judgeTime * 223.65 / 360.0f).ToString());
+                        coms.TryAdd(judgeTime, 0);
+                        coms[judgeTime] = coms[judgeTime] + 1;
+                    }
+                    return 0;
+                }
+                else return -1;
             }
 
             public float Vertex(string posX, string posY, string depth, string nomX, string nomY, string nomZ, string size)
@@ -406,7 +463,7 @@ namespace RhythmGame
 
                 _note.JudgeTimeExpression = judgeTime;
                 ArithmeticVariable delay = new("delay");
-                if (delay) _note.JudgeTimeExpression += "-(" + delay.ReadValue().ToString() + ")";
+                if (delay) _note.JudgeTimeExpression += "+(" + delay.ReadValue().ToString() + ")";
                 _note.LocalPostion = new string[2] { posX, poxY };
                 _note.LocalEulerAngles = new string[3] { "0", "0", eulerZ };
                 _note.SetDirty();
@@ -424,7 +481,7 @@ namespace RhythmGame
                     eulerZ.MakeArithmeticParse().ToString());
             }
 
-            public float Set(string name,float value)
+            public float Set(string name, float value)
             {
                 ArithmeticExtension.AddVariable(name, new(value));
                 return 0;

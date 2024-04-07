@@ -3193,6 +3193,7 @@ namespace AD.BASE
         {
             ADFile file = new(LogPath, true, false, false);
             file.Dispose();
+            Application.logMessageReceived -= LogHandler;
             Application.logMessageReceived += LogHandler;
         }
 
@@ -3207,7 +3208,16 @@ namespace AD.BASE
                 sws.WriteLine("[exception message]:" + logString);
                 sws.WriteLine("[stack trace]:\n" + stackTrace + "}");
             }
-            catch { }
+            catch(Exception ex)
+            {
+                using StreamWriter sws = new(LogPath + ".error", true, System.Text.Encoding.UTF8);
+                sws.WriteLine("{");
+                sws.WriteLine("[time]:" + DateTime.Now.ToString());
+                sws.WriteLine("[type]:" + type.ToString());
+                sws.WriteLine("[exception message]:" + logString);
+                sws.WriteLine("[stack trace]:\n" + stackTrace + "}");
+                sws.WriteLine("[_catch_error]:" + ex.Message);
+            }
         }
 
         public static void Log()

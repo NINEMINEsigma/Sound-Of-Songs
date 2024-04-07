@@ -153,11 +153,6 @@ namespace RhythmGame.Visual
             IsDirty = true;
         }
 
-        private void LateUpdate()
-        {
-            Rebuild();
-        }
-
         private void Start()
         {
             Vertexs ??= new();
@@ -172,6 +167,7 @@ namespace RhythmGame.Visual
         private int m_CurrentGuideLineVertexIndex = 0;
         public void When(float time, float duration)
         {
+            Rebuild();
             //Get Anchor Position
             //为了能够支持倒退
             m_CurrentGuideLineVertexIndex = 0;

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using AD;
 using AD.BASE;
+using AD.Math;
 using AD.UI;
 using AD.Utility.Object;
 using RhythmGame.Visual;
@@ -50,7 +51,7 @@ namespace RhythmGame.Time
                     listener.When(MainAudioSource.CurrentTime, MainAudioSource.CurrentClip.length);
                 }
             }
-            else if (MainAudioSource.CurrentClip != null)
+            else if (App.instance.MaxDepth != 0)
             {
                 TimeFillBar.SetPerecent(0, 0, MainAudioSource.CurrentClip.length);
                 foreach (var listener in Listeners)
@@ -96,13 +97,21 @@ namespace RhythmGame.Time
             Architecture.GetController<RhythmGame.Visual.ScoreBoard>().Init();
         }
 
+        public void ResetSongSetting()
+        {
+            App.instance.StartTime = 0;
+            ArithmeticVariable delay = new("delay");
+            Length = App.instance.EndTime = MainAudioSource.CurrentClip.length + (delay ? delay.ReadValue() : 0);
+        }
+
+        public float Length;
+
         public void Replay()
         {
             StopSong();
             MainAudioSource.CurrentTime = -3;
             PlaySong();
-            App.instance.StartTime = 0;
-            App.instance.EndTime = MainAudioSource.CurrentClip.length;
+            ResetSongSetting();
         }
     }
 }

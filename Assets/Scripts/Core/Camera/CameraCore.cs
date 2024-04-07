@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using AD;
 using AD.BASE;
+using AD.Math;
 using AD.UI;
 using AD.Utility;
 using RhythmGame.Time;
@@ -16,6 +17,9 @@ namespace RhythmGame
     public class CameraCore : ADController, IController, IListenTime, IRebuildHandler, IInvariant<IRebuildHandler>
     {
         public const float CameraOffsetZ = -10;
+
+
+        public float min, max;
 
         [SerializeField] private Camera MainCamera;
         [SerializeField] private GuideLine MainGuideLine;
@@ -63,7 +67,7 @@ namespace RhythmGame
             //TODO
             try
             {
-                TargetFile = new ADFile(Path.Combine(  Application.streamingAssetsPath ,
+                TargetFile = new ADFile(Path.Combine(Application.streamingAssetsPath,
                     "test.line"), false, true, false);
                 RhythmGameCommandScript.Read(TargetFile.GetString(true, System.Text.Encoding.UTF8).Split('\n'));
             }
@@ -71,17 +75,6 @@ namespace RhythmGame
             {
                 Debug.LogException(ex);
             }
-
-            MainGuideLine.RebuildImmediately();
-
-            for (int i = 0, e = MainGuideLine.RealVertexs.Count; i < e; i++)
-            {
-                var current = MainGuideLine.RealVertexs[i];
-                if (current.Position.z < App.instance.MinDepth) App.instance.MinDepth = current.Position.z;
-                if (current.Position.z > App.instance.MaxDepth) App.instance.MaxDepth = current.Position.z;
-            }
-
-            SetDirty();
         }
 
         protected override void OnDestroy()

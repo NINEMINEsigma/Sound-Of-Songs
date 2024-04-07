@@ -1375,7 +1375,7 @@ MonoBehaviour:
     TargetPitch_Attribute_Name: MasterPitch
     TargetPitchshifterPitch_Attribute_Name: PitchShifterPitch
     TargetOutputSpeed: {fileID: 0}
-    TargetPitchValue: 1
+    TargetPitchValue: 0.5
 --- !u!82 &432076931
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2262,6 +2262,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ef740ce49adde740b7eb94feec34425, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  min: 0
+  max: 0
   MainCamera: {fileID: 519420031}
   MainGuideLine: {fileID: 621260700}
   LineCilper: {fileID: 2100000, guid: 91302dd0551973a46b9486a5b3fe90df, type: 2}
@@ -3864,6 +3866,7 @@ MonoBehaviour:
   MainAudioSource: {fileID: 432076932}
   MainMaterialGroup: {fileID: 361329063}
   TimeFillBar: {fileID: 1953428475}
+  Length: 0
 --- !u!1 &1458790986
 GameObject:
   m_ObjectHideFlags: 0
