@@ -195,14 +195,14 @@ namespace RhythmGame.Visual
 
         public void RebuildImmediately()
         {
-            MainScoreBoard.SetText($"{TotalMainScore.S.Count}<b>-</b>{GetFormatScore(0, JudgeType.Bad.ToSecond(), FullScore, TotalMainScore.GetE(), 7)}");
-            PerfectScoreBoard.SetText($"Perfect {TotalPerfectScore.S.Count}");
+            MainScoreBoard.SetText($"{GetFormatScore(0, JudgeType.Bad.ToSecond(), FullScore, TotalMainScore.GetE(), 7)}\n{TotalMainScore.S.Count}");
+            PerfectScoreBoard.SetText($"Perfect\n{TotalPerfectScore.S.Count}");
             //    $"{TotalPerfectScore.S.Count} P {GetFormatScore(JudgeType.Best.ToSecond(), JudgeType.Good.ToSecond(), ShortFullScore, TotalPerfectScore.GetE() , 4)}");
-            GoodScoreBoard.SetText($"Good {TotalGoodScore.S.Count}");
+            GoodScoreBoard.SetText($"Good\n{TotalGoodScore.S.Count}");
             //    $"{TotalGoodScore.S.Count} G {GetFormatScore(JudgeType.Good.ToSecond(), JudgeType.Bad.ToSecond(), ShortFullScore, TotalGoodScore.GetE() , 4)}");
-            BadScoreBoard.SetText($"Bad {TotalBadScore.S.Count}");
+            BadScoreBoard.SetText($"Bad\n{TotalBadScore.S.Count}");
             //    $"{TotalBadScore.S.Count} B {GetFormatScore(JudgeType.Bad.ToSecond(), JudgeType.Lost.ToSecond(), ShortFullScore, TotalBadScore.GetE(), 4)}");
-            LostScoreBoard.SetText($"Lost {TotalLostScore.S.Count}");
+            LostScoreBoard.SetText($"Lost\n{TotalLostScore.S.Count}");
             IsDirty = false;
         }
 

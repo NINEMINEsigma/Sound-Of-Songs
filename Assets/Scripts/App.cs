@@ -12,6 +12,7 @@ using AD.Utility;
 using RhythmGame.Time;
 using RhythmGame.Visual;
 using RhythmGame.Visual.Note;
+using Unity.VisualScripting;
 using UnityEngine;
 using static AD.Reflection.ReflectionExtension;
 
@@ -338,16 +339,50 @@ namespace RhythmGame
             public string ProjectName;
             public string CreaterName;
 
+            public static string GetPath(string path, out ADStreamEnum.Location fileMode)
+            {
+                if (path.Contains("...StreamingAssets"))
+                {
+                    fileMode = ADStreamEnum.Location.File;
+                    path = path.Replace("...StreamingAssets", Application.streamingAssetsPath);
+                }
+                else if (path.Contains("...PersistentData"))
+                {
+                    fileMode = ADStreamEnum.Location.File;
+                    path = path.Replace("...PersistentData", Application.persistentDataPath);
+                }
+                else if (path.Contains("...Resources"))
+                {
+                    fileMode = ADStreamEnum.Location.Resources;
+                    path = path.Replace("...Resources/", "");
+                    path = path.Replace("...Resources\\", "");
+                }
+                else
+                {
+                    fileMode = ADStreamEnum.Location.File;
+                }
+                return path;
+            }
+
             public float LoadSong(string path)
             {
                 if (!RhythmGameCommandScript.IsEnableScriptReading) return -1;
 
-                path = path.Replace("...StreamingAssets", Application.streamingAssetsPath);
-                path = path.Replace("...PersistentData", Application.persistentDataPath);
+                path = GetPath(path, out var fileMode);
 
                 Debug.LogWarning("LoadSong " + path);
 
-                App.instance.GetController<TimeController>().Share(out var tc).MainAudioSource.LoadOnUrl(path, AudioSourceController.GetAudioType(path), true);
+                App.instance.GetController<TimeController>().Share(out var tc);//.MainAudioSource.LoadOnUrl(path, AudioSourceController.GetAudioType(path), true);
+
+                if(fileMode == ADStreamEnum.Location.File)
+                {
+                    tc.MainAudioSource.LoadOnUrl(path, AudioSourceController.GetAudioType(path), true);
+                }
+                else if(fileMode == ADStreamEnum.Location.Resources)
+                {
+                    tc.MainAudioSource.LoadOnResource(path, AudioSourceController.GetAudioType(path), true);
+                }
+
                 ADGlobalSystem.OpenCoroutine(() =>
                 {
                     bool result = tc.MainAudioSource.CurrentClip == null;
@@ -356,6 +391,8 @@ namespace RhythmGame
                     return result;
                 }, () =>
                 {
+                    Debug.LogWarning("clip is load over");
+
                     tc.ResetSongSetting();
 
                     var MainGuideLine = App.instance.GetController<GuideLine>();
@@ -382,10 +419,13 @@ namespace RhythmGame
             {
                 if (!RhythmGameCommandScript.IsEnableScriptReading) return -1;
 
-                path = path.Replace("...StreamingAssets", Application.streamingAssetsPath);
-                path = path.Replace("...PersistentData", Application.persistentDataPath);
+                path = GetPath(path, out var fileMode);
 
-                if (AD.ADGlobalSystem.Input<MalodyBeatMapBM>(path, out object obj))
+                ADSettings settings = new(path, fileMode);
+
+                ADFile file = new(settings);
+
+                if (file.Deserialize<MalodyBeatMapBM>(true, System.Text.Encoding.UTF8, out object obj))
                 {
                     MalodyBeatMapBM bm = obj as MalodyBeatMapBM;
                     MalodyBeatMapBMTimeMode bmT = bm.ToTimeMode();
@@ -394,7 +434,7 @@ namespace RhythmGame
                     {
                         NoteTimeMode note = bmT.note[i];
                         string x = (0.8f * (note.column / ((float)bm.extra.test.divide - 1) - 0.5f)).ToString();
-                        string y = (Mathf.Sin(note.column * i)*0.5f).ToString();
+                        string y = (Mathf.Sin(note.column * i) * 0.5f).ToString();
                         float judgeTime = note.keyTime;
                         Note((coms.TryGetValue(judgeTime, out int num) ? num : 0) % 2, judgeTime.ToString(), x, y, "45");
                         coms.TryAdd(judgeTime, 0);

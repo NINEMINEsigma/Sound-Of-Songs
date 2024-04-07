@@ -221,16 +221,19 @@ namespace AD.BASE
         public void UpdateFileData()
         {
             if (DebugMyself()) return;
-            if (this.IsKeepFileControl)
+            if(this.MySetting!=null)
+            {
+                using var nFileStream = ADFile.CreateStream(MySetting, ADStreamEnum.FileMode.Read);
+                UpdateFileData(nFileStream);
+            }
+            else if (this.IsKeepFileControl)
             {
                 UpdateFileData(FileStream);
             }
             else
             {
-                using (var nFileStream = new FileStream(FilePath, FileMode.Open, FileAccess.ReadWrite))
-                {
-                    UpdateFileData(nFileStream);
-                }
+                using var nFileStream = new FileStream(FilePath, FileMode.Open, FileAccess.ReadWrite);
+                UpdateFileData(nFileStream);
             }
         }
 
@@ -631,6 +634,7 @@ namespace AD.BASE
                             stream = resourcesStream;
                         else
                         {
+                            Debug.LogWarning(fullPath + " is not find");
                             resourcesStream.Dispose();
                             return null;
                         }

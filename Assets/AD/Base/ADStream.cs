@@ -2,6 +2,8 @@ using System.IO;
 using UnityEngine;
 using System.Security.Cryptography;
 using System.IO.Compression;
+using System.Collections.Generic;
+
 
 
 #if UNITY_EDITOR
@@ -430,7 +432,7 @@ namespace AD.BASE
 
         #region Fields
 
-        private static readonly string[] resourcesExtensions = new string[] { ".txt", ".htm", ".html", ".xml", ".bytes", ".json", ".csv", ".yaml", ".fnt" };
+        private static List<string> resourcesExtensions = new() { ".txt", ".htm", ".html", ".xml", ".bytes", ".json", ".csv", ".yaml", ".fnt", ".line" };
 
         #region
 

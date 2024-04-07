@@ -3,8 +3,8 @@ build "test" "liu"
 {delay=-3.3}
 {bpm=184.082}
 {_DepthMul=150}
-LoadSong "...StreamingAssets\test.ogg"
 Timing "0" "1" "0" "1" "Linear"
 Vertex "0" "0" "0" "1" "0" "0" "0.3"
 Vertex "0" "0" "134" "1" "0" "0" "0.3"
-LoadMelodyBM "...StreamingAssets\testmc.mc"
+LoadMelodyBM "...Resources\testmc.txt"
+LoadSong "...Resources\test"

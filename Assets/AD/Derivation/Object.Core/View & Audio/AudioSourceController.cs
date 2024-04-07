@@ -716,8 +716,15 @@ namespace AD.UI
 
         public void LoadOnResource(string source, AudioType audioType, bool isCurrent = true)
         {
-            string finalPath = Application.dataPath + "/Resources/" + source;
-            StartCoroutine(LoadAudio(finalPath, audioType, isCurrent));
+            //string finalPath = Application.dataPath + "/Resources/" + source;
+            //StartCoroutine(LoadAudio(finalPath, audioType, isCurrent));
+            AudioClip audioClip = Resources.Load<AudioClip>(source);
+            ADGlobalSystem.FinalCheck(audioClip,"clip can not load");
+            if (isCurrent && SourcePairs.Count > 0)
+                CurrentClip = audioClip;
+            else
+                SourcePairs.Add(new SourcePair() { CilpName = source, Name = source, Clip = audioClip });
+            Refresh();
         }
 
         public void LoadOnUrl(string url, AudioType audioType, bool isCurrent = true)

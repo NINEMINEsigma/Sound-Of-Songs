@@ -99,3 +99,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TimeCounter: 0
   m_Material: {fileID: 2100000, guid: 70489785d777f0349857b4f4e37d45b1, type: 2}
+  m_SpriteRenderer: {fileID: 6407705806721347848}
+  IsInit: 0

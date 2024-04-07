@@ -39,6 +39,7 @@ namespace RhythmGame.Visual.Note
 
         public float TimeCounter = 0;
         public Material m_Material;
+        public SpriteRenderer m_SpriteRenderer;
 
         public void When(float time, float duration)
         {
@@ -58,6 +59,8 @@ namespace RhythmGame.Visual.Note
             if (!IsInit)
             {
                 App.instance.GetController<TimeController>().AddListener(this);
+                m_Material = new Material(m_Material);
+                m_SpriteRenderer.sharedMaterial = m_Material;
                 IsInit = true;
             }
         }
@@ -73,7 +76,6 @@ namespace RhythmGame.Visual.Note
             if (ADGlobalSystem.instance)
             {
                 App.instance.GetModel<JudgeEffectStack>().Objects.Enqueue(this);
-                App.instance.GetController<TimeController>().RemoveListener(this);
             }
         }
 
