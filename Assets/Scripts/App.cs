@@ -14,7 +14,6 @@ using RhythmGame.Visual;
 using RhythmGame.Visual.Note;
 using UnityEngine;
 using static AD.Reflection.ReflectionExtension;
-using static UnityEngine.GraphicsBuffer;
 
 namespace RhythmGame
 {
@@ -383,24 +382,34 @@ namespace RhythmGame
             {
                 if (!RhythmGameCommandScript.IsEnableScriptReading) return -1;
 
+                path = path.Replace("...StreamingAssets", Application.streamingAssetsPath);
+                path = path.Replace("...PersistentData", Application.persistentDataPath);
+
                 if (AD.ADGlobalSystem.Input<MalodyBeatMapBM>(path, out object obj))
                 {
                     MalodyBeatMapBM bm = obj as MalodyBeatMapBM;
                     MalodyBeatMapBMTimeMode bmT = bm.ToTimeMode();
                     Dictionary<float, int> coms = new();
-                    foreach (var note in bmT.note)
+                    for (int i = 0; i < bmT.note.Count; i++)
                     {
-                        string x = (Mathf.Cos(note.column / (float)bm.extra.test.divide * Mathf.PI * 2) * 0.2f).ToString();
-                        string y = (Mathf.Sin(note.column / (float)bm.extra.test.divide * Mathf.PI * 2 + Mathf.PI) * 0.2f).ToString();
+                        NoteTimeMode note = bmT.note[i];
+                        string x = (0.8f * (note.column / ((float)bm.extra.test.divide - 1) - 0.5f)).ToString();
+                        string y = (Mathf.Sin(note.column * i)*0.5f).ToString();
                         float judgeTime = note.keyTime;
-                        Note((coms.TryGetValue(judgeTime, out int num) ? num : 0) % 2, judgeTime.ToString(), x, y, (judgeTime * 223.65 / 360.0f).ToString());
+                        Note((coms.TryGetValue(judgeTime, out int num) ? num : 0) % 2, judgeTime.ToString(), x, y, "45");
                         coms.TryAdd(judgeTime, 0);
                         coms[judgeTime] = coms[judgeTime] + 1;
                     }
                     return 0;
                 }
-                else return -1;
+                else
+                {
+                    ADGlobalSystem.AddWarning(path + " is not open");
+                    return -1;
+                }
             }
+
+            public NoteBase LastNote;
 
             public float Vertex(string posX, string posY, string depth, string nomX, string nomY, string nomZ, string size)
             {
@@ -467,6 +476,8 @@ namespace RhythmGame
                 _note.LocalPostion = new string[2] { posX, poxY };
                 _note.LocalEulerAngles = new string[3] { "0", "0", eulerZ };
                 _note.SetDirty();
+
+                LastNote = _note;
 
                 return 0;
             }

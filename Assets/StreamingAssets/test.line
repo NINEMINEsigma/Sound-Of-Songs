@@ -2,6 +2,7 @@ import Script
 build "test" "liu"
 {delay=-3.3}
 {bpm=184.082}
+{_DepthMul=150}
 LoadSong "...StreamingAssets\test.ogg"
 Timing "0" "1" "0" "1" "Linear"
 Vertex "0" "0" "0" "1" "0" "0" "0.3"
