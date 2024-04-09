@@ -1,7 +1,5 @@
 using AD.BASE;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -10,7 +8,7 @@ public class Test : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        ADSettings settings = new(Path.Combine(Application.streamingAssetsPath, "in.txt"), ADStreamEnum.Location.File, ADStreamEnum.Format.JSON) ;
+        ADSettings settings = new(Path.Combine(Application.streamingAssetsPath, "in.txt"), ADStreamEnum.Location.File, ADStreamEnum.Format.LINE) ;
         using ADFile file = new(settings);
         TestCycle data = new()
         {

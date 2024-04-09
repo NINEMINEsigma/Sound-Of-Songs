@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System;
 using AD.BASE;
@@ -568,7 +565,9 @@ namespace AD.BASE.IO
 
 		public override void Dispose()
 		{
-			baseReader.Dispose();
-		}
+			baseReader?.Dispose();
+			baseReader = null;
+
+        }
 	}
 }
