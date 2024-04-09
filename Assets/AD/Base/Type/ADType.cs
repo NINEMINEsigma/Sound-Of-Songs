@@ -7,6 +7,8 @@ using AD.Reflection;
 using Unity.Collections;
 using UnityEngine;
 using AD.BASE.IO;
+using AD.Utility;
+using Unity.VisualScripting;
 
 #region L
 
@@ -20,6 +22,7 @@ namespace AD.Types
 
         public const string typeFieldName = "__type";
 
+        public ADMember[] cycleMembers;
         public ADMember[] members;
         public Type type;
         public bool IsPrimitive { get; protected set; } = false;
@@ -80,11 +83,17 @@ namespace AD.Types
 
         protected void WriteProperties(object obj, ADWriter writer)
         {
-            if (members == null)
+            if (members == null || cycleMembers == null)
                 GetMembers(writer.settings.safeReflection);
             for (int i = 0; i < members.Length; i++)
             {
                 var property = members[i];
+                writer.WriteProperty(property.name, property.reflectedMember.GetValue(obj), ADType.GetOrCreateADType(property.type));
+            }
+            if (!writer.isSupportCycleType) return;
+            for (int i = 0; i < cycleMembers.Length; i++)
+            {
+                var property = cycleMembers[i];
                 writer.WriteProperty(property.name, property.reflectedMember.GetValue(obj), ADType.GetOrCreateADType(property.type));
             }
         }
@@ -309,10 +318,11 @@ namespace AD.Types
         }
         protected void GetMembers(bool safe, string[] memberNames)
         {
-            var serializedMembers = ReflectionExtension.GetSerializableMembers(type, safe, memberNames);
-            members = new ADMember[serializedMembers.Length];
-            for (int i = 0; i < serializedMembers.Length; i++)
-                members[i] = new ADMember(serializedMembers[i]);
+            List<ReflectionExtension.ADReflectedMember> allsSrializedMembers = ReflectionExtension.GetSerializableMembers(type, safe, memberNames, true).ToList();
+            members = allsSrializedMembers.GetSubList(T => !(T.MemberType == type && !ReflectionExtension.IsAssignableFrom(typeof(UnityEngine.Object), T.MemberType))
+            , T => new ADMember(T)).ToArray();
+            cycleMembers = allsSrializedMembers.GetSubList(T => (T.MemberType == type && !ReflectionExtension.IsAssignableFrom(typeof(UnityEngine.Object), T.MemberType))
+            , T => new ADMember(T)).ToArray();
         }
 
         internal static void Init()

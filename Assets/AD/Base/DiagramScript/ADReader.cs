@@ -195,7 +195,7 @@ namespace AD.BASE.IO
 
 		/// <summary>Reads a value from the reader with the given key.</summary>
 		/// <param name="key">The key which uniquely identifies our value.</param>
-		public virtual T Read<T>(string key)
+		public virtual T Input<T>(string key)
 		{
 			if (!Goto(key))
 				throw new KeyNotFoundException("Key \"" + key + "\" was not found in file \"" + settings.FullPath + "\". Use Load<T>(key, defaultValue) if you want to return a default value if the key does not exist.");
@@ -252,7 +252,7 @@ namespace AD.BASE.IO
 		protected virtual T ReadObject<T>(ADType type)
 		{
 			if (StartReadObject())
-				return default(T);
+				return default;
 
 			object obj = type.Read<T>(this);
 
@@ -354,7 +354,9 @@ namespace AD.BASE.IO
 			// Get the baseWriter using the given Stream.
 			if (settings.format == ADStreamEnum.Format.JSON)
 				return new ADJSONReader(stream, settings);
-			return null;
+			stream.Dispose();
+			stream = null;
+            return null;
 		}
 
 		/// <summary>Creates a new ADReader and loads the bytes provided into it.</summary>

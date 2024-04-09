@@ -3,6 +3,8 @@ using UnityEngine;
 using System.Security.Cryptography;
 using System.IO.Compression;
 using System.Collections.Generic;
+using UnityEditor.AssetImporters;
+
 
 
 
@@ -19,7 +21,7 @@ namespace AD.BASE
         public enum Directory { PersistentDataPath, DataPath }
         public enum EncryptionType { None, AES };
         public enum CompressionType { None, Gzip };
-        public enum Format { JSON };
+        public enum Format { JSON ,LINE};
         //public enum ReferenceMode { ByRef, ByValue, ByRefAndValue };
         public enum FileMode { Read, Write, Append }
     }
@@ -362,7 +364,7 @@ namespace AD.BASE
 
         private const string defaultSettingsPath = "Assets/AD/Resources";
 
-        private const string _LogWhenIdentifiedReleaseBuildADRelease 
+        private const string _LogWhenIdentifiedReleaseBuildADRelease
             = "This has been identified as a release build as the title contains 'AD Release', so ADDefaults will not be created.";
         private const string _ExceptionADSettingPathIsNullAndCanntLoad
             = "The 'path' field of this ADSettings is null, indicating that it was not possible to load the default settings from Resources. " +
@@ -385,7 +387,7 @@ namespace AD.BASE
                     if (_defaultSettingsScriptableObject == null)
                     {
                         _defaultSettingsScriptableObject = ScriptableObject.CreateInstance<ADDefaults>();
-                    
+
                         // If this is the version being submitted to the Asset Store, don't include ES3Defaults.
                         if (Application.productName.Contains("AD Release"))
                         {
@@ -394,7 +396,7 @@ namespace AD.BASE
                         }
 
                         //AD Resources Folder is must exist
-                        AssetDatabase.CreateAsset(_defaultSettingsScriptableObject,Path.Combine(defaultSettingsPath, _DefaultSaveFilePath));
+                        AssetDatabase.CreateAsset(_defaultSettingsScriptableObject, Path.Combine(defaultSettingsPath, _DefaultSaveFilePath));
                         AssetDatabase.SaveAssets();
                     }
 #endif
@@ -418,7 +420,7 @@ namespace AD.BASE
         }
 
         private static ADSettings _unencryptedUncompressedSettings = null;
-        internal static ADSettings UnencryptedUncompressedSettings
+        public static ADSettings UnencryptedUncompressedSettings
         {
             get
             {
@@ -432,7 +434,7 @@ namespace AD.BASE
 
         #region Fields
 
-        private static List<string> resourcesExtensions = new() { ".txt", ".htm", ".html", ".xml", ".bytes", ".json", ".csv", ".yaml", ".fnt", ".line" };
+        private static List<string> resourcesExtensions = new() { ".txt", ".htm", ".html", ".xml", ".bytes", ".json", ".csv", ".yaml", ".fnt", ".line", ".lua" };
 
         #region
 
@@ -665,4 +667,44 @@ namespace AD.BASE
 #endif
     }
 
+    [ScriptedImporter(1, ".lua")]
+    public class LuaImporter : ScriptedImporter
+    {
+        public override void OnImportAsset(AssetImportContext ctx)
+        {
+            var luaTxt = File.ReadAllText(ctx.assetPath);
+
+            Debug.Log("Import:" + ctx.assetPath);
+            //转化为TextAsset，也可写个LuaAsset的类作为保存对象，但要继承Object的类
+            var assetsText = new TextAsset(luaTxt);
+
+            ctx.AddObjectToAsset("main obj", assetsText);
+            ctx.SetMainObject(assetsText);
+        }
+    }
+
+    [ScriptedImporter(1, ".line")]
+    public class LineImporter : ScriptedImporter
+    {
+        public override void OnImportAsset(AssetImportContext ctx)
+        {
+            var lineTxt = File.ReadAllText(ctx.assetPath);
+
+            Debug.Log("Import:" + ctx.assetPath);
+            //转化为TextAsset，也可写个LuaAsset的类作为保存对象，但要继承Object的类
+            var assetsText = new LineTextAsset(lineTxt);
+
+            ctx.AddObjectToAsset("main obj", assetsText,Resources.Load<Texture2D>("Editor/Icon/0002LineFile"));
+            ctx.SetMainObject(assetsText);
+        }
+    }
+
+    public class LineTextAsset : TextAsset
+    {
+        public LineTextAsset() : base("") { }
+        public LineTextAsset(string lines) : base(lines) { }
+
+        
+    }
 }
+

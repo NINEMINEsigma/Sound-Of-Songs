@@ -1,0 +1,8 @@
+{
+	"test" : {
+		"__type" : "TestCycle,Assembly-CSharp",
+		"value" : {
+			"id" : "2"
+		}
+	}
+}

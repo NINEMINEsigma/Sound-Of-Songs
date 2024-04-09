@@ -7,8 +7,8 @@ using AD.BASE;
 using AD.Utility.Pipe;
 using Unity.VisualScripting;
 using UnityEngine;
-using AD.SAL;
 using AD.Math;
+using AD.Types;
 
 namespace AD.Reflection
 {
@@ -43,6 +43,11 @@ namespace AD.Reflection
         public static readonly BindingFlags PublicFlags = BindingFlags.Public | BindingFlags.Instance;
         public static readonly BindingFlags DefaultBindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
         public static readonly BindingFlags AllBindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance;
+        public static readonly BindingFlags GetSerializableBindFlags = BindingFlags.Public
+                                                                       | BindingFlags.NonPublic
+                                                                       | BindingFlags.Instance
+                                                                       | BindingFlags.Static
+                                                                       | BindingFlags.DeclaredOnly;
 
         public static bool CreateInstance(this Assembly assembly, string fullName, out object obj)
         {
@@ -413,11 +418,12 @@ namespace AD.Reflection
                 return null;
         }
 
-        public static List<FieldInfo> GetSerializableFields(Type type,
-                                                            List<FieldInfo> serializableFields = null,
-                                                            bool safe = true,
-                                                            string[] memberNames = null,
-                                                            BindingFlags bindings = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
+        public static List<FieldInfo> DoGetSerializableFields(Type type,
+                                                            List<FieldInfo> serializableFields,
+                                                            bool safe,
+                                                            string[] memberNames,
+                                                            BindingFlags bindings,
+                                                            bool IsSupportCycle)
         {
             if (type == null)
                 return new List<FieldInfo>();
@@ -449,8 +455,11 @@ namespace AD.Reflection
                     continue;
 
                 // Don't store fields whose type is the same as the class the field is housed in unless it's stored by reference (to prevent cyclic references)
-                if (fieldType == type && !IsAssignableFrom(typeof(UnityEngine.Object), fieldType))
-                    continue;
+                if (!IsSupportCycle)
+                {
+                    if (fieldType == type && !IsAssignableFrom(typeof(UnityEngine.Object), fieldType))
+                        continue;
+                }
 
                 // If property is marked as obsolete or non-serialized, don't serialize it.
                 if (AttributeIsDefined(field, nonSerializedAttributeType) || AttributeIsDefined(field, obsoleteAttributeType))
@@ -473,11 +482,38 @@ namespace AD.Reflection
             return serializableFields;
         }
 
-        public static List<PropertyInfo> GetSerializableProperties(Type type,
-                                                                   List<PropertyInfo> serializableProperties = null,
-                                                                   bool safe = true,
-                                                                   string[] memberNames = null,
-                                                                   BindingFlags bindings = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
+        public static List<FieldInfo> GetSerializableFields(Type type,
+                                                            List<FieldInfo> serializableFields = null,
+                                                            bool safe = true,
+                                                            string[] memberNames = null,
+                                                            BindingFlags bindings = BindingFlags.Public
+                                                                                    | BindingFlags.NonPublic
+                                                                                    | BindingFlags.Instance
+                                                                                    | BindingFlags.Static
+                                                                                    | BindingFlags.DeclaredOnly)
+        {
+            return DoGetSerializableFields(type, serializableFields, safe, memberNames, bindings, false);
+        }
+
+        public static List<FieldInfo> GetSerializableFieldsSupportCycle(Type type,
+                                                            List<FieldInfo> serializableFields = null,
+                                                            bool safe = true,
+                                                            string[] memberNames = null,
+                                                            BindingFlags bindings = BindingFlags.Public
+                                                                                    | BindingFlags.NonPublic
+                                                                                    | BindingFlags.Instance
+                                                                                    | BindingFlags.Static
+                                                                                    | BindingFlags.DeclaredOnly)
+        {
+            return DoGetSerializableFields(type, serializableFields, safe, memberNames, bindings, true);
+        }
+
+        public static List<PropertyInfo> DoGetSerializableProperties(Type type,
+                                                                   List<PropertyInfo> serializableProperties,
+                                                                   bool safe ,
+                                                                   string[] memberNames ,
+                                                                   BindingFlags bindings ,
+                                                                   bool IsSupportCycle)
         {
             bool isComponent = IsAssignableFrom(typeof(UnityEngine.Component), type);
 
@@ -512,8 +548,11 @@ namespace AD.Reflection
                 var propertyType = p.PropertyType;
 
                 // Don't store properties whose type is the same as the class the property is housed in unless it's stored by reference (to prevent cyclic references)
-                if (propertyType == type && !IsAssignableFrom(typeof(UnityEngine.Object), propertyType))
-                    continue;
+                if (!IsSupportCycle)
+                {
+                    if (propertyType == type && !IsAssignableFrom(typeof(UnityEngine.Object), propertyType))
+                        continue;
+                }
 
                 if (!p.CanRead || !p.CanWrite)
                     continue;
@@ -549,12 +588,48 @@ namespace AD.Reflection
             return serializableProperties;
         }
 
+
+        public static List<PropertyInfo> GetSerializableProperties(Type type,
+                                                                   List<PropertyInfo> serializableProperties = null,
+                                                                   bool safe = true,
+                                                                   string[] memberNames = null,
+                                                                   BindingFlags bindings = BindingFlags.Public
+                                                                                           | BindingFlags.NonPublic
+                                                                                           | BindingFlags.Instance
+                                                                                           | BindingFlags.Static
+                                                                                           | BindingFlags.DeclaredOnly)
+        {
+            return DoGetSerializableProperties(type, serializableProperties, safe, memberNames, bindings, false);
+        }
+
+        public static List<PropertyInfo> GetSerializablePropertiesSupportCycle(Type type,
+                                                                   List<PropertyInfo> serializableProperties = null,
+                                                                   bool safe = true,
+                                                                   string[] memberNames = null,
+                                                                   BindingFlags bindings = BindingFlags.Public
+                                                                                           | BindingFlags.NonPublic
+                                                                                           | BindingFlags.Instance
+                                                                                           | BindingFlags.Static
+                                                                                           | BindingFlags.DeclaredOnly)
+        {
+            return DoGetSerializableProperties(type, serializableProperties, safe, memberNames, bindings, true);
+        }
+
+
         public static bool TypeIsSerializable(Type type)
         {
             if (type == null)
                 return false;
 
+            if (AttributeIsDefined(type, nonSerializedAttributeType))
+                return false;
+
             if (IsPrimitive(type) || IsValueType(type) || IsAssignableFrom(typeof(UnityEngine.Component), type) || IsAssignableFrom(typeof(UnityEngine.ScriptableObject), type))
+                return true;
+
+            var adType = ADType.GetOrCreateADType(type, false);
+
+            if (adType != null && !adType.IsUnsupported)
                 return true;
 
             if (TypeIsArray(type))
@@ -596,13 +671,13 @@ namespace AD.Reflection
             return type.MakeGenericType(genericParam);
         }
 
-        public static ADReflectedMember[] GetSerializableMembers(Type type, bool safe = true, string[] memberNames = null)
+        public static ADReflectedMember[] GetSerializableMembers(Type type, bool safe = true, string[] memberNames = null, bool isSupportCycle = false)
         {
             if (type == null)
                 return new ADReflectedMember[0];
 
-            var fieldInfos = GetSerializableFields(type, new List<FieldInfo>(), safe, memberNames);
-            var propertyInfos = GetSerializableProperties(type, new List<PropertyInfo>(), safe, memberNames);
+            var fieldInfos = DoGetSerializableFields(type, new List<FieldInfo>(), safe, memberNames, GetSerializableBindFlags,isSupportCycle);
+            var propertyInfos = DoGetSerializableProperties(type, new List<PropertyInfo>(), safe, memberNames, GetSerializableBindFlags, isSupportCycle);
             var reflectedFields = new ADReflectedMember[fieldInfos.Count + propertyInfos.Count];
 
             for (int i = 0; i < fieldInfos.Count; i++)

@@ -117,7 +117,8 @@ public class ScriptCopyHelperEditor : AbstractCustomADEditor
                     file.SaveFileData();
                 }
             });
-            that.Text = EditorGUILayout.TextField(that.Text, GUILayout.Height(that.Text.Count(T => T == '\n') * 15.05f));
+            if (!string.IsNullOrEmpty(that.Text))
+                that.Text = EditorGUILayout.TextField(that.Text, GUILayout.Height(that.Text.Count(T => T == '\n') * 15.05f));
         });
     }
 

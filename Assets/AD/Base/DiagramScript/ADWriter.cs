@@ -17,6 +17,7 @@ public abstract class ADWriter : IDisposable
 	internal bool overwriteKeys = true;
 
     protected int serializationDepth = 0;
+	internal bool isSupportCycleType = false;
 
 	#region ADWriter Abstract Methods
 
@@ -119,10 +120,10 @@ public abstract class ADWriter : IDisposable
 		MarkKeyForDeletion(key);
 	}
 
-    /// <summary>Writes a value to the writer with the given key.</summary>
+    /// <summary>Writes a value to the writer with the given key.You will be need to use <see cref="Save()"/> to save stream if the buffer has other work</summary>
     /// <param name="key">The key which uniquely identifies this value.</param>
     /// <param name="value">The value we want to write.</param>
-    public virtual void Write<T>(string key, object value)
+    public virtual void Output<T>(string key, object value)
     {
         if(typeof(T) == typeof(object))
             Write(value.GetType(), key, value);
@@ -220,21 +221,18 @@ public abstract class ADWriter : IDisposable
         }
         else
         {
-			//throw new NotSupportedException("AD Version Easy Save 3 is not support some type : " + type.type.FullName);
-            //if (type.type == typeof(GameObject))
-            //    ((ADType_GameObject)type).saveChildren = settings.saveChildren;
-            //
-            StartWriteObject(null);
-            //
-            //if (type.isADTypeUnityObject)
-            //    ((ADUnityObjectType)type).WriteObject(value, this, memberReferenceMode);
-            //else
-                type.Write(value, this);
-            EndWriteObject(null);
+			WriteUnknownObject(value, type);
         }
 	}
 
-	/*internal virtual void WriteRef(UnityEngine.Object obj)
+	public virtual void WriteUnknownObject(object value, ADType type)
+    {
+        StartWriteObject(null);
+        type.Write(value, this);
+        EndWriteObject(null);
+    }
+
+    /*internal virtual void WriteRef(UnityEngine.Object obj)
 	{
         var refMgr = ADReferenceMgrBase.Current;
         if (refMgr == null)
@@ -248,24 +246,24 @@ public abstract class ADWriter : IDisposable
         WriteProperty(ADReferenceMgrBase.referencePropertyName, id.ToString());
     }*/
 
-	#endregion
+    #endregion
 
-	/* Writes a property as a name value pair. */
-	#region WriteProperty(name, value) methods
+    /* Writes a property as a name value pair. */
+    #region WriteProperty(name, value) methods
 
-	/// <summary>Writes a field or property to the writer. Note that this should only be called within an ADType.</summary>
-	/// <param name="name">The name of the field or property.</param>
-	/// <param name="value">The value we want to write.</param>
-	/*public virtual void WriteProperty(string name, object value)
+    /// <summary>Writes a field or property to the writer. Note that this should only be called within an ADType.</summary>
+    /// <param name="name">The name of the field or property.</param>
+    /// <param name="value">The value we want to write.</param>
+    /*public virtual void WriteProperty(string name, object value)
 	{
         WriteProperty(name, value);
 	}*/
 
-	/// <summary>Writes a field or property to the writer. Note that this should only be called within an ADType.</summary>
-	/// <param name="name">The name of the field or property.</param>
-	/// <param name="value">The value we want to write.</param>
-	/// <param name="memberReferenceMode">Whether we want to write the property by reference, by value, or both.</param>
-	public virtual void WriteProperty(string name, object value)
+    /// <summary>Writes a field or property to the writer. Note that this should only be called within an ADType.</summary>
+    /// <param name="name">The name of the field or property.</param>
+    /// <param name="value">The value we want to write.</param>
+    /// <param name="memberReferenceMode">Whether we want to write the property by reference, by value, or both.</param>
+    public virtual void WriteProperty(string name, object value)
 	{
         if (SerializationDepthLimitExceeded())
             return;
@@ -411,16 +409,18 @@ public abstract class ADWriter : IDisposable
 
 	internal static ADWriter Create(Stream stream, ADSettings settings, bool writeHeaderAndFooter, bool overwriteKeys)
 	{
-		if(stream.GetType() == typeof(MemoryStream))
+		if (stream.GetType() == typeof(MemoryStream))
 		{
 			settings = (ADSettings)settings.Clone();
 			settings.location = ADStreamEnum.Location.InternalMS;
 		}
 
 		// Get the baseWriter using the given Stream.
-		if(settings.format == ADStreamEnum.Format.JSON)
+		if (settings.format == ADStreamEnum.Format.JSON)
 			return new ADJSONWriter(stream, settings, writeHeaderAndFooter, overwriteKeys);
-        else
+		else if (settings.format == ADStreamEnum.Format.LINE)
+			return new ADLineWriter(stream, settings, writeHeaderAndFooter, overwriteKeys);
+		else
 			return null;
 	}
 
@@ -456,13 +456,11 @@ public abstract class ADWriter : IDisposable
 	 */
 	protected void Merge()
 	{
-		using(var reader = ADReader.Create(settings))
-		{
-			if(reader == null)
-				return;
-			Merge(reader);
-		}
-	}
+        using var reader = ADReader.Create(settings);
+        if (reader == null)
+            return;
+        Merge(reader);
+    }
 
 	/*
 	 * 	Merges the contents of the ADReader with this ADWriter,
@@ -484,15 +482,15 @@ public abstract class ADWriter : IDisposable
 	/// <summary>Stores the contents of the writer and overwrites any existing keys if overwriting is enabled.</summary>
 	/// <param name="overwriteKeys">Whether we should overwrite existing keys.</param>
 	public virtual void Save(bool overwriteKeys)
-	{
-		if(overwriteKeys)
+    {
+        if (overwriteKeys)
 			Merge();
 		EndWriteFile();
 		Dispose();
 
-		// If we're writing to a location which can become corrupted, rename the backup file to the file we want.
-		// This prevents corrupt data.
-        if(settings.location == ADStreamEnum.Location.File || settings.location == ADStreamEnum.Location.PlayerPrefs)
+        // If we're writing to a location which can become corrupted, rename the backup file to the file we want.
+        // This prevents corrupt data.
+        if (settings.location == ADStreamEnum.Location.File || settings.location == ADStreamEnum.Location.PlayerPrefs)
 		    CommitBackup();
 	}
 

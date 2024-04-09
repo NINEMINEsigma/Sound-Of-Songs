@@ -217,8 +217,9 @@ namespace AD.BASE.IO
 
 		public override void Dispose()
 		{
-			baseWriter.Dispose();
-		}
+			baseWriter?.Dispose();
+            baseWriter = null;
+        }
 
         public void WriteNewlineAndTabs()
         {

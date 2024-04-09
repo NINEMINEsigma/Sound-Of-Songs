@@ -7,7 +7,6 @@ using Unity.VisualScripting;
 using System.Collections.Generic;
 using System.IO.Compression;
 using AD.BASE.IO;
-using static UnityEngine.Rendering.DebugUI;
 
 namespace AD.BASE
 {
@@ -382,7 +381,7 @@ namespace AD.BASE
             try
             {
                 using ADReader reader = ADReader.Create(IsKeepFileControl ? FileStream : ADFile.CreateStream(settings, ADStreamEnum.FileMode.Read), settings, true);
-                result = reader.Read<T>(key);
+                result = reader.Input<T>(key);
             }
             catch (Exception ex)
             {
@@ -395,13 +394,13 @@ namespace AD.BASE
         /// <summary>
         /// Save in AD.BASE.IO mode. <see cref="AD.BASE.IO.ADJSONWriter"/>
         /// </summary>
-        public bool Serialize<T>(T obj, string key = "default")
+        public bool Serialize<T>(T obj, string key)
         {
             ADSettings settings = MySetting ?? new ADSettings(FilePath);
             try
             {
                 using ADWriter writer = ADWriter.Create(IsKeepFileControl ? FileStream : ADFile.CreateStream(settings, ADStreamEnum.FileMode.Write), settings, true, true);
-                writer.Write<T>(key, obj);
+                writer.Output<T>(key, obj);
                 writer.Save();
             }
             catch (Exception ex)

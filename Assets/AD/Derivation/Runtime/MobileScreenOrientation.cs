@@ -1,32 +1,26 @@
 using System;
 using UnityEngine;
-using AD.Utility;
-
-namespace AD.Utility
-{
-    [Serializable]
-    public class SetUp
-    {
-        [Tooltip("敏感度")]
-        public float sensitivity = 15f;   //敏感度
-
-        [Tooltip("最大水平移动速度")]
-        public float maxturnSpeed = 35f;    // 最大移动速度
-
-        [Tooltip("最大垂直傾斜角移动速度")]
-        public float maxTilt = 35f;    // 最大倾斜角
-
-        [Tooltip("位移加成速率")]
-        public float posRate = 1.5f;
-    }
-
-}
-
 namespace AD.Derivation.Runtime
 {
     [Serializable]
     public class MobileScreenOrientation : MonoBehaviour
     {
+        [Serializable]
+        public class SetUp
+        {
+            [Tooltip("敏感度")]
+            public float sensitivity = 15f;   //敏感度
+
+            [Tooltip("最大水平移动速度")]
+            public float maxturnSpeed = 35f;    // 最大移动速度
+
+            [Tooltip("最大垂直傾斜角移动速度")]
+            public float maxTilt = 35f;    // 最大倾斜角
+
+            [Tooltip("位移加成速率")]
+            public float posRate = 1.5f;
+        }
+
         public enum MotionAxial
         {
             All = 1,  //全部轴

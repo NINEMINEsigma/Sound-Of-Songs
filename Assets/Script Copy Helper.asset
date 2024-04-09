@@ -1,0 +1,104 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65607e91c1e7ad44ebed10772bf8beff, type: 3}
+  m_Name: Script Copy Helper
+  m_EditorClassIdentifier: 
+  ReplacePairs:
+  - key: Json
+    value: Line
+  - key: json
+    value: line
+  - key: JSON
+    value: Line
+  targetPath: E:\GitHub\Sound-Of-Songs\Assets\AD\Base\DiagramScript\ADJSONWriter.cs
+  savePath: E:\GitHub\Sound-Of-Songs\Assets\AD\Base\DiagramScript\ADLineWriter.cs
+  Text: "\uFEFFusing System.Collections.Generic;\r\nusing System.Collections;\r\nusing
+    System.IO;\r\nusing System;\r\nusing UnityEngine;\r\nusing System.Text;\r\nusing
+    System.Globalization;\r\n\r\nnamespace AD.BASE.IO\r\n{\r\n\tinternal class ADLineWriter
+    : ADWriter\r\n\t{\r\n\t\tinternal StreamWriter baseWriter;\r\n\r\n\t\tprivate
+    bool isFirstProperty = true;\r\n\r\n\t\tpublic ADLineWriter(Stream stream, ADSettings
+    settings) : this(stream, settings, true, true){}\r\n\r\n\t\tinternal ADLineWriter(Stream
+    stream, ADSettings settings, bool writeHeaderAndFooter, bool mergeKeys) : base(settings,
+    writeHeaderAndFooter, mergeKeys)\r\n\t\t{\r\n\t\t\tbaseWriter = new StreamWriter(stream);\r\n\t\t\tStartWriteFile();\r\n\t\t}\r\n\r\n\t\t#region
+    WritePrimitive(value) methods.\r\n\r\n\t\tinternal override void WritePrimitive(int
+    value)\t\t{ baseWriter.Write(value); }\r\n\t\tinternal override void WritePrimitive(float
+    value)\t{ baseWriter.Write(value.ToString(\"R\", CultureInfo.InvariantCulture));
+    }\r\n\t\tinternal override void WritePrimitive(bool value)\t\t{ baseWriter.Write(value
+    ? \"true\" : \"false\"); }\r\n\t\tinternal override void WritePrimitive(decimal
+    value)\t{ baseWriter.Write(value.ToString(CultureInfo.InvariantCulture)); }\r\n\t\tinternal
+    override void WritePrimitive(double value)\t{ baseWriter.Write(value.ToString(\"R\",
+    CultureInfo.InvariantCulture)); }\r\n\t\tinternal override void WritePrimitive(long
+    value)\t\t{ baseWriter.Write(value); }\r\n\t\tinternal override void WritePrimitive(ulong
+    value)\t{ baseWriter.Write(value); }\r\n\t\tinternal override void WritePrimitive(uint
+    value)\t\t{ baseWriter.Write(value); }\r\n\t\tinternal override void WritePrimitive(byte
+    value)\t\t{ baseWriter.Write(System.Convert.ToInt32(value)); }\r\n\t\tinternal
+    override void WritePrimitive(sbyte value)\t{ baseWriter.Write(System.Convert.ToInt32(value));
+    }\r\n\t\tinternal override void WritePrimitive(short value)\t{ baseWriter.Write(System.Convert.ToInt32(value));
+    }\r\n\t\tinternal override void WritePrimitive(ushort value)\t{ baseWriter.Write(System.Convert.ToInt32(value));
+    }\r\n\t\tinternal override void WritePrimitive(char value)\t\t{ WritePrimitive(
+    value.ToString() ); }\r\n\t\tinternal override void WritePrimitive(byte[] value)\t\t{
+    WritePrimitive( System.Convert.ToBase64String(value) ); }\r\n\r\n\r\n\t\tinternal
+    override void WritePrimitive(string value)\r\n\t\t{ \r\n\t\t\tbaseWriter.Write(\"\\\"\");\r\n\r\n\t\t\t//
+    Escape any quotation marks within the string.\r\n\t\t\tfor(int i = 0; i<value.Length;
+    i++)\r\n\t\t\t{\r\n\t\t\t\tchar c = value[i];\r\n\t\t\t\tswitch(c)\r\n\t\t\t\t{\r\n\t\t\t\t\tcase
+    '\\\"':\r\n\t\t\t\t\tcase '\u201C':\r\n\t\t\t\t\tcase '\u201D':\r\n\t\t\t\t\tcase
+    '\\\\':\r\n\t\t\t\t\tcase '/':\r\n\t\t\t\t\t\tbaseWriter.Write('\\\\');\r\n\t\t\t\t\t\tbaseWriter.Write(c);\r\n\t\t\t\t\t\tbreak;\r\n\t\t\t\t\tcase
+    '\\b':\r\n\t\t\t\t\t\tbaseWriter.Write(\"\\\\b\");\r\n\t\t\t\t\t\tbreak;\r\n\t\t\t\t\tcase
+    '\\f':\r\n\t\t\t\t\t\tbaseWriter.Write(\"\\\\f\");\r\n\t\t\t\t\t\tbreak;\r\n\t\t\t\t\tcase
+    '\\n':\r\n\t\t\t\t\t\tbaseWriter.Write(\"\\\\n\");\r\n\t\t\t\t\t\tbreak;\r\n\t\t\t\t\tcase
+    '\\r':\r\n\t\t\t\t\t\tbaseWriter.Write(\"\\\\r\");\r\n\t\t\t\t\t\tbreak;\r\n\t\t\t\t\tcase
+    '\\t':\r\n\t\t\t\t\t\tbaseWriter.Write(\"\\\\t\");\r\n\t\t\t\t\t\tbreak;\r\n\t\t\t\t\tdefault:\r\n\t\t\t\t\t\tbaseWriter.Write(c);\r\n\t\t\t\t\t\tbreak;\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t\tbaseWriter.Write(\"\\\"\");\r\n\t\t}\r\n\r\n\t\tinternal
+    override void WriteNull()\r\n\t\t{\r\n\t\t\tbaseWriter.Write(\"null\");\r\n\t\t}\r\n\r\n\t\t#endregion\r\n\r\n\t\t#region
+    Format-specific methods\r\n\r\n\t\tprivate static bool CharacterRequiresEscaping(char
+    c)\r\n\t\t{\r\n\t\t\treturn c == '\\\"' || c == '\\\\' || c == '\u201C' || c
+    == '\u201D';\r\n\t\t}\r\n\r\n\t\tprivate void WriteCommaIfRequired()\r\n\t\t{\r\n           
+    if (!isFirstProperty)\r\n                baseWriter.Write(',');\r\n           
+    else\r\n                isFirstProperty = false;\r\n            WriteNewlineAndTabs();\r\n       
+    }\r\n\r\n\t\tinternal override void WriteRawProperty(string name, byte[] value)\r\n\t\t{
+    \r\n\t\t\tStartWriteProperty(name); baseWriter.Write(settings.encoding.GetString(value,
+    0, value.Length)); EndWriteProperty(name);\r\n\t\t}\r\n\r\n\t\tinternal override
+    void StartWriteFile()\r\n\t\t{\r\n            if (writeHeaderAndFooter)\r\n               
+    baseWriter.Write('{');\r\n            base.StartWriteFile();\r\n\t\t}\r\n\r\n\t\tinternal
+    override void EndWriteFile()\r\n\t\t{\r\n            base.EndWriteFile();\r\n           
+    WriteNewlineAndTabs();\r\n\t\t\tif(writeHeaderAndFooter)\r\n\t\t\t\tbaseWriter.Write('}');\r\n\t\t}\r\n\r\n\t\tinternal
+    override void StartWriteProperty(string name)\r\n\t\t{\r\n            base.StartWriteProperty(name);\r\n\t\t\tWriteCommaIfRequired();\r\n\t\t\tWrite(name);\r\n\r\n           
+    if(settings.prettyPrint)\r\n                baseWriter.Write(' ');\r\n           
+    baseWriter.Write(':');\r\n            if (settings.prettyPrint)\r\n               
+    baseWriter.Write(' ');\r\n        }\r\n\r\n\t\tinternal override void EndWriteProperty(string
+    name)\r\n\t\t{\r\n            // It's not necessary to perform any operations
+    after writing the property in Line.\r\n            base.EndWriteProperty(name);\r\n       
+    }\r\n\r\n\t\tinternal override void StartWriteObject(string name)\r\n\t\t{\r\n           
+    base.StartWriteObject(name);\r\n            isFirstProperty = true;\r\n\t\t\tbaseWriter.Write('{');\r\n       
+    }\r\n\r\n\t\tinternal override void EndWriteObject(string name)\r\n\t\t{\r\n           
+    base.EndWriteObject(name);\r\n            // Set isFirstProperty to false incase
+    we didn't write any properties, in which case\r\n            // WriteCommaIfRequired()
+    is never called.\r\n            isFirstProperty = false;\r\n            WriteNewlineAndTabs();\r\n           
+    baseWriter.Write('}');\r\n        }\r\n\r\n\t\tinternal override void StartWriteCollection()\r\n\t\t{\r\n           
+    base.StartWriteCollection();\r\n            baseWriter.Write('[');\r\n           
+    WriteNewlineAndTabs();\r\n        }\r\n\r\n\t\tinternal override void EndWriteCollection()\r\n\t\t{\r\n           
+    base.EndWriteCollection();\r\n            WriteNewlineAndTabs();\r\n           
+    baseWriter.Write(']');\r\n\t\t}\r\n\r\n\t\tinternal override void StartWriteCollectionItem(int
+    index)\r\n\t\t{\r\n\t\t\tif(index != 0)\r\n\t\t\t\tbaseWriter.Write(',');\r\n\t\t}\r\n\r\n\t\tinternal
+    override void EndWriteCollectionItem(int index)\r\n\t\t{\r\n\t\t}\r\n\r\n\t\tinternal
+    override void StartWriteDictionary()\r\n\t\t{\r\n\t\t\tStartWriteObject(null);\r\n\t\t}\r\n\r\n\t\tinternal
+    override void EndWriteDictionary()\r\n\t\t{\r\n\t\t\tEndWriteObject(null);\r\n\t\t}\r\n\r\n\t\tinternal
+    override void StartWriteDictionaryKey(int index)\r\n\t\t{\r\n\t\t\tif(index !=
+    0)\r\n\t\t\t\tbaseWriter.Write(',');\r\n\t\t}\r\n\r\n\t\tinternal override void
+    EndWriteDictionaryKey(int index)\r\n\t\t{\r\n\t\t\tbaseWriter.Write(':');\r\n\t\t}\r\n\r\n\t\tinternal
+    override void StartWriteDictionaryValue(int index)\r\n\t\t{\r\n\t\t}\r\n\r\n\t\tinternal
+    override void EndWriteDictionaryValue(int index)\r\n\t\t{\r\n\t\t}\r\n\r\n\t\t#endregion\r\n\r\n\t\tpublic
+    override void Dispose()\r\n\t\t{\r\n\t\t\tbaseWriter.Dispose();\r\n\t\t}\r\n\r\n       
+    public void WriteNewlineAndTabs()\r\n        {\r\n            if (settings.prettyPrint)\r\n           
+    {\r\n                baseWriter.Write(Environment.NewLine);\r\n               
+    for (int i = 0; i < serializationDepth; i++)\r\n                    baseWriter.Write('\\t');\r\n           
+    }\r\n        }\r\n\t}\r\n}"
+  isNeedClearUsingAndNamespaceStruct: 0

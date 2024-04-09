@@ -67,7 +67,7 @@ namespace RhythmGame
             //TODO
             try
             {
-                ADSettings settings = new("testline.txt", ADStreamEnum.Location.Resources);
+                ADSettings settings = new("testline.line", ADStreamEnum.Location.Resources);
                 TargetFile = new ADFile(settings);
                 TargetFile.UpdateFileData();
                 RhythmGameCommandScript.Read(TargetFile.GetString(true, System.Text.Encoding.UTF8).Split('\n'));
