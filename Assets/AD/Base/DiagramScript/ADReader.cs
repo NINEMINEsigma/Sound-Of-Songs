@@ -354,9 +354,11 @@ namespace AD.BASE.IO
 			// Get the baseWriter using the given Stream.
 			if (settings.format == ADStreamEnum.Format.JSON)
 				return new ADJSONReader(stream, settings);
+			else if (settings.format == ADStreamEnum.Format.LINE)
+				return new ADLineReader(stream, settings);
+
 			stream.Dispose();
-			stream = null;
-            return null;
+			return null;
 		}
 
 		/// <summary>Creates a new ADReader and loads the bytes provided into it.</summary>

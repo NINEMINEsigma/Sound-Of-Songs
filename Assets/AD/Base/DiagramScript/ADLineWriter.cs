@@ -6,27 +6,27 @@ using AD.Types;
 
 namespace AD.BASE.IO
 {
-    internal class ADLineWriter : ADWriter
+	internal class ADLineWriter : ADWriter
 	{
 		internal StreamWriter baseWriter;
 
-        internal class Entry
-        {
+		internal class Entry
+		{
 			public ADType type;
 			public object value;
-        }
-        internal enum WriteMode
+		}
+		internal enum WriteMode
 		{
-			 Ref, Def
+			Ref, Def
 		}
 		internal WriteMode mode = WriteMode.Ref;
 		internal Dictionary<object, int> RefSource = new();
 		internal Queue<Entry> NextTree = new();
 		internal bool IsNeedUpdate = false;
 
-        private bool isFirstProperty = true;
+		private bool isFirstProperty = true;
 
-		public ADLineWriter(Stream stream, ADSettings settings) : this(stream, settings, true, true) {  }
+		public ADLineWriter(Stream stream, ADSettings settings) : this(stream, settings, true, true) { }
 
 		internal ADLineWriter(Stream stream, ADSettings settings, bool writeHeaderAndFooter, bool mergeKeys) : base(settings, writeHeaderAndFooter, mergeKeys)
 		{
@@ -233,7 +233,7 @@ namespace AD.BASE.IO
 			baseWriter?.Dispose();
 			baseWriter = null;
 
-        }
+		}
 
 		public void WriteNewlineAndTabs()
 		{
@@ -241,33 +241,33 @@ namespace AD.BASE.IO
 			{
 				baseWriter.Write(Environment.NewLine);
 				WriteTabs(serializationDepth);
-            }
+			}
 		}
 
 		public void WriteTabs(int depth)
 		{
-            for (int i = 0; i < depth; i++)
-                baseWriter.Write('\t');
-        }
+			for (int i = 0; i < depth; i++)
+				baseWriter.Write('\t');
+		}
 
 		public override void WriteUnknownObject(object value, ADType type)
 		{
 			if (mode == WriteMode.Ref)
 			{
-                if (RefSource.TryAdd(value, RefSource.Count.Share(out int id)))
-                {
-                    NextTree.Enqueue(new()
-                    {
-                        value = value,
-                        type = type
-                    });
-                    IsNeedUpdate = true;
-                }
-                else id = RefSource[value];
+				if (RefSource.TryAdd(value, RefSource.Count.Share(out int id)))
+				{
+					NextTree.Enqueue(new()
+					{
+						value = value,
+						type = type
+					});
+					IsNeedUpdate = true;
+				}
+				else id = RefSource[value];
 
 				//baseWriter.Write("\n");
 				//WriteTabs(serializationDepth);
-				baseWriter.Write(id == 0 ? "Root" : $" Ref[{id}]");
+				baseWriter.Write($" Ref[{id}]");
 			}
 			else
 			{
@@ -282,10 +282,10 @@ namespace AD.BASE.IO
 		public override void Write(Type type, string key, object value)
 		{
 			StartWriteProperty(key);
-            StartWriteObject(key);
-            WriteType(type);
+			StartWriteObject(key);
+			WriteType(type);
 
-            //mode = WriteMode.Ref;
+			//mode = WriteMode.Ref;
 			NextTree.Enqueue(new()
 			{
 				type = ADType.GetOrCreateADType(type),
@@ -299,22 +299,23 @@ namespace AD.BASE.IO
 				while (NextTree.Count > 0)
 				{
 					var next = NextTree.Dequeue();
-                    int id = RefSource[next.value];
-					base.WriteProperty(id == 0 ? "Root" : $"Def[{id}]", next.value, next.type);
+					int id = RefSource[next.value];
+					base.WriteProperty($"Def[{id}]", next.value, next.type);
 				}
 			} while (IsNeedUpdate);
 
-            EndWriteObject(key);
-            EndWriteProperty(key);
-            MarkKeyForDeletion(key);
+			EndWriteObject(key);
+			EndWriteProperty(key);
+			MarkKeyForDeletion(key);
 		}
 
-        public override void Save()
-        {
-            base.Save();
+		public override void Save()
+		{
+			base.Save();
 
-            RefSource = new();
-            NextTree = new();
-        }
-    }
+			RefSource = new();
+			NextTree = new();
+			IsNeedUpdate = false;
+		}
+	}
 }
