@@ -335,11 +335,24 @@ namespace AD.BASE.IO
 			MarkKeyForDeletion(key);
 		}
 
-		public override void Save()
-		{
-			base.Save();
+        protected override void Merge(ADReader reader)
+        {
+            base.Merge(reader);
+        }
 
-			RefSource = new();
+        public override void Save()
+        {
+            //if (overwriteKeys)
+            //    Merge();
+            EndWriteFile();
+            Dispose();
+
+            // If we're writing to a location which can become corrupted, rename the backup file to the file we want.
+            // This prevents corrupt data.
+            if (settings.location == ADStreamEnum.Location.File || settings.location == ADStreamEnum.Location.PlayerPrefs)
+                CommitBackup();
+
+            RefSource = new();
 			NextTree = new();
 			IsNeedUpdate = false;
 		}

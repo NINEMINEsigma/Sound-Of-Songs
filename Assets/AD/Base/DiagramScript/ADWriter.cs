@@ -466,7 +466,7 @@ public abstract class ADWriter : IDisposable
 	 * 	Merges the contents of the ADReader with this ADWriter,
 	 * 	ignoring any keys which are marked for deletion.
 	 */
-	protected void Merge(ADReader reader)
+	protected virtual void Merge(ADReader reader)
 	{
 		foreach(KeyValuePair<string,ADData> kvp in reader.RawEnumerator)
 			if(!keysToDelete.Contains(kvp.Key) || kvp.Value.type == null) // Don't add keys whose data is of a type which no longer exists in the project.
@@ -494,7 +494,7 @@ public abstract class ADWriter : IDisposable
 		    CommitBackup();
 	}
 
-    private void CommitBackup()
+    protected virtual void CommitBackup()
     {
         var temporaryFilePath = settings.FullPath + FileC.temporaryFileSuffix;
 
