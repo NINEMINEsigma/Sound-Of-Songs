@@ -1,8 +1,23 @@
 {
-	"test" : {
-		"__type" : "TestCycle,Assembly-CSharp",
-		"value" : {
-			"id" : "2"
+	"test" : 
+	{
+		"Root" : 
+		{
+			"__type" : "TestCycle,Assembly-CSharp",
+			"__value" : 
+			{
+				"id" : "2",
+				"next" : {"Ref[1]"}
+			}
+		},
+		"Def[1]" : 
+		{
+			"__type" : "TestCycle,Assembly-CSharp",
+			"__value" : 
+			{
+				"id" : "1",
+				"next" : {"Root"}
+			}
 		}
 	}
 }

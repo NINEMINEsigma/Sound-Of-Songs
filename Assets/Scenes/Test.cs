@@ -5,23 +5,35 @@ using UnityEngine;
 
 public class Test : MonoBehaviour
 {
+    public TestCycle data;
+    public TestCycle data2;
+    public bool isRead = false;
+
     // Start is called before the first frame update
     void Start()
     {
         ADSettings settings = new(Path.Combine(Application.streamingAssetsPath, "in.txt"), ADStreamEnum.Location.File, ADStreamEnum.Format.LINE) ;
         using ADFile file = new(settings);
-        TestCycle data = new()
+        if (isRead)
         {
-            id = "1"
-        };
-        TestCycle data2 = new()
+            file.Deserialize(out data, "test");
+            data2 = data.next;
+        }
+        else
         {
-            id = "2",
-            next = data
-        };
-        data.next = data2;
+            data = new()
+            {
+                id = "1"
+            };
+            data2 = new()
+            {
+                id = "test"
+            };
+            data.next = data2;
+            //data2.next = data;
 
-        file.Serialize(data2,"test");
+            file.Serialize(data2, "test");
+        }
     }
 }
 

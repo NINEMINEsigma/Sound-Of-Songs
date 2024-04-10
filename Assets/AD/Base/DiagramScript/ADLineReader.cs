@@ -5,6 +5,7 @@ using AD.BASE;
 using System.Globalization;
 using AD.Types;
 using AD.Reflection;
+using System.Collections.Generic;
 
 namespace AD.BASE.IO
 {
@@ -41,35 +42,174 @@ namespace AD.BASE.IO
 						_ErrorFormatCannotParse);
 				}
 			}
+			IsSupportCycle = true;
 		}
 
-		#region Property/Key Methods
+        internal class Entry
+        {
+			public ADType type;
+			public object value;
+			public int id;
+        }
+        internal class Waiter
+        {
+			public ReflectionExtension.ADReflectedMember Member;
+			public object value;
+        }
+        internal enum ReadMode
+        {
+            Ref, Def
+        }
+        internal ReadMode readMode = ReadMode.Ref;
+        internal Dictionary<int, Entry> DefSource = new();
+		internal Dictionary<int, Queue<Waiter>> CallBackWaiter = new();
+        internal Queue<Entry> NextTree = new();
+        //internal int IsNeedUpdateSum = 0;
 
-		/*
+        private int GetReadID(string name)
+        {
+			if (name == null)
+				throw new ArgumentNullException("arg : name is null");
+			else if (name == "Root")
+				return 0;
+			else if (name.StartsWith("Def[") && name.EndsWith("]"))
+				return int.Parse(name[4..^1]);
+			else if (name.StartsWith("Ref[") && name.EndsWith("]"))
+				return int.Parse(name[4..^1]);
+			else return -1;//throw new FormatException("It does not a \"Def[id]\" or \"Ref[id]\" name , but \"" + name + "\"");
+        }
+
+		/// <summary>Reads a value from the reader with the given key.</summary>
+		/// <param name="key">The key which uniquely identifies our value.</param>
+		public override T Input<T>(string key)
+		{
+			if (!Goto(key))
+				throw new KeyNotFoundException("Key \"" + key + "\" was not found in file \"" + settings.FullPath + "\"." +
+					" Use Load<T>(key, defaultValue) if you want to return a default value if the key does not exist.");
+
+
+			DefSource = new();
+			NextTree = new();
+			CallBackWaiter = new();
+            //IsNeedUpdateSum = 0;
+
+            StartReadObject();
+            T obj = default;
+			do
+			{
+				Type type = ReadTypeFromHeader<T>();
+				readMode = ReadMode.Def;
+				ADType adtype = ADType.GetOrCreateADType(type);
+				object value = Read<T>(adtype);
+				if (currentID == 0) obj = (T)value;
+				if (CallBackWaiter.TryGetValue(currentID, out var waiters))
+				{
+					while (waiters.Count > 0)
+					{
+						var waiter = waiters.Dequeue();
+						waiter.Member.SetValue(waiter.value, value);
+					}
+					CallBackWaiter.Remove(currentID);
+					//IsNeedUpdateSum--;
+				}
+				DefSource.Add(currentID, new()
+				{
+					id = currentID,
+					type = adtype,
+					value = value
+				});
+                EndReadObject();
+				ReadCharIgnoreWhitespace();
+				if((char)baseReader.Peek() == ',')
+					baseReader.Read();
+            } while (CallBackWaiter.Count > 0);
+			EndReadObject();
+
+			//ReadKeySuffix(); //No need to read key suffix as we're returning. Doing so would throw an error at this point for BinaryReaders.
+			return obj;
+
+		}
+
+		internal int currentID = 0;
+		internal int currentRefID = 0;
+
+        public override bool SetMember(ReflectionExtension.ADReflectedMember member, object obj)
+        {
+			if (!CallBackWaiter.ContainsKey(currentRefID))
+				CallBackWaiter.Add(currentRefID, new());
+			CallBackWaiter[currentRefID].Enqueue(new() { Member = member, value = obj });
+			return true;
+        }
+
+        protected override T ReadObject<T>(ADType type)
+        {
+            if (StartReadObject())
+                return default;
+
+			object obj = null;
+			if(readMode==ReadMode.Def)
+			{
+				readMode = ReadMode.Ref;
+				obj = type.Read<T>(this);
+			}
+			else if(readMode==ReadMode.Ref)
+			{
+                currentRefID = GetReadID(Read_string());
+                if (DefSource.TryGetValue(currentRefID, out var entry))
+				{
+					obj = entry.value;
+				}
+				else
+				{
+					//Action<object> action=//TODO
+					//if(!CallBackWaiter.ContainsKey(currentID))
+					//{
+					//	CallBackWaiter.Add(currentID, new());
+					//}
+					//CallBackWaiter[currentID].Enqueue(action);
+					obj = null;
+                    //IsNeedUpdateSum++;
+                }
+			}
+
+            EndReadObject();
+            return (T)obj;
+        }
+
+        #region Property/Key Methods
+
+        /*
 		 * 	Reads the name of a property, and must be positioned (with or without whitespace) either:
 		 * 		- Before the '"' of a property name.
 		 * 		- Before the ',' separating properties.
 		 * 		- Before the '}' or ']' terminating this list of properties.
 		 * 	Can be used in conjunction with Read(ADType) to read a property.
 		 */
-		public override string ReadPropertyName()
+        public override string ReadPropertyName()
 		{
 			char c = PeekCharIgnoreWhitespace();
 
 			// Check whether there are any properties left to read.
-			if(IsTerminator(c))
+			if (IsTerminator(c))
 				return null;
-			else if(c == ',')
+			else if (c == ',')
 				ReadCharIgnoreWhitespace();
-			else if(!IsQuotationMark(c))
-				throw new FormatException("Expected ',' separating properties or '\"' before property name, found '"+c+"'.");
+			else if (!IsQuotationMark(c))
+			{
+				char bad = c;
+				string str = "";
+				for (int i = 0;c!=endOfStreamChar&& i < 36; i++)
+				{
+					c = (char)baseReader.Read();
+					str += c;
+				}
+				throw new FormatException("Expected ',' separating properties or '\"' before property name, found '" + bad + "' before \n" + str);
+			}
 
-			var propertyName = Read_string();
-			if(propertyName == null)
-				throw new FormatException("Stream isn't positioned before a property.");
+			var propertyName = Read_string() ?? throw new FormatException("Stream isn't positioned before a property.");
 
-			// Skip the ':' seperating property and value.
-			ReadCharIgnoreWhitespace(':');
+            // Skip the ':' seperating property and value.
+            ReadCharIgnoreWhitespace(':');
 
 			return propertyName;
 		}
@@ -79,30 +219,46 @@ namespace AD.BASE.IO
 		 * 	If ignore is true, it will return null to save the computation of converting
 		 * 	the string to a Type.
 		 */
-		protected override Type ReadKeyPrefix(bool ignoreType=false)
+		protected override Type ReadKeyPrefix(bool ignoreType = false)
 		{
-			StartReadObject();
-
-			Type dataType = null;
-
+			//1
+			//StartReadObject();
 			string propertyName = ReadPropertyName();
-			if(propertyName == ADType.typeFieldName)
+			currentID = GetReadID(propertyName);
+			if (currentID == -1)
+				throw new FormatException("This data is not AD Key Value data. Expected property name \"Root\" or \"Def[id]\" or \"Ref[id]\", found \"" + propertyName + "\".");
+
+			//2
+			StartReadObject();
+			propertyName = ReadPropertyName();
+
+			Type dataType;
+			if (propertyName == ADType.typeFieldName)
 			{
 				string typeString = Read_string();
-                dataType = ignoreType ? null : ReflectionExtension.GetType(typeString);
-				propertyName  = ReadPropertyName();
+				dataType = ignoreType ? null : ReflectionExtension.GetType(typeString);
 			}
-				
-			if(propertyName != "value")
-				throw new FormatException("This data is not Easy Save Key Value data. Expected property name \"value\", found \""+propertyName+"\".");
+			else
+			{
+				throw new FormatException("This data is not AD Key Value data. Expected property name \"__type\" , found \"" + propertyName + "\".");
+			}
+			propertyName = ReadPropertyName();
+			if (propertyName == ADLineWriter.valueFieldName)
+			{
+
+			}
+			else
+			{
+				throw new FormatException("This data is not AD Key Value data. Expected property name \"__value\" , found \"" + propertyName + "\".");
+			}
 
 			return dataType;
 		}
 
 		protected override void ReadKeySuffix()
 		{
-			EndReadObject();
-		}
+            EndReadObject();
+        }
 
 
 		internal override bool StartReadObject()
@@ -351,10 +507,21 @@ namespace AD.BASE.IO
 
 			if(c != expectedChar)
 			{
-				if(c == endOfStreamChar)
-					throw new FormatException("End of stream reached when expecting '"+expectedChar+"'.");
+				if (c == endOfStreamChar)
+				{
+					throw new FormatException("End of stream reached when expecting '" + expectedChar + "'.");
+				}
 				else
-					throw new FormatException("Expected \'"+expectedChar+"\' or \"null\", found \'"+c+"\'.");
+				{
+					string str = "";
+					char bad = c;
+					for (int i = 0; c != endOfStreamChar && i < 36; i++)
+					{
+						c = (char)baseReader.Read();
+						str += c;
+					}
+					throw new FormatException("Expected \'" + expectedChar + "\' or \"null\", found \'" + bad + "\' before \n" + str + "");
+				}
 			}
 			return false;
 		}
@@ -368,10 +535,19 @@ namespace AD.BASE.IO
 			char c = ReadCharIgnoreWhitespace();
 			if(c != expectedChar)
 			{
-				if(c == endOfStreamChar)
-					throw new FormatException("End of stream reached when expecting '"+expectedChar+"'.");
+				if (c == endOfStreamChar)
+					throw new FormatException("End of stream reached when expecting '" + expectedChar + "'.");
 				else
-					throw new FormatException("Expected \'"+expectedChar+"\', found \'"+c+"\'.");
+				{
+					char bad = c;
+					string str = "";
+					for (int i = 0; c != endOfStreamChar && i < 36; i++)
+					{
+						c = (char)baseReader.Read();
+						str += c;
+					}
+					throw new FormatException("Expected \'" + expectedChar + "\', found \'" + bad + "\' before \n" + str + "");
+				}
 			}
 			return c;
 		}

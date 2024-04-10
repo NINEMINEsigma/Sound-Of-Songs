@@ -101,7 +101,7 @@ namespace AD.Types
         protected object ReadProperties(ADReader reader, object obj)
         {
             // Iterate through each property in the file and try to load it using the appropriate
-            // ES3Member in the members array.
+            // ADMember in the members array.
             foreach (string propertyName in reader.Properties)
             {
                 // Find the property.
@@ -112,6 +112,17 @@ namespace AD.Types
                     {
                         property = members[i];
                         break;
+                    }
+                }
+                if (reader.IsSupportCycle && property == null)
+                {
+                    for (int i = 0; i < cycleMembers.Length; i++)
+                    {
+                        if (cycleMembers[i].name == propertyName)
+                        {
+                            property = cycleMembers[i];
+                            break;
+                        }
                     }
                 }
 
@@ -169,6 +180,10 @@ namespace AD.Types
                     else
                     {
                         object readObj = reader.Read<object>(type);
+                        if (readObj == null)
+                        {
+                            if (reader.SetMember(property.reflectedMember, obj)) return obj;
+                        }
                         property.reflectedMember.SetValue(obj, readObj);
                     }
                 }

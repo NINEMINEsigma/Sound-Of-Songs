@@ -3,6 +3,7 @@ using System.IO;
 using System;
 using System.Globalization;
 using AD.Types;
+using UnityEngine.InputSystem;
 
 namespace AD.BASE.IO
 {
@@ -267,7 +268,7 @@ namespace AD.BASE.IO
 
 				//baseWriter.Write("\n");
 				//WriteTabs(serializationDepth);
-				baseWriter.Write($" Ref[{id}]");
+				baseWriter.Write("{\"" + GetWriteName(id) + "\"}");
 			}
 			else
 			{
@@ -279,11 +280,26 @@ namespace AD.BASE.IO
 			}
 		}
 
-		public override void Write(Type type, string key, object value)
+		private string GetWriteName(int id)
+		{
+			if(mode == WriteMode.Ref)
+            {
+                return id == 0 ? "Root" : $"Ref[{id}]";
+            }
+			else if(mode == WriteMode.Def)	
+			{
+				return id == 0 ? "Root" : $"Def[{id}]";
+            }
+			else throw new NotImplementedException();
+		}
+
+		public const string valueFieldName = "__value";
+
+        public override void Write(Type type, string key, object value)
 		{
 			StartWriteProperty(key);
 			StartWriteObject(key);
-			WriteType(type);
+			//WriteType(type);
 
 			//mode = WriteMode.Ref;
 			NextTree.Enqueue(new()
@@ -300,8 +316,18 @@ namespace AD.BASE.IO
 				{
 					var next = NextTree.Dequeue();
 					int id = RefSource[next.value];
-					base.WriteProperty($"Def[{id}]", next.value, next.type);
-				}
+					string name = GetWriteName(id);
+                    StartWriteProperty(name);
+                    StartWriteObject(name);
+                    WriteType(next.type.type);
+
+                    StartWriteProperty(valueFieldName);
+                    Write(next.value, next.type);
+                    EndWriteProperty(valueFieldName);
+
+                    EndWriteObject(name);
+                    EndWriteProperty(name);
+                }
 			} while (IsNeedUpdate);
 
 			EndWriteObject(key);

@@ -8,6 +8,7 @@ using AD.BASE;
 using AD.Types;
 using AD.Reflection;
 using AD.BASE.IO;
+using static AD.Reflection.ReflectionExtension;
 
 namespace AD.BASE.IO
 {
@@ -15,6 +16,8 @@ namespace AD.BASE.IO
 	{
 		/// <summary>The settings used to create this reader.</summary>
 		public ADSettings settings;
+
+		internal bool IsSupportCycle = false;
 
 		protected int serializationDepth = 0;
 
@@ -191,6 +194,11 @@ namespace AD.BASE.IO
 			return objectContainingField;
 		}
 
+		public virtual bool SetMember(ADReflectedMember member,System.Object obj)
+		{
+			return true;
+		}
+
 		#region Read(key) & Read(key, obj) methods
 
 		/// <summary>Reads a value from the reader with the given key.</summary>
@@ -211,7 +219,7 @@ namespace AD.BASE.IO
 		/// <summary>Reads a value from the reader with the given key, returning the default value if the key does not exist.</summary>
 		/// <param name="key">The key which uniquely identifies our value.</param>
 		/// <param name="defaultValue">The value we want to return if this key does not exist in the reader.</param>
-		public virtual T Read<T>(string key, T defaultValue)
+		public virtual T Input<T>(string key, T defaultValue)
 		{
 			if (!Goto(key))
 				return defaultValue;
@@ -396,6 +404,8 @@ namespace AD.BASE.IO
 			// Get the baseWriter using the given Stream.
 			if (settings.format == ADStreamEnum.Format.JSON)
 				return new ADJSONReader(stream, settings, readHeaderAndFooter);
+			else if (settings.format == ADStreamEnum.Format.LINE)
+				return new ADLineReader(stream, settings, readHeaderAndFooter);
 			return null;
 		}
 
