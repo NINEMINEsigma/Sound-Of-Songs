@@ -314,6 +314,63 @@ namespace AD.Utility
             arg5 = self[5];
             arg6 = self[6];
         }
+
+        public static IEnumerator GetEmpty()
+        {
+            return new EmptyEnumerator();
+        }
+
+        public static IEnumerator<T> GetEmpty<T>()
+        {
+            return new EmptyEnumerator<T>();
+        }
+    }
+
+    class EmptyEnumerator : IEnumerator
+    {
+        public object Current
+        {
+            get
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        public bool MoveNext()
+        {
+            return false;
+        }
+
+        public void Reset()
+        {
+        }
+    }
+
+    class EmptyEnumerator<T> : IEnumerator<T>
+    {
+        public T Current
+        {
+            get
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        object IEnumerator.Current => Current;
+
+        public void Dispose()
+        {
+
+        }
+
+        public bool MoveNext()
+        {
+            return false;
+        }
+
+        public void Reset()
+        {
+        }
     }
 
     [System.Serializable]

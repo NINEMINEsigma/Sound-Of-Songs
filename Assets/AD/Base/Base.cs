@@ -3367,4 +3367,33 @@ namespace AD.BASE
     }
 
     #endregion
+
+    #region
+
+    public interface IRebuildHandle
+    {
+        bool IsDirty { get; }
+        void Rebuild(bool isImmediately);
+        void AddListener(Action action);
+        void RemoveListener(Action action);
+        void RemoveAllListeners();
+        void SetDiry();
+    }
+
+    public interface ILostHandle:IDisposable
+    { 
+        bool IsLost { get; }
+        void ShareState(ILostHandle handle);
+        void Incoming(ILostHandle handle, object sharPtr);
+        void SetLost();
+    }
+
+
+    [Serializable]
+    public class LostException : ADException
+    {
+        public LostException(string message) : base(message + " , now it is lost") { }
+    }
+
+    #endregion
 }
