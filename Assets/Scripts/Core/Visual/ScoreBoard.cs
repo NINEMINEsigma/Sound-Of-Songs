@@ -12,7 +12,7 @@ namespace RhythmGame.ScoreBoard
 {
     public enum JudgeType
     {
-        Best = 16, Perfect = 50, Good = 80, Bad = 110, Lost = 999
+        Best = 16, Perfect = 50, Good = 90, Bad = 160, Lost = 999
     }
 
     public static class JudgeTypeHelper

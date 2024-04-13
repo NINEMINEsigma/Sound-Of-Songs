@@ -11,7 +11,12 @@ using UnityEngine;
 
 namespace RhythmGame.Time
 {
-    public class TimeController : ADController, IController
+    public class SongEnd : AD.BASE.Vibration
+    {
+
+    }
+
+    public class TimeController : ADController, IController,ICanMonitorCommand<SongEnd>
     {
 
         public List<IListenTime> Listeners;
@@ -24,10 +29,10 @@ namespace RhythmGame.Time
 
         public override void Init()
         {
+            QualitySettings.vSyncCount = 0;
             if (!new ArithmeticVariable("__refreshRate")) ArithmeticExtension.AddVariable("__refreshRate", new(Screen.currentResolution.refreshRate));
             Application.targetFrameRate = 60;
             if (!new ArithmeticVariable("__targetFrameRate")) ArithmeticExtension.AddVariable("__targetFrameRate", new(Application.targetFrameRate));
-            //QualitySettings.vSyncCount = 0;
 
             Listeners = new();
             //MainAudioSource.Stop();
@@ -36,7 +41,7 @@ namespace RhythmGame.Time
             //App.instance.StartTime = 0;
             //App.instance.EndTime = MainAudioSource.CurrentClip.length;
 
-            Architecture.RegisterModel<TouchLock>();
+            Architecture.RegisterModel<TouchLock>().UnRegister<SongEnd>();
         }
 
         private void Start()
@@ -48,13 +53,23 @@ namespace RhythmGame.Time
 
         private void Update()
         {
+            if (Architecture.Contains<SongEnd>())
+            {
+                return;
+            }
             App.CurrentTime = MainAudioSource.CurrentTime;
             if (MainAudioSource.IsPlay)
             {
-                TimeFillBar.SetPerecent(MainAudioSource.CurrentTime / MainAudioSource.CurrentClip.length, 0, MainAudioSource.CurrentClip.length);
+                float t = MainAudioSource.CurrentTime / MainAudioSource.CurrentClip.length;
+                TimeFillBar.SetPerecent(t, 0, MainAudioSource.CurrentClip.length);
                 foreach (var listener in Listeners)
                 {
                     listener.When(MainAudioSource.CurrentTime, MainAudioSource.CurrentClip.length);
+                }
+                if (MainAudioSource.CurrentClip.length - MainAudioSource.CurrentTime < 0.1f)
+                {
+                    Architecture.Diffusing<SongEnd>();
+                    return;
                 }
             }
 
@@ -123,6 +138,11 @@ namespace RhythmGame.Time
                     handler.RebuildImmediately();
                 }
             }
+        }
+
+        void ICanMonitorCommand<SongEnd>.OnCommandCall(SongEnd c)
+        {
+            Debug.LogWarning("Song Play Ending");
         }
     }
 }

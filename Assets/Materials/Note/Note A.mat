@@ -44,7 +44,7 @@ Material:
     m_Floats:
     - _EnableExternalAlpha: 0
     - _IsJudged: 0
-    - _NearPanel: 18749.285
+    - _NearPanel: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}

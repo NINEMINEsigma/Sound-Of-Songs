@@ -170,11 +170,6 @@ namespace RhythmGame.Visual
                 }
             }
 
-            private void LateUpdate()
-            {
-
-            }
-
             public void SetDirty()
             {
                 IsDirty = true;

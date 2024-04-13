@@ -220,8 +220,7 @@ namespace AD.UI
                 WhenNeedUpdataCurrentClock();
                 if (CurrentClock > CurrentClip.length + 0.2f)
                 {
-                    Source.Stop();
-                    CurrentTime = 0;
+                    Source.Pause();
                     if (LoopAtAll)
                     {
                         if (CurrentPairIndex < SourcePairs.Count - 1) CurrentPairIndex++;

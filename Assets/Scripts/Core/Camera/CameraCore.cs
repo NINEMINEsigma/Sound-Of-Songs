@@ -16,7 +16,7 @@ namespace RhythmGame
 {
     public class CameraCore : ADController, IController, IListenTime, IRebuildHandler, IInvariant<IRebuildHandler>
     {
-        public const float CameraOffsetZ = -17;
+        public const float CameraOffsetZ = -23;
 
 
         public float min, max;
@@ -90,6 +90,7 @@ namespace RhythmGame
         }
 
         private Queue<float> frameTimeCounter = new();
+        private int autoFrameCount = 0;
 
         private void LateUpdate()
         {
@@ -119,6 +120,12 @@ namespace RhythmGame
             ArithmeticVariable.VariableConstantPairs["__FPS"].Value.SetValue(realFrameCounter);
             if (realFrameCounter * 2 >= Application.targetFrameRate) Application.targetFrameRate += 2;
             else if (realFrameCounter * 3 < Application.targetFrameRate) Application.targetFrameRate -= 1;
+            else if (autoFrameCount < 10) autoFrameCount++;
+            else
+            {
+                Application.targetFrameRate += 10;
+                autoFrameCount = 0;
+            }
         }
 
         public void When(float time, float duration)
