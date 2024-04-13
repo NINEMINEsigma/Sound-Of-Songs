@@ -154,7 +154,10 @@ Shader "Project/Note"
                 fixed4 col = tex2D(_MainTex, i.uv);
                 float a = i.worldPos.z - _NearPanel + 5;
                 clip(a);
+                float far = clamp(0,1,0.02 * ( _NearPanel + 200 - i.worldPos.z));
+                clip(far);
                 col.a = clamp(0,1,a);
+                col.a = col.a * far;
                 return col;
             }
             ENDCG

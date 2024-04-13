@@ -115,7 +115,10 @@ namespace RhythmGame
             if (frameTimeCounter.Count > 10)
                 frameTimeCounter.Dequeue();
             frameTimeCounter.Enqueue(UnityEngine.Time.deltaTime);
-            ArithmeticVariable.VariableConstantPairs["__FPS"].Value.SetValue((int)(10 / frameTimeCounter.Totally()));
+            int realFrameCounter = (int)(10 / frameTimeCounter.Totally());
+            ArithmeticVariable.VariableConstantPairs["__FPS"].Value.SetValue(realFrameCounter);
+            if (realFrameCounter * 2 >= Application.targetFrameRate) Application.targetFrameRate += 2;
+            else if (realFrameCounter * 3 < Application.targetFrameRate) Application.targetFrameRate -= 1;
         }
 
         public void When(float time, float duration)

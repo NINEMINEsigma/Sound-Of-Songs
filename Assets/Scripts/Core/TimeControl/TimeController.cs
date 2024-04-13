@@ -24,7 +24,10 @@ namespace RhythmGame.Time
 
         public override void Init()
         {
-            Application.targetFrameRate = 90;
+            if (!new ArithmeticVariable("__refreshRate")) ArithmeticExtension.AddVariable("__refreshRate", new(Screen.currentResolution.refreshRate));
+            Application.targetFrameRate = 60;
+            if (!new ArithmeticVariable("__targetFrameRate")) ArithmeticExtension.AddVariable("__targetFrameRate", new(Application.targetFrameRate));
+            //QualitySettings.vSyncCount = 0;
 
             Listeners = new();
             //MainAudioSource.Stop();
@@ -48,23 +51,17 @@ namespace RhythmGame.Time
             App.CurrentTime = MainAudioSource.CurrentTime;
             if (MainAudioSource.IsPlay)
             {
-                //TimeFillBar.SetPerecent(MainAudioSource.CurrentTime / MainAudioSource.CurrentClip.length, 0, MainAudioSource.CurrentClip.length);
+                TimeFillBar.SetPerecent(MainAudioSource.CurrentTime / MainAudioSource.CurrentClip.length, 0, MainAudioSource.CurrentClip.length);
                 foreach (var listener in Listeners)
                 {
                     listener.When(MainAudioSource.CurrentTime, MainAudioSource.CurrentClip.length);
                 }
             }
-            //else if (App.instance.MaxDepth != 0)
-            //{
-            //    TimeFillBar.SetPerecent(0, 0, MainAudioSource.CurrentClip.length);
-            //    foreach (var listener in Listeners)
-            //    {
-            //        listener.When(0, MainAudioSource.CurrentClip.length);
-            //    }
-            //}
 
             //Update Note Material
             MainMaterialGroup.UpdateTarget("_NearPanel", App.instance.CameraSafeAreaPanel);
+            ArithmeticVariable.VariableConstantPairs["__refreshRate"].Value.SetValue(Screen.currentResolution.refreshRate == 0 ? -1 : Screen.currentResolution.refreshRate);
+            ArithmeticVariable.VariableConstantPairs["__targetFrameRate"].Value.SetValue(Application.targetFrameRate);
         }
 
         public void AddListener(IListenTime listener)

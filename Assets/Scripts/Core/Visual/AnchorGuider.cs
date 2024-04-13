@@ -21,6 +21,7 @@ namespace RhythmGame.Visual
 
         public Touch Current;
         public bool IsCatching = false;
+        public float SafeTimeCounter = 0;
 
         private void LateUpdate()
         {
@@ -48,10 +49,23 @@ namespace RhythmGame.Visual
                 }
             }
 
-
-            if (IsCatching && Current.phase == TouchPhase.Moved)
+            if (IsCatching)
             {
-                Architecture.GetController<CameraCore>().transform.Translate(Current.deltaPosition * TouchMoveSpeed, Space.World);
+                if (Current.phase == TouchPhase.Moved)
+                {
+                    if (SafeTimeCounter < 0.05f)
+                    {
+                        SafeTimeCounter += UnityEngine.Time.deltaTime;
+                    }
+                    else
+                    {
+                        Architecture.GetController<CameraCore>().transform.Translate(Current.deltaPosition * TouchMoveSpeed, Space.World);
+                    }
+                }
+            }
+            else
+            {
+                SafeTimeCounter = 0;
             }
         }
     }

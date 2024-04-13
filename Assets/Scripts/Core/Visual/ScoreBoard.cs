@@ -6,6 +6,7 @@ using AD.UI;
 using RhythmGame.ScoreBoard;
 using RhythmGame.Time;
 using UnityEngine;
+using static AD.ADGlobalSystem;
 
 namespace RhythmGame.ScoreBoard
 {
@@ -87,6 +88,7 @@ namespace RhythmGame.Visual
 
         public override void Init()
         {
+            JudgeEffectCorTimeCounter = 0;
             TotalMainScore.Init();
             TotalPerfectScore.Init();
             TotalGoodScore.Init();
@@ -120,14 +122,24 @@ namespace RhythmGame.Visual
         [SerializeField] private RealScore TotalGoodScore;
         [SerializeField] private RealScore TotalBadScore;
         [SerializeField] private RealScore TotalLostScore;
+        //
+        [SerializeField] private UnityEngine.UI.Image JudgeEffectUI;
+        private Color JudgeEffectColor;
+        public float JudgeEffectCorTimeCounter = 0;
 
         private void LateUpdate()
         {
             Rebuild();
+            JudgeEffectCorTimeCounter -= UnityEngine.Time.deltaTime;
+            if (JudgeEffectCorTimeCounter > 0)
+                JudgeEffectUI.color = Color.Lerp(new Color(1, 1, 1, 0), JudgeEffectColor, JudgeEffectCorTimeCounter / JudgeEffectShadowDuratoin);
         }
+
+        private const float JudgeEffectShadowDuratoin = 1;
 
         public void AddJudgeData(JudgeData data)
         {
+            JudgeEffectCorTimeCounter = JudgeEffectShadowDuratoin;
             ComboValue++;
             if (data.Type== JudgeType.Bad||data.Type==JudgeType.Lost)
             {
@@ -143,21 +155,25 @@ namespace RhythmGame.Visual
                 case JudgeType.Best or JudgeType.Perfect:
                     {
                         TotalPerfectScore.Add(data.Offset);
+                        JudgeEffectColor = Color.yellow;
                     }
                     break;
                 case JudgeType.Good:
                     {
                         TotalGoodScore.Add(data.Offset);
+                        JudgeEffectColor = Color.blue;
                     }
                     break;
                 case JudgeType.Bad:
                     {
                         TotalBadScore.Add(data.Offset);
+                        JudgeEffectColor = Color.red;
                     }
                     break;
                 case JudgeType.Lost:
                     {
                         TotalLostScore.Add(data.Offset);
+                        JudgeEffectColor = Color.black;
                     }
                     break;
                 default:
