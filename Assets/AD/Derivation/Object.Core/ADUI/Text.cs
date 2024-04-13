@@ -1,5 +1,6 @@
 using System;
 using AD.BASE;
+using AD.Math;
 using TMPro;
 using UnityEngine;
 
@@ -75,6 +76,29 @@ namespace AD.UI
             else
                 _m_Property.RemoveListenerOnSet(_SetText);
             _m_Property = property;
+        }
+
+        [SerializeField] private string m_VariableInitName;
+
+        private void Update()
+        {
+            if (!string.IsNullOrEmpty(m_VariableInitName))
+            {
+                ArithmeticVariable m_Variable = new(m_VariableInitName);
+                if (m_Variable)
+                {
+                    SetText(m_Variable.ReadValue().ToString());
+                }
+                else
+                {
+                    SetText("");
+                }
+            }
+        }
+
+        public void BindVariable(string arithmeticName)
+        {
+            m_VariableInitName = arithmeticName;
         }
 
         private AD.BASE.BindProperty<string> _m_Property = null;

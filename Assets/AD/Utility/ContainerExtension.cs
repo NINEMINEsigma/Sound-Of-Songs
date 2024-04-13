@@ -324,6 +324,16 @@ namespace AD.Utility
         {
             return new EmptyEnumerator<T>();
         }
+
+        public static float Totally(this IEnumerable<float> self)
+        {
+            float result = 0;
+            foreach (var value in self)
+            {
+                result += value;
+            }
+            return result;
+        }
     }
 
     class EmptyEnumerator : IEnumerator

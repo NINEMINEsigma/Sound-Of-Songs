@@ -40,13 +40,14 @@ namespace RhythmGame.Visual.Note
         public float TimeCounter = 0;
         public Material m_Material;
         public SpriteRenderer m_SpriteRenderer;
+        public AudioSource m_AudioSource;
 
         public void When(float time, float duration)
         {
             if (TimeCounter == 0) TimeCounter = time;
             m_Material.SetFloat("_CurrentFramesCount", Mathf.Clamp((time - TimeCounter) * 50, 0, 16));
             this.transform.position = this.transform.position.SetZ(App.instance.CameraSafeAreaPanel);
-            if (time - TimeCounter > 0.32f)
+            if (time - TimeCounter > 0.32f||time< TimeCounter)
             {
                 this.gameObject.SetActive(false);
             }
@@ -69,6 +70,7 @@ namespace RhythmGame.Visual.Note
         {
             IsInit = false;
             TimeCounter = 0;
+            m_AudioSource.Play();
         }
 
         private void OnDisable()
@@ -76,6 +78,7 @@ namespace RhythmGame.Visual.Note
             if (ADGlobalSystem.instance)
             {
                 App.instance.GetModel<JudgeEffectStack>().Objects.Enqueue(this);
+                m_AudioSource.Stop();
             }
         }
 

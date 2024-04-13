@@ -16,7 +16,7 @@ namespace RhythmGame
 {
     public class CameraCore : ADController, IController, IListenTime, IRebuildHandler, IInvariant<IRebuildHandler>
     {
-        public const float CameraOffsetZ = -13;
+        public const float CameraOffsetZ = -17;
 
 
         public float min, max;
@@ -76,6 +76,8 @@ namespace RhythmGame
             {
                 Debug.LogException(ex);
             }
+
+            ArithmeticExtension.AddVariable("__FPS", new(0));
         }
 
         protected override void OnDestroy()
@@ -86,6 +88,8 @@ namespace RhythmGame
             }
             base.OnDestroy();
         }
+
+        private Queue<float> frameTimeCounter = new();
 
         private void LateUpdate()
         {
@@ -108,6 +112,10 @@ namespace RhythmGame
                     }
                 }
             }
+            if (frameTimeCounter.Count > 10)
+                frameTimeCounter.Dequeue();
+            frameTimeCounter.Enqueue(UnityEngine.Time.deltaTime);
+            ArithmeticVariable.VariableConstantPairs["__FPS"].Value.SetValue((int)(10 / frameTimeCounter.Totally()));
         }
 
         public void When(float time, float duration)

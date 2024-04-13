@@ -3,12 +3,12 @@ using UnityEngine;
 using System.Security.Cryptography;
 using System.IO.Compression;
 using System.Collections.Generic;
-using UnityEditor.AssetImporters;
 
 
 
 
 #if UNITY_EDITOR
+using UnityEditor.AssetImporters;
 using UnityEditor;
 #endif
 
@@ -667,6 +667,7 @@ namespace AD.BASE
 #endif
     }
 
+#if UNITY_EDITOR
     [ScriptedImporter(1, ".lua")]
     public class LuaImporter : ScriptedImporter
     {
@@ -704,7 +705,8 @@ namespace AD.BASE
         public LineTextAsset() : base("") { }
         public LineTextAsset(string lines) : base(lines) { }
 
-        
+
     }
+#endif
 }
 

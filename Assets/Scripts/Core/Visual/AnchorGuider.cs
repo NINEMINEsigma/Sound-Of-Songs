@@ -1,8 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using AD.BASE;
-using AD.Utility;
 using UnityEngine;
 
 namespace RhythmGame.Visual
@@ -20,7 +16,7 @@ namespace RhythmGame.Visual
 
         public override void Init()
         {
-
+            this.transform.localPosition = new Vector3(0, 0, -CameraCore.CameraOffsetZ);
         }
 
         public Touch Current;

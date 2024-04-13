@@ -48,7 +48,7 @@ namespace RhythmGame.Time
             App.CurrentTime = MainAudioSource.CurrentTime;
             if (MainAudioSource.IsPlay)
             {
-                TimeFillBar.SetPerecent(MainAudioSource.CurrentTime / MainAudioSource.CurrentClip.length, 0, MainAudioSource.CurrentClip.length);
+                //TimeFillBar.SetPerecent(MainAudioSource.CurrentTime / MainAudioSource.CurrentClip.length, 0, MainAudioSource.CurrentClip.length);
                 foreach (var listener in Listeners)
                 {
                     listener.When(MainAudioSource.CurrentTime, MainAudioSource.CurrentClip.length);

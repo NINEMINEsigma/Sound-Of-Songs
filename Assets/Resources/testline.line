@@ -1,6 +1,6 @@
 import Script
 build "test" "liu"
-{delay=0}
+{delay=-0.03}
 {bpm=202}
 {_DepthMul=70}
 Timing "0" "1" "0" "1" "Linear"
@@ -53,5 +53,5 @@ Vertex "2" "0" "108.188" "1" "0" "0" "0.3"
 Vertex "2" "0" "117.549" "1" "0" "0" "0.3"
 Vertex "0" "0" "121.782" "1" "0" "0" "0.3"
 Vertex "0" "0" "150" "1" "0" "0" "0.3"
-LoadMelodyBM | "...Resources\Sterelogue (4ky_another).txt"
+LoadMelodyBM | "...Resources\Sterelogue (4ky_normal).txt"
 LoadSong | "...Resources\VeetaCrush - Sterelogue"

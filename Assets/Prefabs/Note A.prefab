@@ -111,6 +111,7 @@ MonoBehaviour:
   - 0
   - 0
   m_JudgeTimeExpression: 0
+  m_JudgeTime: 0
   IsJudged: 0
   IsBeenTouch: 0
   IsBeenTouchJudge: 0
@@ -126,5 +127,5 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 6, y: 6, z: 6}
+  m_Size: {x: 8, y: 8, z: 2}
   m_Center: {x: 0, y: 0, z: 0}

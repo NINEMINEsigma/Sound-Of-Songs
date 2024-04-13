@@ -226,6 +226,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Selected: 0
   ElementArea: Text
+  m_VariableInitName: 
 --- !u!1 &1068479937
 GameObject:
   m_ObjectHideFlags: 0
@@ -376,6 +377,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Selected: 0
   ElementArea: Text
+  m_VariableInitName: 
 --- !u!1 &1071583275
 GameObject:
   m_ObjectHideFlags: 0
@@ -526,6 +528,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Selected: 0
   ElementArea: Text
+  m_VariableInitName: 
 --- !u!1 &1096265057
 GameObject:
   m_ObjectHideFlags: 0
@@ -676,6 +679,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Selected: 0
   ElementArea: Text
+  m_VariableInitName: 
 --- !u!1 &1116692713
 GameObject:
   m_ObjectHideFlags: 0
