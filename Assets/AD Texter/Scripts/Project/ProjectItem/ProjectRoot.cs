@@ -58,6 +58,7 @@ namespace AD.Sample.Texter.Project
                     }, "¶ÀÁ¢ÎÄ¼þ", ProjectData.OfflineExtension, ProjectData.OfflineExtension);
 
                 });
+                PropertiesExLayout.Generate(that);
             }
         }
 

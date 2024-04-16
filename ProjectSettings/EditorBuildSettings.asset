@@ -11,4 +11,13 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Test AD Line IO/TestScene.unity
     guid: 7f9b2657dc8fc16448f70e32bd95618f
+  - enabled: 1
+    path: Assets/AD Texter/Scenes/EntryScene.unity
+    guid: 47869cbdc9a6aea43abd9c47ff730a96
+  - enabled: 1
+    path: Assets/AD Texter/Scenes/SettingScene.unity
+    guid: c5d8bfc41fea5ce429023d135fc56ff4
+  - enabled: 1
+    path: Assets/AD Texter/Scenes/ProjectScene.unity
+    guid: 57fde834e23dcbd43a9289f18383d9a3
   m_configObjects: {}

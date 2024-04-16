@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AD.BASE;
 using AD.Math;
+using AD.Reflection;
+using AD.Types;
 using AD.UI;
 using AD.Utility;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using static AD.Derivation.GameEditor.GUIContent;
@@ -44,18 +48,7 @@ namespace AD.Derivation.GameEditor
     {
         private static bool IsApply = true;
 
-        private static ISerializePropertiesEditor _CurrentEditorThat;
-        public static ISerializePropertiesEditor CurrentEditorThat
-        {
-            get
-            {
-                return _CurrentEditorThat;
-            }
-            private set
-            {
-                _CurrentEditorThat = value;
-            }
-        }
+        internal static PropertiesItem CurrentEditorMatchItem;
 
         private static List<List<GUIContent>> GUILayoutLineList = new();
         private static bool IsNeedMulLine = true;
@@ -121,8 +114,8 @@ namespace AD.Derivation.GameEditor
 
         public static void SetUpPropertiesLayout(ISerializePropertiesEditor target)
         {
-            CurrentEditorThat = ADGlobalSystem.FinalCheck(target);
-            CurrentEditorThat.MatchItem.Init();
+            CurrentEditorMatchItem = ADGlobalSystem.FinalCheck(target).MatchItem;
+            CurrentEditorMatchItem.Init();
             IsNeedMulLine = true;
             if (!IsApply)
             {
@@ -137,38 +130,66 @@ namespace AD.Derivation.GameEditor
             IsApply = false;
         }
 
+        public static void SetUpPropertiesLayout(PropertiesItem target)
+        {
+            CurrentEditorMatchItem = target;
+            CurrentEditorMatchItem.Init();
+            foreach (var items in GUILayoutLineList)
+            {
+                foreach (GUIContent item in items)
+                {
+                    GameObject.Destroy(item.RootObject);
+                }
+            }
+            IsNeedMulLine = true;
+            IsApply = false;
+        }
+
         public static void ApplyPropertiesLayout()
         {
             try
             {
                 foreach (var line in GUILayoutLineList)
                 {
-                    var rect = CurrentEditorThat.MatchItem.AddNewLevelLine(true, 1);
-                    rect.GetComponent<AreaDetecter>().Message = line[0].Message;
-                    int LineItemCount = line.Count;
-                    int extensionalSpaceLine = 0;
-                    foreach (var content in line)
+                    RectTransform rect = null;
+                    try
                     {
-                        switch (content.ContentType)
+                        rect = CurrentEditorMatchItem.AddNewLevelLine(true, 1);
+                        rect.GetComponent<AreaDetecter>().Message = line[0].Message;
+                        int LineItemCount = line.Count;
+                        int extensionalSpaceLine = 0;
+                        foreach (var content in line)
                         {
-                            case GUIContent.GUIContentType.Space:
-                                {
-                                    CurrentEditorThat.MatchItem.AddNewLevelLine(false, content.ExtensionalSpaceLine);
-                                }
-                                break;
-                            default:
-                                {
-                                    if (content.ExtensionalSpaceLine > extensionalSpaceLine) extensionalSpaceLine = content.ExtensionalSpaceLine;
-                                    content.RootObject.transform.SetParent(rect, false);
-                                    var contentRect = content.RootObject.transform.As<UnityEngine.RectTransform>();
-                                    contentRect.sizeDelta = new UnityEngine.Vector2(rect.sizeDelta.x / (float)LineItemCount, contentRect.sizeDelta.y);
-                                }
-                                break;
+                            switch (content.ContentType)
+                            {
+                                case GUIContent.GUIContentType.Space:
+                                    {
+                                        CurrentEditorMatchItem.AddNewLevelLine(false, content.ExtensionalSpaceLine);
+                                    }
+                                    break;
+                                default:
+                                    {
+                                        if (content.ExtensionalSpaceLine > extensionalSpaceLine) extensionalSpaceLine = content.ExtensionalSpaceLine;
+                                        content.RootObject.transform.SetParent(rect, false);
+                                        var contentRect = content.RootObject.transform.As<UnityEngine.RectTransform>();
+                                        contentRect.sizeDelta = new UnityEngine.Vector2(rect.sizeDelta.x / (float)LineItemCount, contentRect.sizeDelta.y);
+                                    }
+                                    break;
+                            }
                         }
+                        if (extensionalSpaceLine > 0)
+                            CurrentEditorMatchItem.AddNewLevelLine(false, extensionalSpaceLine);
                     }
-                    if (extensionalSpaceLine > 0)
-                        CurrentEditorThat.MatchItem.AddNewLevelLine(false, extensionalSpaceLine);
+                    catch (Exception ex)
+                    {
+                        if (rect != null)
+                        {
+                            rect.gameObject.name += "*(Error)" + ex.Message;
+                        }
+                        Debug.LogException(ex);
+                    }
                 }
+                GUILayoutLineList.Clear();
             }
             catch (Exception ex)
             {
@@ -183,8 +204,7 @@ namespace AD.Derivation.GameEditor
             }
             finally
             {
-                CurrentEditorThat = null;
-                GUILayoutLineList.Clear();
+                CurrentEditorMatchItem = null;
                 EndHorizontal();
                 IsApply = true;
             }
@@ -430,7 +450,7 @@ namespace AD.Derivation.GameEditor
         }
 
         #endregion
-        
+
         //Extension by 12.12
 
         public static Vector2UI Vector2(string label, Vector2 initVec, string message, UnityAction<Vector2> action)
@@ -523,6 +543,13 @@ namespace AD.Derivation.GameEditor
 
         //ListView
 
+        public static ListView ListView(string message, ListViewItem item)
+        {
+            var cat = GUIField("ListView(UI)", message).As<ListView>();
+            cat.SetPrefab(item);
+            return cat;
+        }
+
         //Tie Value
 
         public static InputField FloatField(string label, float initValue, string message, UnityAction<float> action)
@@ -533,7 +560,7 @@ namespace AD.Derivation.GameEditor
             var input = InputField(initValue.ToString(), label, message);
             input.AddListener(T =>
             {
-                if (ArithmeticExtension.TryParse(T,out var value))
+                if (ArithmeticExtension.TryParse(T, out var value))
                     action.Invoke(value.ReadValue());
                 else
                 {
@@ -560,6 +587,313 @@ namespace AD.Derivation.GameEditor
                 }
             });
             return input;
+        }
+    }
+
+    public static class PropertiesExLayout
+    {
+        private static Stack<PropertiesItem> items = new();
+        private static HashSet<object> objects = new();
+
+        public static List<IADUI> Generate(object source)
+        {
+            return Generate(source, ADType.GetOrCreateADType(source.GetType()));
+        }
+
+        private static List<IADUI> DoGenerate(List<IADUI> result, object source, ADType sourceType,string keyLabel=null)
+        {
+            if (sourceType.members == null) sourceType.GetMembers(true);
+            if (sourceType.IsCollection)
+            {
+                DoSubMemberCollectionType(result, source, keyLabel);
+            }
+            else if (sourceType.IsReflectedType)
+            {
+                foreach (var member in sourceType.members)
+                {
+                    DoSubMember(result, member, source);
+                }
+            }
+            else Debug.LogWarning("PropertiesExLayout Not Support Type : " + sourceType.type.Name);
+
+            return result;
+        }
+
+        public static List<IADUI> Generate(object source, ADType sourceType)
+        {
+            return DoGenerate(new(), source, sourceType);
+        }
+
+
+        private static List<IADUI> DoSubMember(List<IADUI> result, ADMember member, object that)
+        {
+            items.Push(PropertiesLayout.CurrentEditorMatchItem);
+            Type type = member.type;
+            if (type == typeof(GameObject) || type.IsAssignableFromOrSubClass(typeof(MonoBehaviour)))
+            {
+
+            }
+            else if (type == typeof(bool))
+            {
+                IADUI cat = PropertiesLayout.ModernUISwitch(member.name, (bool)member.reflectedMember.GetValue(that), member.name, T => member.reflectedMember.SetValue(that, T));
+                result.Add(cat);
+            }
+            else if (type == typeof(char))
+            {
+                PropertiesLayout.BeginHorizontal();
+                PropertiesLayout.Label(member.name, member.name);
+                var cat = PropertiesLayout.InputField(((char)member.reflectedMember.GetValue(that)).ToString(), member.name);
+                result.Add(cat);
+                cat.AddListener(T =>
+                {
+                    member.reflectedMember.SetValue(that, T[0]);
+                    cat.SetTextWithoutNotify(T[..1]);
+                });
+                PropertiesLayout.EndHorizontal();
+            }
+            else if (type == typeof(double))
+            {
+                PropertiesLayout.BeginHorizontal();
+                PropertiesLayout.Label(member.name, member.name);
+                var cat = PropertiesLayout.InputField(((double)member.reflectedMember.GetValue(that)).ToString(), member.name);
+                result.Add(cat);
+                cat.AddListener(T =>
+                {
+                    if (double.TryParse(T, out double value))
+                    {
+                        member.reflectedMember.SetValue(that, value);
+                    }
+                    else
+                    {
+                        cat.SetTextWithoutNotify(((double)member.reflectedMember.GetValue(that)).ToString());
+                    }
+                });
+                PropertiesLayout.EndHorizontal();
+            }
+            else if (type == typeof(float))
+            {
+                PropertiesLayout.BeginHorizontal();
+                PropertiesLayout.Label(member.name, member.name);
+                var cat = PropertiesLayout.InputField(((float)member.reflectedMember.GetValue(that)).ToString(), member.name);
+                result.Add(cat);
+                cat.AddListener(T =>
+                {
+                    if (float.TryParse(T, out float value))
+                    {
+                        member.reflectedMember.SetValue(that, value);
+                    }
+                    else
+                    {
+                        cat.SetTextWithoutNotify(((float)member.reflectedMember.GetValue(that)).ToString());
+                    }
+                });
+                PropertiesLayout.EndHorizontal();
+            }
+            else if (type == typeof(int))
+            {
+                PropertiesLayout.BeginHorizontal();
+                PropertiesLayout.Label(member.name + "(integer)", member.name + "(integer)");
+                var cat = PropertiesLayout.InputField(((int)member.reflectedMember.GetValue(that)).ToString(), member.name + "(integer)");
+                result.Add(cat);
+                cat.AddListener(T =>
+                {
+                    if (int.TryParse(T, out int value))
+                    {
+                        member.reflectedMember.SetValue(that, value);
+                    }
+                    else
+                    {
+                        cat.SetTextWithoutNotify(((int)member.reflectedMember.GetValue(that)).ToString());
+                    }
+                });
+                PropertiesLayout.EndHorizontal();
+            }
+            else if (type == typeof(uint))
+            {
+                PropertiesLayout.BeginHorizontal();
+                PropertiesLayout.Label(member.name + "(unsigned integer)", member.name + "(unsigned integer)");
+                var cat = PropertiesLayout.InputField(((uint)member.reflectedMember.GetValue(that)).ToString(), member.name + "(unsigned integer)");
+                result.Add(cat);
+                cat.AddListener(T =>
+                {
+                    if (uint.TryParse(T, out uint value))
+                    {
+                        member.reflectedMember.SetValue(that, value);
+                    }
+                    else
+                    {
+                        cat.SetTextWithoutNotify(((uint)member.reflectedMember.GetValue(that)).ToString());
+                    }
+                });
+                PropertiesLayout.EndHorizontal();
+            }
+            else if (type == typeof(long))
+            {
+                PropertiesLayout.BeginHorizontal();
+                PropertiesLayout.Label(member.name + "(long)", member.name + "(long)");
+                var cat = PropertiesLayout.InputField(((long)member.reflectedMember.GetValue(that)).ToString(), member.name + "(long)");
+                result.Add(cat);
+                cat.AddListener(T =>
+                {
+                    if (long.TryParse(T, out long value))
+                    {
+                        member.reflectedMember.SetValue(that, value);
+                    }
+                    else
+                    {
+                        cat.SetTextWithoutNotify(((long)member.reflectedMember.GetValue(that)).ToString());
+                    }
+                });
+                PropertiesLayout.EndHorizontal();
+            }
+            else if (type == typeof(ulong))
+            {
+                PropertiesLayout.BeginHorizontal();
+                PropertiesLayout.Label(member.name + "(unsigned long)", member.name + "(unsigned long)");
+                var cat = PropertiesLayout.InputField(((ulong)member.reflectedMember.GetValue(that)).ToString(), member.name + "(unsigned long)");
+                result.Add(cat);
+                cat.AddListener(T =>
+                {
+                    if (ulong.TryParse(T, out ulong value))
+                    {
+                        member.reflectedMember.SetValue(that, value);
+                    }
+                    else
+                    {
+                        cat.SetTextWithoutNotify(((ulong)member.reflectedMember.GetValue(that)).ToString());
+                    }
+                });
+                PropertiesLayout.EndHorizontal();
+            }
+            else if (type == typeof(short))
+            {
+                PropertiesLayout.BeginHorizontal();
+                PropertiesLayout.Label(member.name + "(short)", member.name + "(short)");
+                var cat = PropertiesLayout.InputField(((short)member.reflectedMember.GetValue(that)).ToString(), member.name + "(short)");
+                result.Add(cat);
+                cat.AddListener(T =>
+                {
+                    if (short.TryParse(T, out short value))
+                    {
+                        member.reflectedMember.SetValue(that, value);
+                    }
+                    else
+                    {
+                        cat.SetTextWithoutNotify(((short)member.reflectedMember.GetValue(that)).ToString());
+                    }
+                });
+                PropertiesLayout.EndHorizontal();
+            }
+            else if (type == typeof(ushort))
+            {
+                PropertiesLayout.BeginHorizontal();
+                PropertiesLayout.Label(member.name + "(unsigh short)", member.name + "(unsigh short)");
+                var cat = PropertiesLayout.InputField(((ushort)member.reflectedMember.GetValue(that)).ToString(), member.name + "(unsigh short)");
+                result.Add(cat);
+                cat.AddListener(T =>
+                {
+                    if (ushort.TryParse(T, out ushort value))
+                    {
+                        member.reflectedMember.SetValue(that, value);
+                    }
+                    else
+                    {
+                        cat.SetTextWithoutNotify(((ushort)member.reflectedMember.GetValue(that)).ToString());
+                    }
+                });
+                PropertiesLayout.EndHorizontal();
+            }
+            else if (type == typeof(string))
+            {
+                PropertiesLayout.BeginHorizontal();
+                PropertiesLayout.Label(member.name, member.name);
+                var cat = PropertiesLayout.InputField((string)member.reflectedMember.GetValue(that), member.name);
+                result.Add(cat);
+                cat.AddListener(T =>
+                {
+                    member.reflectedMember.SetValue(that, T);
+                });
+                PropertiesLayout.EndHorizontal();
+            }
+            else if (type == typeof(Vector2))
+            {
+                var value = (Vector2)member.reflectedMember.GetValue(that);
+                result.Add(PropertiesLayout.Vector2(member.name, value, member.name, T => member.reflectedMember.SetValue(that, T)));
+            }
+            else if (type == typeof(Vector3))
+            {
+                var value = (Vector3)member.reflectedMember.GetValue(that);
+                result.Add(PropertiesLayout.Vector3(member.name, value, member.name, T => member.reflectedMember.SetValue(that, T)));
+            }
+            else if (type == typeof(Vector4))
+            {
+                var value = (Vector4)member.reflectedMember.GetValue(that);
+                result.Add(PropertiesLayout.Vector4(member.name, value, member.name, T => member.reflectedMember.SetValue(that, T)));
+            }
+            else if (type == typeof(Color))
+            {
+                result.Add(PropertiesLayout.ColorPanel(member.name, (Color)member.reflectedMember.GetValue(that), member.name, T => { member.reflectedMember.SetValue(that, T); }));
+            }
+            else if (type == typeof(Texture2D))
+            {
+                PropertiesLayout.Label(member.name, member.name);
+                result.Add(PropertiesLayout.RawImage((Texture2D)member.reflectedMember.GetValue(that), member.name));
+            }
+            else if (type == typeof(Sprite))
+            {
+                PropertiesLayout.Image(member.name, member.name).Share(out var cat).CurrentImagePair = new() { SpriteSource = (Sprite)member.reflectedMember.GetValue(that) };
+                result.Add(cat);
+            }
+            else if (type == typeof(Transform))
+            {
+                PropertiesLayout.Label(member.name, member.name);
+                PropertiesLayout.BeginHorizontal();
+                PropertiesLayout.Transform((Transform)member.reflectedMember.GetValue(that));
+                PropertiesLayout.EndHorizontal();
+            }
+            else
+            {
+                if (objects.Add(member.reflectedMember.GetValue(that)))
+                {
+                    PropertiesLayout.EndHorizontal();
+                    object obj = member.reflectedMember.GetValue(that);
+                    //PropertiesLayout.Label(member.name, member.name);
+                    PropertiesItem nextItem = Resources.Load<GameObject>("GameEditor/ListViewItem(Sub)").SeekComponent<PropertiesItem>();
+                    PropertiesLayout.ListView(member.name, nextItem).Share(out var cat).SetTitle(member.name);
+                    PropertiesLayout.CurrentEditorMatchItem = cat.GenerateItem().As<PropertiesItem>().Share(out var curItem);
+                    curItem.SetTitle(member.name);
+                    DoGenerate(result, obj, ADType.GetOrCreateADType(member.reflectedMember.MemberType), member.name);
+                }
+            }
+            items.Pop();
+            if (items.Count > 0)  PropertiesLayout.CurrentEditorMatchItem = items.Peek();
+            else objects.Clear();
+            return result;
+        }
+
+        private static List<IADUI> DoSubMemberCollectionType(List<IADUI> result, object that,string keyLabel)
+        {
+            items.Push(PropertiesLayout.CurrentEditorMatchItem);
+            BuildListViewFolder(keyLabel ?? "[ Unknown List ]");
+            if (that != null)
+                foreach (var item in (IEnumerable)that)
+                {
+                    DoGenerate(result, item, ADType.GetOrCreateADType(item.GetType()));
+                }
+            items.Pop();
+            if (items.Count > 0) PropertiesLayout.CurrentEditorMatchItem = items.Peek();
+            else objects.Clear();
+            return result;
+        }
+
+        private static void BuildListViewFolder(string keyLabel)
+        {
+            PropertiesLayout.EndHorizontal();
+            //PropertiesLayout.Label(member.name, member.name);
+            PropertiesItem nextItem = Resources.Load<GameObject>("GameEditor/ListViewItem(Sub)").SeekComponent<PropertiesItem>();
+            PropertiesLayout.ListView(keyLabel, nextItem).Share(out var cat).SetTitle(keyLabel);
+            PropertiesLayout.CurrentEditorMatchItem = cat.GenerateItem().As<PropertiesItem>().Share(out var curItem);
+            curItem.SetTitle(keyLabel);
         }
     }
 }

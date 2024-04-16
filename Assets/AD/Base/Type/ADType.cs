@@ -331,11 +331,11 @@ namespace AD.Types
                 return new ADReflectedObjectType(type);
         }
 
-        protected void GetMembers(bool safe)
+        internal void GetMembers(bool safe)
         {
             GetMembers(safe, null);
         }
-        protected void GetMembers(bool safe, string[] memberNames)
+        internal void GetMembers(bool safe, string[] memberNames)
         {
             List<ReflectionExtension.ADReflectedMember> allsSrializedMembers = ReflectionExtension.GetSerializableMembers(type, safe, memberNames, true).ToList();
             members = allsSrializedMembers.GetSubList(T => !(T.MemberType == type && !ReflectionExtension.IsAssignableFrom(typeof(UnityEngine.Object), T.MemberType))

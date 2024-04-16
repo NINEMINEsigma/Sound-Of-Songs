@@ -14,7 +14,7 @@ namespace AD.Derivation.GameEditor
 
         [SerializeField] AD.UI.Toggle Lock_Tilie_Toggle;
         public RectTransform SubPage;
-        [SerializeField] RectTransform SubLinePerfab;
+        [SerializeField] GameObject SubLinePerfab;
 
         public bool IsLock = false;
 
@@ -22,7 +22,7 @@ namespace AD.Derivation.GameEditor
 
         [SerializeField] private List<GameObject> Lines = new();
 
-        public override int SortIndex { get => MatchEditor.SerializeIndex; set { } }
+        public override int SortIndex { get => MatchEditor == null ? -1 : MatchEditor.SerializeIndex; set { } }
 
         public override ListViewItem Init()
         {
@@ -72,9 +72,14 @@ namespace AD.Derivation.GameEditor
             AddRectHightLevel(line);
             if (isNewLine)
             {
+#if UNITY_EDITOR
+                UnityEditor.Selection.activeObject = this.gameObject;
+                Lines.Add(GameObject.Instantiate(SubLinePerfab, SubPage));
+#else
                 Lines.Add(GameObject.Instantiate(SubLinePerfab.gameObject, SubPage));
+#endif
                 RectTransform temp = Lines[^1].GetComponent<RectTransform>();
-                temp.sizeDelta= new Vector2(temp.sizeDelta.x, 0);
+                temp.sizeDelta = new Vector2(temp.sizeDelta.x, 0);
             }
             GameObject obj = Lines[^1];
             RectTransform result = obj.GetComponent<RectTransform>();

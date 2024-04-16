@@ -855,6 +855,7 @@ MonoBehaviour:
   m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
+  m_CursorLockBehavior: 0
 --- !u!114 &1209061517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2014,7 +2015,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4805177564445380296, guid: bf230492b1ae88648b243674da6f3f78, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.00035309792
+      value: -0.00002503395
       objectReference: {fileID: 0}
     - target: {fileID: 4805177565500732771, guid: bf230492b1ae88648b243674da6f3f78, type: 3}
       propertyPath: m_AnchorMax.x
@@ -2046,7 +2047,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6072922359156014315, guid: bf230492b1ae88648b243674da6f3f78, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.000076293945
+      value: -0.00024414062
       objectReference: {fileID: 0}
     - target: {fileID: 6072922359324042377, guid: bf230492b1ae88648b243674da6f3f78, type: 3}
       propertyPath: m_SizeDelta.y
@@ -2070,7 +2071,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8194327642056193584, guid: bf230492b1ae88648b243674da6f3f78, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -455.95447
+      value: -455.9544
       objectReference: {fileID: 0}
     - target: {fileID: 8194327642290075993, guid: bf230492b1ae88648b243674da6f3f78, type: 3}
       propertyPath: m_fontSizeMax
