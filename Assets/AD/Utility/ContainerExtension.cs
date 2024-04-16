@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace AD.Utility
 {
+
     public static class ContainerExtension
     {
         public static List<P> GetSubList<T, P>(this List<T> self) where P : class
@@ -332,6 +333,36 @@ namespace AD.Utility
             {
                 result += value;
             }
+            return result;
+        }
+
+        public static string LinkAndInsert(this IEnumerable<object> self, string key)
+        {
+            string result = "";
+            int first = 0, end = self.Count();
+            if (self == null || end == 0) return result;
+            foreach (var item in self)
+            {
+                if (first >= end) break;
+                first++;
+                result += item.ToString() + key;
+            }
+            result += self.Last();
+            return result;
+        }
+
+        public static string LinkAndInsert(this IEnumerable<object> self, char key)
+        {
+            string result = "";
+            int first = 0, end = self.Count();
+            if (self == null || end == 0) return result;
+            foreach (var item in self)
+            {
+                if (first >= end) break;
+                first++;
+                result += item.ToString() + key;
+            }
+            result += self.Last();
             return result;
         }
     }

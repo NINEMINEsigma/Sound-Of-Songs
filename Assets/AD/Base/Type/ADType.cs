@@ -9,6 +9,10 @@ using UnityEngine;
 using AD.BASE.IO;
 using AD.Utility;
 using Unity.VisualScripting;
+using AD.SAL;
+using AD.BASE;
+using System.Reflection;
+using static AD.Reflection.ReflectionExtension;
 
 #region L
 
@@ -439,17 +443,26 @@ namespace AD.Types
             IsCollection = true;
         }
 
-        protected virtual bool ReadICollection<T>(ADReader reader, ICollection<T> collection, ADType elementType)
+        protected virtual bool ReadICollection<T>(ADReader reader, ICollection<T> collection, ADType elementType, out Dictionary<int, int> RefList)
         {
+            RefList = null;
+
             if (reader.StartReadCollection())
                 return false;
 
+            RefList = new();
+
             // Iterate through each character until we reach the end of the array.
-            while (true)
+            for (int i = 0; true; i++)
             {
                 if (!reader.StartReadCollectionItem())
                     break;
-                collection.Add(reader.Read<T>(elementType));
+                T currentBeenReaded = reader.Read<T>(elementType);
+                if (currentBeenReaded == null)
+                {
+                    RefList.Add(i, reader.CurrentStateID);
+                }
+                collection.Add(currentBeenReaded);
 
                 if (reader.EndReadCollectionItem())
                     break;
@@ -533,15 +546,17 @@ namespace AD.Types
         public override object Read(ADReader reader)
         {
             var list = new List<object>();
-            if (!ReadICollection(reader, list, elementType))
+            if (!ReadICollection(reader, list, elementType,out var refList))
                 return null;
 
             var array = ReflectionExtension.ArrayCreateInstance(elementType.type, list.Count);
-            int i = 0;
-            foreach (var item in list)
+            for (int i = 0; i < list.Count; i++)
             {
-                array.SetValue(item, i);
-                i++;
+                object item = list[i];
+                int id = refList[i];
+                if (item == null)
+                    if (reader.SetMember(array, i, id))
+                        array.SetValue(item, i);
             }
 
             return array;
@@ -670,12 +685,13 @@ namespace AD.Types
             int length1 = 0;
 
             // Iterate through each character until we reach the end of the array.
+            Dictionary<int, int> refList = null;
             while (true)
             {
                 if (!reader.StartReadCollectionItem())
                     break;
 
-                ReadICollection<object>(reader, items, elementType);
+                ReadICollection<object>(reader, items, elementType, out refList);
                 length1++;
 
                 if (reader.EndReadCollectionItem())
@@ -688,7 +704,15 @@ namespace AD.Types
 
             for (int i = 0; i < length1; i++)
                 for (int j = 0; j < length2; j++)
+                {
+                    if (items[(i * length2) + j] == null)
+                    {
+                        if (refList.TryGetValue((i * length2) + j, out int id))
+                            if (!reader.SetMember(array, "SetValue", id, i, j))
+                                continue;
+                    }
                     array.SetValue(items[(i * length2) + j], i, j);
+                }
 
             return array;
         }
@@ -791,6 +815,7 @@ namespace AD.Types
             int length1 = 0;
             int length2 = 0;
 
+            Dictionary<int, int> refList = null;
             // Iterate through each sub-array
             while (true)
             {
@@ -805,7 +830,7 @@ namespace AD.Types
                     if (!reader.StartReadCollectionItem())
                         break;
 
-                    ReadICollection<object>(reader, items, elementType);
+                    ReadICollection<object>(reader, items, elementType, out refList);
                     length2++;
 
                     if (reader.EndReadCollectionItem())
@@ -827,7 +852,16 @@ namespace AD.Types
             for (int i = 0; i < length1; i++)
                 for (int j = 0; j < length2; j++)
                     for (int k = 0; k < length3; k++)
+                    {
+                        if (items[i * (length2 * length3) + (j * length3) + k] == null)
+                            if (refList.TryGetValue(i * (length2 * length3) + (j * length3) + k, out var id))
+                                if (!reader.SetMember(array, "SetValue", id, i, j, k))
+                                {
+                                    array.SetValue(items[i * (length2 * length3) + (j * length3) + k], i, j, k);
+                                    continue;
+                                }
                         array.SetValue(items[i * (length2 * length3) + (j * length3) + k], i, j, k);
+                    }
 
             return array;
         }
@@ -982,9 +1016,13 @@ namespace AD.Types
                 reader.EndReadDictionaryKey();
 
                 reader.StartReadDictionaryValue();
-                var value = reader.Read<object>(valueType);
-
-                dict.Add(key, value);
+                object currentBeenReaded = reader.Read<object>(valueType);
+                if (currentBeenReaded == null)
+                {
+                    if(reader.SetMember(dict, key))
+                        dict.Add(key, currentBeenReaded);
+                }
+                else dict.Add(key, currentBeenReaded);
 
                 if (reader.EndReadDictionaryValue())
                     break;
@@ -1111,9 +1149,13 @@ namespace AD.Types
                 reader.EndReadDictionaryKey();
 
                 reader.StartReadDictionaryValue();
-                var value = reader.Read<object>(valueType);
-
-                dict.Add(key, value);
+                object currentBeenReaded = reader.Read<object>(valueType);
+                if (currentBeenReaded == null)
+                {
+                    if(reader.SetMember(dict, key))
+                        dict.Add(key, currentBeenReaded);
+                }
+                else dict.Add(key, currentBeenReaded);
 
                 if (reader.EndReadDictionaryValue())
                     break;
@@ -1206,6 +1248,8 @@ namespace AD.Types
             var listType = ReflectionExtension.MakeGenericType(typeof(List<>), genericParam);
             var list = (IList)ReflectionExtension.CreateInstance(listType);
 
+            List<int> RefList = new();
+
             if (!reader.StartReadCollection())
             {
                 // Iterate through each character until we reach the end of the array.
@@ -1213,7 +1257,13 @@ namespace AD.Types
                 {
                     if (!reader.StartReadCollectionItem())
                         break;
-                    list.Add(reader.Read<object>(elementType));
+                    object currentBeenReaded = reader.Read<object>(elementType);
+                    if (currentBeenReaded == null)
+                    {
+                        RefList.Add(reader.CurrentStateID);
+                    }
+                    else
+                        list.Add(currentBeenReaded);
 
                     if (reader.EndReadCollectionItem())
                         break;
@@ -1222,7 +1272,15 @@ namespace AD.Types
                 reader.EndReadCollection();
             }
 
-            return ReflectionExtension.CreateInstance(type, list);
+            object hashSet = ReflectionExtension.CreateInstance(type, list);
+
+            foreach (var refId in RefList)
+            {
+                if (reader.SetMember(hashSet, "Add", refId))
+                    hashSet.RunMethodByName("Add", ReflectionExtension.PublicFlags, null);
+            }
+
+            return hashSet;
         }
 
         public override void ReadInto<T>(ADReader reader, object obj)
@@ -1292,7 +1350,13 @@ namespace AD.Types
             {
                 if (!reader.StartReadCollectionItem())
                     break;
-                instance.Add(reader.Read<object>(elementType));
+                object currentBeenReaded = reader.Read<object>(elementType);
+                if (currentBeenReaded == null)
+                {
+                    if (reader.SetMember(instance, instance.Count))
+                        instance.Add(currentBeenReaded);
+                }
+                else instance.Add(currentBeenReaded);
 
                 if (reader.EndReadCollectionItem())
                     break;
@@ -1340,6 +1404,7 @@ namespace AD.Types
     }
 
     [UnityEngine.Scripting.Preserve]
+    [_NotSupport_(typeof(ADLineReader))]
     public class ADNativeArrayType : ADCollectionType
     {
         public ADNativeArrayType(Type type) : base(type) { }
@@ -1389,15 +1454,17 @@ namespace AD.Types
         private System.Array ReadAsArray(ADReader reader)
         {
             var list = new List<object>();
-            if (!ReadICollection(reader, list, elementType))
+            if (!ReadICollection(reader, list, elementType, out var refList))
                 return null;
 
             var array = ReflectionExtension.ArrayCreateInstance(elementType.type, list.Count);
-            int i = 0;
-            foreach (var item in list)
+            for (int i = 0; i < list.Count; i++)
             {
-                array.SetValue(item, i);
-                i++;
+                object item = list[i];
+                int id = refList[i];
+                if (item == null)
+                    if (reader.SetMember(array, i, id))
+                        array.SetValue(item, i);
             }
 
             return array;
@@ -1405,6 +1472,7 @@ namespace AD.Types
     }
 
     [UnityEngine.Scripting.Preserve]
+    [_NotSupport_(typeof(Queue)),_NotSupport_(typeof(Queue<>))]
     public class ADQueueType : ADCollectionType
     {
         public ADQueueType(Type type) : base(type) { }
@@ -1489,7 +1557,9 @@ namespace AD.Types
 
             reader.EndReadCollection();
 
-            return ReflectionExtension.CreateInstance(type, instance);
+            object result = ReflectionExtension.CreateInstance(type, instance);
+
+            return result;
         }
 
         public override void ReadInto(ADReader reader, object obj)
@@ -1528,6 +1598,7 @@ namespace AD.Types
     }
 
     [UnityEngine.Scripting.Preserve]
+    [_NotSupport_(typeof(Stack)), _NotSupport_(typeof(Stack<>))]
     public class ADStackType : ADCollectionType
     {
         public ADStackType(Type type) : base(type) { }
@@ -1701,10 +1772,13 @@ namespace AD.Types
             if (reader.StartReadCollection())
                 return null;
 
+            Dictionary<int, int> refList = new();
             for (int i = 0; i < subTypes.Length; i++)
             {
                 reader.StartReadCollectionItem();
-                objects[i] = reader.Read<object>(adTypes[i]);
+                 objects[i] = reader.Read<object>(adTypes[i]);
+                if (objects[i] == null)
+                    refList.Add(i, reader.CurrentStateID);
                 reader.EndReadCollectionItem();
             }
 
@@ -1712,6 +1786,13 @@ namespace AD.Types
 
             var constructor = type.GetConstructor(subTypes);
             var instance = constructor.Invoke(objects);
+
+            var itemList = ReflectionExtension.DoGetSerializableProperties(instance.GetType(), null, true, new string[] { "Item" }, ReflectionExtension.PublicFlags, reader.IsSupportCycle)
+                .Contravariance<PropertyInfo, ReflectionExtension.ADReflectedMember>(T => new(T));
+            foreach (var item in refList)
+            {
+                reader.SetMember(itemList.First(T => T.Name.Contains(item.Key.ToString())), instance);
+            }
 
             return instance;
         }

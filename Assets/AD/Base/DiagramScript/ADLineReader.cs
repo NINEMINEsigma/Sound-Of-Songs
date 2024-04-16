@@ -6,6 +6,9 @@ using System.Globalization;
 using AD.Types;
 using AD.Reflection;
 using System.Collections.Generic;
+using UnityEngine.Events;
+using System.Collections;
+using Unity.VisualScripting;
 
 namespace AD.BASE.IO
 {
@@ -50,13 +53,29 @@ namespace AD.BASE.IO
 			public ADType type;
 			public object value;
 			public int id;
-        }
-        internal class Waiter
+		}
+		//internal class Waiter
+		//{
+		//	public ReflectionExtension.ADReflectedMember Member;
+		//	public object value;
+		//}
+		internal class Waiter : ADInvokableCall<object>
         {
-			public ReflectionExtension.ADReflectedMember Member;
-			public object value;
+			private static void SetValue(ReflectionExtension.ADReflectedMember Member, object origin, object value)
+			{
+				Member.SetValue(origin, value);
+            }
+			public Waiter(ReflectionExtension.ADReflectedMember member, object Obj) : base(value => SetValue(member, Obj, value)) { }
+			public Waiter(IList member, int index) : base(value => member[index] = value) { }
+			public Waiter(Array member,int index) : base(value => member.SetValue(value, index)) { }
+            public Waiter(IDictionary member, object key) : base(value => member[key] = value) { }
+			public Waiter(object member, string methodName) : base(value => member.RunMethodByName(methodName, ReflectionExtension.PublicFlags, value)) { }
+            public Waiter(object member, string methodName, params object[] args) : base(value => member.RunMethodByName(methodName, ReflectionExtension.PublicFlags, value, args)) { }
+
+            public Waiter(UnityAction<object> action) : base(action) { }
         }
-        internal enum ReadMode
+
+		internal enum ReadMode
         {
             Ref, Def
         }
@@ -107,7 +126,7 @@ namespace AD.BASE.IO
 					while (waiters.Count > 0)
 					{
 						var waiter = waiters.Dequeue();
-						waiter.Member.SetValue(waiter.value, value);
+						waiter.Invoke(value);
 					}
 					CallBackWaiter.Remove(currentID);
 					//IsNeedUpdateSum--;
@@ -132,13 +151,84 @@ namespace AD.BASE.IO
 
 		internal int currentID = 0;
 		internal int currentRefID = 0;
+		internal override int CurrentStateID => currentRefID;
 
         public override bool SetMember(ReflectionExtension.ADReflectedMember member, object obj)
         {
 			if (!CallBackWaiter.ContainsKey(currentRefID))
 				CallBackWaiter.Add(currentRefID, new());
-			CallBackWaiter[currentRefID].Enqueue(new() { Member = member, value = obj });
+			CallBackWaiter[currentRefID].Enqueue(new(member, obj));
 			return true;
+        }
+
+        public override bool SetMember(IList list, int index)
+        {
+			return SetMember(list, index, currentRefID);
+        }
+
+        public override bool SetMember(IList list, int index, int id)
+        {
+            if (id == -1)
+            {
+				return base.SetMember(list, index, id);
+            }
+            if (!CallBackWaiter.ContainsKey(id))
+                CallBackWaiter.Add(id, new());
+            CallBackWaiter[id].Enqueue(new(list, index));
+            return base.SetMember(list, index, id);
+        }
+
+        public override bool SetMember(Array array, int index)
+        {
+            return SetMember(array, index,currentRefID);
+        }
+
+        public override bool SetMember(Array array, int index, int id)
+        {
+            if (id == -1)
+            {
+                return base.SetMember(array, index, id);
+            }
+            if (!CallBackWaiter.ContainsKey(id))
+                CallBackWaiter.Add(id, new());
+            CallBackWaiter[id].Enqueue(new(array, index));
+            return base.SetMember(array, index, id);
+        }
+
+        public override bool SetMember(IDictionary dic, object key)
+        {
+            if (currentRefID == -1)
+            {
+                return base.SetMember(dic, key);
+            }
+            if (!CallBackWaiter.ContainsKey(currentRefID))
+                CallBackWaiter.Add(currentRefID, new());
+            CallBackWaiter[currentRefID].Enqueue(new(dic, key));
+            return base.SetMember(dic, key);
+        }
+
+        public override bool SetMember(object source, string methodName, int id)
+        {
+            if (id == -1)
+            {
+                return base.SetMember(source, methodName, id);
+            }
+            if (!CallBackWaiter.ContainsKey(id))
+                CallBackWaiter.Add(id, new());
+            CallBackWaiter[id].Enqueue(new(source, methodName));
+			return false;
+        }
+
+        public override bool SetMember(object source, string methodName, int id, params object[] args)
+        {
+            if (id == -1)
+            {
+                return base.SetMember(source, methodName, id, args);
+            }
+            if (!CallBackWaiter.ContainsKey(id))
+                CallBackWaiter.Add(id, new());
+            CallBackWaiter[id].Enqueue(new(source, methodName, args));
+            return false;
         }
 
         protected override T ReadObject<T>(ADType type)
@@ -171,6 +261,7 @@ namespace AD.BASE.IO
                     //IsNeedUpdateSum++;
                 }
 			}
+			currentRefID = -1;
 
             EndReadObject();
             return (T)obj;

@@ -378,6 +378,8 @@ namespace AD.Reflection
         public static readonly Type serializeFieldAttributeType = typeof(SerializeField);
         public static readonly Type obsoleteAttributeType = typeof(System.ObsoleteAttribute);
         public static readonly Type nonSerializedAttributeType = typeof(System.NonSerializedAttribute);
+        public static readonly Type ignoreSerializedAttributeType = typeof(SAL._Ignore_Attribute);
+        public static readonly Type nonIgnoreSerializedAttributeType = typeof(SAL._Must_Attribute);
 
         public static Type[] EmptyTypes = new Type[0];
 
@@ -443,6 +445,13 @@ namespace AD.Reflection
 
                 var fieldType = field.FieldType;
 
+                if(AttributeIsDefined(field, nonIgnoreSerializedAttributeType))
+                {
+                    // If this field is marked by nonIgnoreSerializedAttributeType ,it must try to serializable
+                    serializableFields.Add(field);
+                    continue;
+                }
+
                 if (safe)
                 {
                     // If the field is private, only serialize it if it's explicitly marked as serializable.
@@ -461,8 +470,10 @@ namespace AD.Reflection
                         continue;
                 }
 
-                // If property is marked as obsolete or non-serialized, don't serialize it.
-                if (AttributeIsDefined(field, nonSerializedAttributeType) || AttributeIsDefined(field, obsoleteAttributeType))
+                // If property is marked as obsolete or non-serialized or ignore, don't serialize it.
+                if (AttributeIsDefined(field, nonSerializedAttributeType) ||
+                    AttributeIsDefined(field, obsoleteAttributeType) ||
+                    AttributeIsDefined(field, ignoreSerializedAttributeType))
                     continue;
 
                 if (!TypeIsSerializable(field.FieldType))
@@ -477,7 +488,7 @@ namespace AD.Reflection
 
             var baseType = BaseType(type);
             if (baseType != null && baseType != typeof(System.Object) && baseType != typeof(UnityEngine.Object))
-                GetSerializableFields(BaseType(type), serializableFields, safe, memberNames);
+                DoGetSerializableFields(BaseType(type), serializableFields, safe, memberNames, bindings, IsSupportCycle);
 
             return serializableFields;
         }
@@ -530,6 +541,13 @@ namespace AD.Reflection
             {
                 var propertyName = p.Name;
 
+                if (AttributeIsDefined(p, nonIgnoreSerializedAttributeType))
+                {
+                    // If this property is marked by nonIgnoreSerializedAttributeType ,it must try to serializable
+                    serializableProperties.Add(p);
+                    continue;
+                }
+
                 if (excludedPropertyNames.Contains(propertyName))
                     continue;
 
@@ -562,7 +580,7 @@ namespace AD.Reflection
                     continue;
 
                 // Check that the type of the property is one which we can serialize.
-                // Also check whether an ES3Type exists for it.
+                // Also check whether an ADType exists for it.
                 if (!TypeIsSerializable(propertyType))
                     continue;
 
@@ -574,8 +592,10 @@ namespace AD.Reflection
                         continue;
                 }
 
-                // If property is marked as obsolete or non-serialized, don't serialize it.
-                if (AttributeIsDefined(p, obsoleteAttributeType) || AttributeIsDefined(p, nonSerializedAttributeType))
+                // If property is marked as obsolete or non-serialized or ignore, don't serialize it.
+                if (AttributeIsDefined(p, obsoleteAttributeType) ||
+                    AttributeIsDefined(p, nonSerializedAttributeType)||
+                    AttributeIsDefined(p, ignoreSerializedAttributeType))
                     continue;
 
                 serializableProperties.Add(p);
@@ -583,7 +603,7 @@ namespace AD.Reflection
 
             var baseType = BaseType(type);
             if (baseType != null && baseType != typeof(System.Object))
-                GetSerializableProperties(baseType, serializableProperties, safe, memberNames);
+                DoGetSerializableProperties(baseType, serializableProperties, safe, memberNames, bindings, IsSupportCycle);
 
             return serializableProperties;
         }
@@ -1201,19 +1221,64 @@ namespace AD.Reflection
     }
 }
 
+#pragma warning disable IDE1006 
 //AD source code annotation language
 namespace AD.SAL
 {
-    [System.AttributeUsage(AttributeTargets.Parameter, Inherited = false, AllowMultiple = true)]
+    [System.AttributeUsage(AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
     public sealed class _In_Attribute : Attribute
     {
 
     }
 
-    [System.AttributeUsage(AttributeTargets.Parameter, Inherited = false, AllowMultiple = true)]
+    [System.AttributeUsage(AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
     public sealed class _Out_Attribute : Attribute
     {
 
     }
+
+    [System.AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
+    public sealed class _Ignore_Attribute : Attribute
+    {
+
+    }
+
+    [System.AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
+    public sealed class _Must_Attribute : Attribute
+    {
+
+    }
+
+    [System.AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+    public sealed class _Const_Attribute : Attribute
+    {
+
+    }
+
+    [System.AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
+    public sealed class _Change_Attribute : Attribute
+    {
+        public string target;
+
+        public _Change_Attribute(string target) {  this.target = target; }
+    }
+
+    [System.AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
+    public sealed class _Note_Attribute : Attribute
+    {
+        public string note;
+
+        public _Note_Attribute(string note) { this.note = note; }
+    }
+
+    [System.AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = true)]
+    public sealed class _NotSupport_Attribute : Attribute
+    {
+        public Type type;
+
+        public _NotSupport_Attribute(Type type) { this.type = type; }
+    }
+
+#pragma warning restore IDE1006 // ÃüÃûÑùÊ½
 }
 

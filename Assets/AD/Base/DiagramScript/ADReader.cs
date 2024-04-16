@@ -199,11 +199,47 @@ namespace AD.BASE.IO
 			return true;
 		}
 
-		#region Read(key) & Read(key, obj) methods
+		public virtual bool SetMember(IList list,int index)
+		{
+			return true;
+		}
 
-		/// <summary>Reads a value from the reader with the given key.</summary>
-		/// <param name="key">The key which uniquely identifies our value.</param>
-		public virtual T Input<T>(string key)
+		public virtual bool SetMember(IList list,int index,int id)
+		{
+            return true;
+		}
+
+		public virtual bool SetMember(Array array,int index)
+		{
+			return true;
+		}
+
+        public virtual bool SetMember(Array array, int index,int id)
+        {
+            return true;
+        }
+
+        public virtual bool SetMember(IDictionary dic,object key)
+		{
+			return true;
+		}
+		internal virtual int CurrentStateID => 0;
+
+		public virtual bool SetMember(object source,string methodName,int id)
+		{
+			return true;
+		}
+
+        public virtual bool SetMember(object source, string methodName, int id,params object[] args)
+        {
+            return true;
+        }
+
+        #region Read(key) & Read(key, obj) methods
+
+        /// <summary>Reads a value from the reader with the given key.</summary>
+        /// <param name="key">The key which uniquely identifies our value.</param>
+        public virtual T Input<T>(string key)
 		{
 			if (!Goto(key))
 				throw new KeyNotFoundException("Key \"" + key + "\" was not found in file \"" + settings.FullPath + "\". Use Load<T>(key, defaultValue) if you want to return a default value if the key does not exist.");
