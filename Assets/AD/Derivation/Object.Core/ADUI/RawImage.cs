@@ -43,5 +43,11 @@ namespace AD.UI
                 return _source;
             }
         }
+
+        public Texture MainTex
+        {
+            get => source.texture;
+            set => source.texture = value;
+        }
     }
 }

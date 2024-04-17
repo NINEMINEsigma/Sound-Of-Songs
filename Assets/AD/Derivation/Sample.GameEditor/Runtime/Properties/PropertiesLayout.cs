@@ -152,42 +152,32 @@ namespace AD.Derivation.GameEditor
                 foreach (var line in GUILayoutLineList)
                 {
                     RectTransform rect = null;
-                    try
+                    rect = CurrentEditorMatchItem.AddNewLevelLine(true, 1);
+                    rect.GetComponent<AreaDetecter>().Message = line[0].Message;
+                    rect.name = $"<{line[0].TargetItem.GetType().Name ?? ""}>{line[0].Message}";
+                    int LineItemCount = line.Count;
+                    int extensionalSpaceLine = 0;
+                    foreach (var content in line)
                     {
-                        rect = CurrentEditorMatchItem.AddNewLevelLine(true, 1);
-                        rect.GetComponent<AreaDetecter>().Message = line[0].Message;
-                        int LineItemCount = line.Count;
-                        int extensionalSpaceLine = 0;
-                        foreach (var content in line)
+                        switch (content.ContentType)
                         {
-                            switch (content.ContentType)
-                            {
-                                case GUIContent.GUIContentType.Space:
-                                    {
-                                        CurrentEditorMatchItem.AddNewLevelLine(false, content.ExtensionalSpaceLine);
-                                    }
-                                    break;
-                                default:
-                                    {
-                                        if (content.ExtensionalSpaceLine > extensionalSpaceLine) extensionalSpaceLine = content.ExtensionalSpaceLine;
-                                        content.RootObject.transform.SetParent(rect, false);
-                                        var contentRect = content.RootObject.transform.As<UnityEngine.RectTransform>();
-                                        contentRect.sizeDelta = new UnityEngine.Vector2(rect.sizeDelta.x / (float)LineItemCount, contentRect.sizeDelta.y);
-                                    }
-                                    break;
-                            }
+                            case GUIContent.GUIContentType.Space:
+                                {
+                                    CurrentEditorMatchItem.AddNewLevelLine(false, content.ExtensionalSpaceLine);
+                                }
+                                break;
+                            default:
+                                {
+                                    if (content.ExtensionalSpaceLine > extensionalSpaceLine) extensionalSpaceLine = content.ExtensionalSpaceLine;
+                                    content.RootObject.transform.SetParent(rect, false);
+                                    var contentRect = content.RootObject.transform.As<UnityEngine.RectTransform>();
+                                    contentRect.sizeDelta = new UnityEngine.Vector2(rect.sizeDelta.x / (float)LineItemCount, contentRect.sizeDelta.y);
+                                }
+                                break;
                         }
-                        if (extensionalSpaceLine > 0)
-                            CurrentEditorMatchItem.AddNewLevelLine(false, extensionalSpaceLine);
                     }
-                    catch (Exception ex)
-                    {
-                        if (rect != null)
-                        {
-                            rect.gameObject.name += "*(Error)" + ex.Message;
-                        }
-                        Debug.LogException(ex);
-                    }
+                    if (extensionalSpaceLine > 0)
+                        CurrentEditorMatchItem.AddNewLevelLine(false, extensionalSpaceLine);
                 }
                 GUILayoutLineList.Clear();
             }
@@ -595,12 +585,14 @@ namespace AD.Derivation.GameEditor
         private static Stack<PropertiesItem> items = new();
         private static HashSet<object> objects = new();
 
+        public static Dictionary<object, bool> isFolderObject = new();
+
         public static List<IADUI> Generate(object source)
         {
             return Generate(source, ADType.GetOrCreateADType(source.GetType()));
         }
 
-        private static List<IADUI> DoGenerate(List<IADUI> result, object source, ADType sourceType,string keyLabel=null)
+        private static List<IADUI> DoGenerate(List<IADUI> result, object source, ADType sourceType, string keyLabel = null)
         {
             if (sourceType.members == null) sourceType.GetMembers(true);
             if (sourceType.IsCollection)
@@ -853,28 +845,34 @@ namespace AD.Derivation.GameEditor
             }
             else
             {
-                if (objects.Add(member.reflectedMember.GetValue(that)))
+                object item = member.reflectedMember.GetValue(that);
+                if (objects.Add(item))
                 {
-                    PropertiesLayout.EndHorizontal();
-                    object obj = member.reflectedMember.GetValue(that);
-                    //PropertiesLayout.Label(member.name, member.name);
-                    PropertiesItem nextItem = Resources.Load<GameObject>("GameEditor/ListViewItem(Sub)").SeekComponent<PropertiesItem>();
-                    PropertiesLayout.ListView(member.name, nextItem).Share(out var cat).SetTitle(member.name);
-                    PropertiesLayout.CurrentEditorMatchItem = cat.GenerateItem().As<PropertiesItem>().Share(out var curItem);
-                    curItem.SetTitle(member.name);
+                    object obj = item;
+                    var folder = BuildListViewFolder(member.name);
+                    if (obj != null && isFolderObject.TryGetValue(obj, out bool isFolder))
+                    {
+                        folder.target = obj;
+                        folder.FolderButton.IsClick = !isFolder;
+                    }
                     DoGenerate(result, obj, ADType.GetOrCreateADType(member.reflectedMember.MemberType), member.name);
                 }
             }
             items.Pop();
-            if (items.Count > 0)  PropertiesLayout.CurrentEditorMatchItem = items.Peek();
+            if (items.Count > 0) PropertiesLayout.CurrentEditorMatchItem = items.Peek();
             else objects.Clear();
             return result;
         }
 
-        private static List<IADUI> DoSubMemberCollectionType(List<IADUI> result, object that,string keyLabel)
+        private static List<IADUI> DoSubMemberCollectionType(List<IADUI> result, object that, string keyLabel)
         {
             items.Push(PropertiesLayout.CurrentEditorMatchItem);
-            BuildListViewFolder(keyLabel ?? "[ Unknown List ]");
+            var folder = BuildListViewFolder(keyLabel ?? "[ Unknown List ]");
+            if (that != null && isFolderObject.TryGetValue(that, out bool isFolder))
+            {
+                folder.target = that;
+                folder.FolderButton.IsClick = !isFolder;
+            }
             if (that != null)
                 foreach (var item in (IEnumerable)that)
                 {
@@ -886,7 +884,7 @@ namespace AD.Derivation.GameEditor
             return result;
         }
 
-        private static void BuildListViewFolder(string keyLabel)
+        private static PropertiesItemSubListEx BuildListViewFolder(string keyLabel)
         {
             PropertiesLayout.EndHorizontal();
             //PropertiesLayout.Label(member.name, member.name);
@@ -894,6 +892,7 @@ namespace AD.Derivation.GameEditor
             PropertiesLayout.ListView(keyLabel, nextItem).Share(out var cat).SetTitle(keyLabel);
             PropertiesLayout.CurrentEditorMatchItem = cat.GenerateItem().As<PropertiesItem>().Share(out var curItem);
             curItem.SetTitle(keyLabel);
+            return nextItem.SeekComponent<PropertiesItemSubListEx>();
         }
     }
 }
