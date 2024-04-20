@@ -179,6 +179,7 @@ namespace AD.Derivation.HosterSystem
         {
             MatchItem.SetTitle("Root(Base Group)");
         }
+        public void QuitSerializing() { }
 
         public bool RemoveHosterComponent<T>() where T : IHosterComponent, new()
         {
@@ -446,6 +447,7 @@ namespace AD.Derivation.HosterSystem
         }
 
         public abstract void OnSerialize(HierarchyItem MatchItem);
+        public virtual void QuitSerializing() { }
 
         public bool RemoveHosterComponent<T>() where T : IHosterComponent, new()
         {
@@ -585,6 +587,7 @@ namespace AD.Derivation.HosterSystem
         public virtual void DoUpdate() { }
 
         public virtual void OnSerialize() { }
+        public virtual void QuitSerializing() { }
 
         #region Command
 

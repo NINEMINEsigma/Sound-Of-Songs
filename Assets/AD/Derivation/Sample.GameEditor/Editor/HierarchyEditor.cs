@@ -78,6 +78,7 @@ public class TestSerializeHierarchyEditor : ISerializeHierarchyEditor
     {
         MatchItem.SetTitle(MatchTarget.SerializeIndex.ToString());
     }
+    public void QuitSerializing() { }
 }
 
 public class TestSerializePropertiesEditor1 : ISerializePropertiesEditor
@@ -105,6 +106,7 @@ public class TestSerializePropertiesEditor1 : ISerializePropertiesEditor
 
         AD.Derivation.GameEditor.PropertiesLayout.ApplyPropertiesLayout();
     }
+    public void QuitSerializing() { }
 }
 
 public class TestSerializePropertiesEditor2 : ISerializePropertiesEditor
@@ -131,6 +133,7 @@ public class TestSerializePropertiesEditor2 : ISerializePropertiesEditor
 
         AD.Derivation.GameEditor.PropertiesLayout.ApplyPropertiesLayout();
     }
+    public void QuitSerializing() { }
 }
 
 [CustomEditor(typeof(Hierarchy))]

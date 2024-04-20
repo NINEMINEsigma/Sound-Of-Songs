@@ -32,11 +32,18 @@ namespace AD.Sample.Texter
             public bool IsDirty { get; set; }
             public int SerializeIndex { get; set; }
 
+            protected SubWindowEx SubWindow => GameEditorApp.instance.GetController<SubWindowEx>();
+
             public void OnSerialize()
             {
                 PropertiesLayout.SetUpPropertiesLayout(this);
                 HowSerialize();
                 PropertiesLayout.ApplyPropertiesLayout();
+            }
+
+            public void QuitSerializing()
+            {
+
             }
 
             protected virtual void HowSerialize()
@@ -295,6 +302,8 @@ namespace AD.Sample.Texter
 
     public class App : ADArchitecture<App>
     {
+        public static bool IsLockSubWindow = false;
+
         public static GenerateTargetEntry[] Get(List<GameObject> sources, bool isModern)
         {
             return sources.GetSubList<GenerateTargetEntry, Type, GameObject>(

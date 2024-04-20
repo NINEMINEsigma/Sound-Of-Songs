@@ -254,6 +254,7 @@ namespace AD.Derivation.GameEditor
         {
             MatchItem.SetTitle("Editor System");
         }
+        public void QuitSerializing() { }
 
         public List<ICanSerializeOnCustomEditor> GetChilds()
         {

@@ -556,6 +556,10 @@ namespace AD.BASE
                     ObjectExtension.AllArchitecture.Add(typeof(T), __ADinstance);
                     __ADinstance.Init();
                 }
+                if (__ADinstance as T == null)
+                {
+                    Debug.LogWarning("instance is null after as T");
+                }
                 return __ADinstance as T;
             }
         }
@@ -2247,7 +2251,7 @@ namespace AD.BASE
             {
                 string arg0Str = arg0.ToString();
                 string arg1Str = arg1.ToString();
-                DebugExtension.LogMessage(ex.Message + "\n{\n" + arg0Str + "\n},\n{" + arg1Str + "\n}\n");
+                DebugExtension.LogMessage(ex.Message + "\n{\n" + arg0Str + "\n},\n{\n" + arg1Str + "\n}\n");
                 throw;
             }
         }
@@ -2284,8 +2288,8 @@ namespace AD.BASE
                 string arg2Str = arg2.ToString();
                 DebugExtension.LogMessage(ex.Message +
                     "\n{\n" + arg0Str +
-                    "\n},\n{" + arg1Str +
-                    "\n},\n{" + arg2Str + "\n}\n");
+                    "\n},\n{\n" + arg1Str +
+                    "\n},\n{\n" + arg2Str + "\n}\n");
                 throw;
             }
         }
@@ -2323,9 +2327,9 @@ namespace AD.BASE
                 string arg3Str = arg3.ToString();
                 DebugExtension.LogMessage(ex.Message +
                     "\n{\n" + arg0Str +
-                    "\n},\n{" + arg1Str +
-                    "\n},\n{" + arg2Str +
-                    "\n},\n{" + arg3Str + "\n}\n");
+                    "\n},\n{\n" + arg1Str +
+                    "\n},\n{\n" + arg2Str +
+                    "\n},\n{\n" + arg3Str + "\n}\n");
                 throw;
             }
         }

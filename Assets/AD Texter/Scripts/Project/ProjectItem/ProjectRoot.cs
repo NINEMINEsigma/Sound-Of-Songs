@@ -58,7 +58,6 @@ namespace AD.Sample.Texter.Project
                     }, "¶ÀÁ¢ÎÄ¼þ", ProjectData.OfflineExtension, ProjectData.OfflineExtension);
 
                 });
-                PropertiesExLayout.Generate(that);
             }
         }
 
@@ -103,7 +102,13 @@ namespace AD.Sample.Texter.Project
 
         public void ClickOnLeft()
         {
-
+            var subWin = GameEditorApp.instance.GetController<SubWindowEx>();
+            subWin.ClearLines();
+            var line = subWin.AddLine();
+            line.Setup(new List<SubWindowListLine.DataEntry>
+                {
+                    new(()=>Debug.Log("xxx"))
+                });
         }
 
         public void ClickOnRight()

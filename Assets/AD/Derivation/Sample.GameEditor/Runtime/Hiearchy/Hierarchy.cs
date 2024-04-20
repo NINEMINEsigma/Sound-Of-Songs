@@ -23,6 +23,10 @@ namespace AD.Derivation.GameEditor
 
         public void ReplaceTop(List<ISerializeHierarchyEditor> newList)
         {
+            foreach (var old in TargetTopObjectEditors)
+            {
+                old.QuitSerializing();
+            }
             TargetTopObjectEditors = newList;
             //RefreshPanel();
             ClearAndRefresh();
@@ -44,6 +48,7 @@ namespace AD.Derivation.GameEditor
             if (editor == null) return;
             if (TargetTopObjectEditors.Remove(editor))
             {
+                editor.QuitSerializing();
                 //RefreshPanel();
                 ClearAndRefresh();
                 if (Architecture.GetController<Properties>().MatchTarget != null && Architecture.GetController<Properties>().MatchTarget.MatchHierarchyEditor == editor)
@@ -96,7 +101,11 @@ namespace AD.Derivation.GameEditor
                 {
                     TargetTopObjectEditors.Add(value);
                 }
-                else TargetTopObjectEditors[index] = value;
+                else
+                {
+                    TargetTopObjectEditors[index].QuitSerializing();
+                    TargetTopObjectEditors[index] = value;
+                }
             }
         }
 
@@ -125,6 +134,8 @@ namespace AD.Derivation.GameEditor
 
         public void RefreshPanel(PointerEventData axisEventData = null)
         {
+            if (axisEventData != null)
+                DebugExtension.LogMessage(nameof(Hierarchy) + " is " + nameof(RefreshPanel) + " when axisEventData isn't null");
             foreach (var target in TargetTopObjectEditors)
             {
                 target.BaseHierarchyItemSerialize(0);

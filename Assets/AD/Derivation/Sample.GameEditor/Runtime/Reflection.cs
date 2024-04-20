@@ -72,7 +72,22 @@ namespace AD.Derivation.GameEditor
 
         public virtual void OnSerialize(HierarchyItem MatchItem)
         {
+            OnSerializeCallback?.Invoke();
             MatchItem.SetTitle(Title);
+        }
+        Action OnSerializeCallback;
+        public virtual void QuitSerializing() { QuitSerializingCallback?.Invoke(); }
+        Action QuitSerializingCallback;
+
+        public HierarchyBlock<T> InitOnSerializeCallback(Action action)
+        {
+            this.OnSerializeCallback = action;
+            return this;
+        }
+        public HierarchyBlock<T> InitQuitCallback(Action action)
+        {
+            this.QuitSerializingCallback = action;
+            return this;
         }
 
         private BindProperty<string> _p_Title = null;
@@ -247,6 +262,7 @@ namespace AD.Derivation.GameEditor
 
             PropertiesLayout.ApplyPropertiesLayout();
         }
+        public void QuitSerializing() { }
 
         protected virtual void HowSerialize()
         {
@@ -1437,6 +1453,7 @@ namespace AD.Derivation.GameEditor
 
             PropertiesLayout.ApplyPropertiesLayout();
         }
+        public void QuitSerializing() { }
 
         protected virtual void HowSerialize()
         {

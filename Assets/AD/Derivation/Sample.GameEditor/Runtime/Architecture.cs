@@ -138,6 +138,7 @@ namespace AD.Derivation.GameEditor
     public interface ICanSerialize
     {
         int SerializeIndex { get; set; }
+        void QuitSerializing();
     }
 
     public interface ISerializeHierarchyEditor : ICanSerialize

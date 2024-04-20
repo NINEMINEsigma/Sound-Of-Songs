@@ -54,7 +54,11 @@ namespace AD.Derivation.GameEditor
                     Debug.LogError("Over Bound");
                     return;
                 }
-                else CurrentPropertiesEditors[index] = value;
+                else
+                {
+                    CurrentPropertiesEditors[index].QuitSerializing();
+                    CurrentPropertiesEditors[index] = value;
+                }
             }
         }
 
@@ -72,25 +76,17 @@ namespace AD.Derivation.GameEditor
         {
             EditorAssets.PropertiesListView.Clear();
             if (MatchTarget == null) return;
-            try
+            foreach (var target in CurrentPropertiesEditors)
             {
-                foreach (var target in CurrentPropertiesEditors)
-                {
-                    RegisterPropertiesItem(target);
-                }
-            }
-            catch (Exception ex)
-            {
-                if (MatchTarget is UnityEngine.Object obj)
-                    Debug.LogException(ex, obj);
-                else
-                    Debug.LogException(new ADException(MatchTarget.GetType().FullName + " : an instance is cannt Register", ex));
+                RegisterPropertiesItem(target);
             }
             EditorAssets.PropertiesListView.SortChilds();
         }
 
         public void RefreshPanel(PointerEventData axisEventData = null)
         {
+            if (axisEventData != null)
+                DebugExtension.LogMessage(nameof(Properties) + " is " + nameof(RefreshPanel) + " when axisEventData isn't null");
             if (MatchTarget == null) return;
             foreach (var target in CurrentPropertiesEditors)
             {
