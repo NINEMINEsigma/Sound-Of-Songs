@@ -97,7 +97,7 @@ namespace AD.Derivation.LLM
 
         public ChatBaidu()
         {
-            url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant";
+            url ??= "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant";
         }
 
         public override void Init()
@@ -113,11 +113,11 @@ namespace AD.Derivation.LLM
         /// <summary>
         /// token脚本
         /// </summary>
-        [SerializeField] private BaiduSettings m_Settings = new();
+        [SerializeField] internal BaiduSettings m_Settings = new();
         /// <summary>
         /// 历史对话
         /// </summary>
-        private List<message> m_History = new List<message>();
+        internal List<message> m_History = new List<message>();
         /// <summary>
         /// 选择的模型类型
         /// </summary>
@@ -242,7 +242,7 @@ namespace AD.Derivation.LLM
             public string user_id = string.Empty;
         }
         [Serializable]
-        private class message
+        internal class message
         {
             public string role = string.Empty;//角色
             public string content = string.Empty;//对话内容

@@ -29,9 +29,9 @@ namespace AD.Derivation.LLM
 
         #region 定义变量
         //密钥
-        [SerializeField] private string m_ApiKey = string.Empty;
+        [SerializeField] internal string m_ApiKey = string.Empty;
         //对话ID
-        [SerializeField] private string m_ConversationID = string.Empty;
+        [SerializeField] internal string m_ConversationID = string.Empty;
         #endregion
 
         private void Awake()

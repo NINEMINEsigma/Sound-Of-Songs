@@ -177,6 +177,34 @@ namespace AD.Sample.Texter.Project
                 {
                     SerializeChatSpark();
                 }
+                else if(that.m_MatchLLM.GetType()==typeof(ChatBaidu))
+                {
+                    SerializeChatBaidu();
+                }
+                else if(that.m_MatchLLM.GetType() == typeof(KnowledgeBaidu))
+                {
+                    SerializeKnowledgeBaidu();
+                }
+                else if (that.m_MatchLLM.GetType() == typeof(chatGLM))
+                {
+                    SerializeChatGLM();
+                }
+                else if (that.m_MatchLLM.GetType() == typeof(ChatGLM_Turbo))
+                {
+                    SerializeChatGLM_Turbo();
+                }
+                else if (that.m_MatchLLM.GetType() == typeof(chatGPT))
+                {
+                    SerializeChatGPT();
+                }
+                else if (that.m_MatchLLM.GetType() == typeof(chatgptTurbo))
+                {
+                    SerializeChatgptTurbo();
+                }
+                else if (that.m_MatchLLM.GetType() == typeof(chatRWKV))
+                {
+                    SerializeChatRWKV();
+                }
             }
 
             private void SerializeChatSpark()
@@ -200,6 +228,140 @@ namespace AD.Sample.Texter.Project
                     };
                 });
 
+                PropertiesLayout.Button("Open", "打开使用窗口", () =>
+                {
+                    var target = GameEditorApp.instance.GetController<PropertiesEx>().Share(out var propertiesEx).CallWindow("LLMCore", that.PropertiesExWindowPrefab);
+                    propertiesEx.Window.SetTitle("LLM Window");
+                    var window = target.SeekComponent<LLMCorePExWindow>();
+                    window.Init();
+                    window.SetTitle(that.MatchLLMMonoName);
+                    window.isCanBackPool = false;
+                });
+            }
+            private void SerializeChatBaidu()
+            {
+                ChatBaidu chat = that.m_MatchLLM as ChatBaidu;
+                PropertiesLayout.Label("API Key");
+                PropertiesLayout.InputField(chat.m_Settings.m_API_key, "api key").AddListener(T => chat.m_Settings.m_API_key = T);
+                PropertiesLayout.Label("API Secret");
+                PropertiesLayout.InputField(chat.m_Settings.m_Client_secret, "api Secret").AddListener(T => chat.m_Settings.m_Client_secret = T);
+                PropertiesLayout.Label("API Authorize URL");
+                PropertiesLayout.InputField(chat.m_Settings.m_AuthorizeURL, "api AppID").AddListener(T => chat.m_Settings.m_AuthorizeURL = T);
+                PropertiesLayout.ModernUISwitch("Is Get Token From Server", chat.m_Settings.GetTokenFromServer, "Is Get Token From Server", T => chat.m_Settings.GetTokenFromServer = T);
+                PropertiesLayout.Enum<ChatBaidu.ModelType>("Model Level", (int)chat.m_ModelType, "Model Type", T =>
+                {
+                    chat.m_ModelType = Enum.Parse<ChatBaidu.ModelType>(T);
+                });
+
+                PropertiesLayout.Button("Open", "打开使用窗口", () =>
+                {
+                    var target = GameEditorApp.instance.GetController<PropertiesEx>().Share(out var propertiesEx).CallWindow("LLMCore", that.PropertiesExWindowPrefab);
+                    propertiesEx.Window.SetTitle("LLM Window");
+                    var window = target.SeekComponent<LLMCorePExWindow>();
+                    window.Init();
+                    window.SetTitle(that.MatchLLMMonoName);
+                    window.isCanBackPool = false;
+                });
+            }
+            private void SerializeKnowledgeBaidu()
+            {
+                KnowledgeBaidu chat = that.m_MatchLLM as KnowledgeBaidu;
+                PropertiesLayout.Label("API Key");
+                PropertiesLayout.InputField(chat.m_ApiKey, "api key").AddListener(T => chat.m_ApiKey = T);
+                PropertiesLayout.Label("API Conversation ID");
+                PropertiesLayout.InputField(chat.m_ConversationID, "api ConversationID").AddListener(T => chat.m_ConversationID = T);
+
+                PropertiesLayout.Button("Open", "打开使用窗口", () =>
+                {
+                    var target = GameEditorApp.instance.GetController<PropertiesEx>().Share(out var propertiesEx).CallWindow("LLMCore", that.PropertiesExWindowPrefab);
+                    propertiesEx.Window.SetTitle("LLM Window");
+                    var window = target.SeekComponent<LLMCorePExWindow>();
+                    window.Init();
+                    window.SetTitle(that.MatchLLMMonoName);
+                    window.isCanBackPool = false;
+                });
+            }
+            private void SerializeChatGLM()
+            {
+                PropertiesLayout.Button("Open", "打开使用窗口", () =>
+                {
+                    var target = GameEditorApp.instance.GetController<PropertiesEx>().Share(out var propertiesEx).CallWindow("LLMCore", that.PropertiesExWindowPrefab);
+                    propertiesEx.Window.SetTitle("LLM Window");
+                    var window = target.SeekComponent<LLMCorePExWindow>();
+                    window.Init();
+                    window.SetTitle(that.MatchLLMMonoName);
+                    window.isCanBackPool = false;
+                });
+            }
+            private void SerializeChatGLM_Turbo()
+            {
+                ChatGLM_Turbo chat = that.m_MatchLLM as ChatGLM_Turbo;
+                PropertiesLayout.Label("API Key");
+                PropertiesLayout.InputField(chat.m_ApiKey, "api key").AddListener(T => chat.m_ApiKey = T);
+                PropertiesLayout.Label("Key");
+                PropertiesLayout.InputField(chat.m_Key, "key").AddListener(T => chat.m_Key = T);
+                PropertiesLayout.Label("API Invoke Method");
+                PropertiesLayout.InputField(chat.m_InvokeMethod, "api Invoke Method").AddListener(T => chat.m_InvokeMethod = T);
+                PropertiesLayout.Enum<ChatGLM_Turbo.ModelType>("Model Level", (int)chat.m_Type, "Model Type", T =>
+                {
+                    chat.m_Type = Enum.Parse<ChatGLM_Turbo.ModelType>(T);
+                });
+
+                PropertiesLayout.Button("Open", "打开使用窗口", () =>
+                {
+                    var target = GameEditorApp.instance.GetController<PropertiesEx>().Share(out var propertiesEx).CallWindow("LLMCore", that.PropertiesExWindowPrefab);
+                    propertiesEx.Window.SetTitle("LLM Window");
+                    var window = target.SeekComponent<LLMCorePExWindow>();
+                    window.Init();
+                    window.SetTitle(that.MatchLLMMonoName);
+                    window.isCanBackPool = false;
+                });
+            }
+            private void SerializeChatGPT()
+            {
+                chatGPT chat = that.m_MatchLLM as chatGPT;
+                PropertiesLayout.Label("API Key");
+                PropertiesLayout.InputField(chat.api_key, "api key").AddListener(T => chat.api_key = T);
+                PropertiesExLayout.Generate(chat.m_PostDataSetting);
+
+                PropertiesLayout.Button("Open", "打开使用窗口", () =>
+                {
+                    var target = GameEditorApp.instance.GetController<PropertiesEx>().Share(out var propertiesEx).CallWindow("LLMCore", that.PropertiesExWindowPrefab);
+                    propertiesEx.Window.SetTitle("LLM Window");
+                    var window = target.SeekComponent<LLMCorePExWindow>();
+                    window.Init();
+                    window.SetTitle(that.MatchLLMMonoName);
+                    window.isCanBackPool = false;
+                });
+            }
+            private void SerializeChatgptTurbo()
+            {
+                chatgptTurbo chat = that.m_MatchLLM as chatgptTurbo;
+                PropertiesLayout.Label("API Key");
+                PropertiesLayout.InputField(chat.api_key, "api key").AddListener(T => chat.api_key = T);
+                PropertiesLayout.Label("API System Setting");
+                PropertiesLayout.InputField(chat.m_SystemSetting, "api setting").AddListener(T => chat.m_SystemSetting = T);
+                PropertiesLayout.Label("API Model Type");
+                PropertiesLayout.InputField(chat.m_gptModel, "api model level").AddListener(T => chat.m_gptModel = T);
+
+                PropertiesLayout.Button("Open", "打开使用窗口", () =>
+                {
+                    var target = GameEditorApp.instance.GetController<PropertiesEx>().Share(out var propertiesEx).CallWindow("LLMCore", that.PropertiesExWindowPrefab);
+                    propertiesEx.Window.SetTitle("LLM Window");
+                    var window = target.SeekComponent<LLMCorePExWindow>();
+                    window.Init();
+                    window.SetTitle(that.MatchLLMMonoName);
+                    window.isCanBackPool = false;
+                });
+            }
+            private void SerializeChatRWKV()
+            {
+                chatRWKV chat = that.m_MatchLLM as chatRWKV;
+                PropertiesLayout.Label("API Setting");
+                PropertiesLayout.InputField(chat.m_SystemSetting, "api setting").AddListener(T => chat.m_SystemSetting = T);
+                PropertiesLayout.Label("API GPT Model Type");
+                PropertiesLayout.InputField(chat.m_gptModel, "api model level").AddListener(T => chat.m_gptModel = T);
+                
                 PropertiesLayout.Button("Open", "打开使用窗口", () =>
                 {
                     var target = GameEditorApp.instance.GetController<PropertiesEx>().Share(out var propertiesEx).CallWindow("LLMCore", that.PropertiesExWindowPrefab);

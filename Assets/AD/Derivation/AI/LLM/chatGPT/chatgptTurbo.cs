@@ -35,7 +35,7 @@ namespace AD.Derivation.LLM
             url = "https://api.openai.com/v1/chat/completions";
         }
 
-        [SerializeField] private string api_key;
+        [SerializeField] internal string api_key;
         /// <summary>
         /// AI设定
         /// </summary>

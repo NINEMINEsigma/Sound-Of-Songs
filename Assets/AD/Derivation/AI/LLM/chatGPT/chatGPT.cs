@@ -34,8 +34,8 @@ namespace AD.Derivation.LLM
             url = "https://api.openai.com/v1/completions";
         }
 
-        [SerializeField] private string api_key;
-        [SerializeField] private PostData m_PostDataSetting;
+        [SerializeField] internal string api_key;
+        [SerializeField] internal PostData m_PostDataSetting;
 
         public override void PostMessage(string _msg, Action<string> _callback)
         {

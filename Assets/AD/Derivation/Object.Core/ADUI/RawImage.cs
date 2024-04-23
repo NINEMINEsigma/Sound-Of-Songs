@@ -34,6 +34,12 @@ namespace AD.UI
             return rawImage;
         }
 
+        public RawImage SetTexture(Texture texture)
+        {
+            source.texture = texture;
+            return this;
+        }
+
         private UnityEngine.UI.RawImage _source;
         public UnityEngine.UI.RawImage source
         {

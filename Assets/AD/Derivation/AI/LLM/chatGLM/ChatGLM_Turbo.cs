@@ -39,21 +39,21 @@ namespace AD.Derivation.LLM
         /// <summary>
         /// 选择的模型
         /// </summary>
-        [SerializeField] private ModelType m_Type = ModelType.chatglm_turbo;
+        [SerializeField] internal ModelType m_Type = ModelType.chatglm_turbo;
         /// <summary>
         /// 调用方式  invoke/async-invoke/sse-invoke  先实现同步模式
         /// </summary>
-        [SerializeField] private string m_InvokeMethod = "invoke";
+        [SerializeField] internal string m_InvokeMethod = "invoke";
 
         /// <summary>
         /// 智普AI的apikey
         /// </summary>
         [Header("填写智普AI的apikey")]
-        [SerializeField] private string m_Key = string.Empty;
+        [SerializeField] internal string m_Key = string.Empty;
         //api key
-        [SerializeField] private string m_ApiKey = string.Empty;
+        [SerializeField] internal string m_ApiKey = string.Empty;
         //secret key
-        [SerializeField] private string m_SecretKey = string.Empty;
+        [SerializeField] internal string m_SecretKey = string.Empty;
         #endregion
 
         private void Awake()
