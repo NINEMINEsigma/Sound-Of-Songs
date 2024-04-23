@@ -6,11 +6,13 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using AD.BASE;
 using AD.Derivation.GameEditor;
+using AD.Sample.Texter;
 using AD.Sample.Texter.Data;
 using AD.Utility;
 using UnityEngine;
 
-namespace AD.Sample.Texter
+/*
+namespace AD.Obsolete.Sample.Texter
 {
     [Serializable]
     public class ProjectData : AD.Derivation.Localization.Cache.CacheAssets<AD.Derivation.Localization.Cache.CacheAssetsKey, ProjectItemDataCache, ProjectItemData, ProjectData_BaseMap>
@@ -413,6 +415,83 @@ namespace AD.Sample.Texter
 
             #endregion
 
+        }
+    }
+}
+*/
+
+namespace AD.Sample.Texter
+{
+
+    [Serializable]
+    public class ProjectItemData
+    {
+        public const string ProjectRootID = "ProjectRoot";
+
+        public ProjectItemData() { }
+        public ProjectItemData(IProjectItemWhereNeedInitData matchProjectItem) : this(matchProjectItem, "New Object", Vector2.zero) { }
+        protected ProjectItemData(IProjectItemWhereNeedInitData matchProjectItem, string projectItemID, Vector2 projectItemPosition)
+        {
+            MatchProjectItem = matchProjectItem;
+            ProjectItemID = projectItemID;
+            ProjectItemPosition = projectItemPosition;
+        }
+        public ProjectItemData(IProjectItemRoot root)
+        {
+            MatchProjectItem = root;
+            ProjectItemID = "Root";
+            ProjectItemPosition = new Vector2(0,0);
+        }
+
+        [AD.SAL._Ignore_]public IProjectItem MatchProjectItem;
+        public string ProjectItemID;
+        public ProjectItemData Parent;
+        public ProjectItemData[] Childs;
+        public Vector2 ProjectItemPosition;
+
+        public ProjectItemData ExecuteBeforeSave()
+        {
+            Childs = MatchProjectItem
+                .GetChilds()
+                .GetSubList<ProjectItemData, ICanSerializeOnCustomEditor>(T => true, T => T
+                .As<IProjectItemWhereNeedInitData>()
+                .SourceData
+                .ExecuteBeforeSave())
+                .ToArray();
+            return this;
+        }
+
+        public byte[] BuildOffline(string path)
+        {
+            FileC.TryCreateDirectroryOfFile(path);
+            OfflineFile offlineFile = new();
+            using ADFile file = new(path, true, false, true);
+
+            ExecuteBeforeSave();
+            offlineFile.Add(this);
+            file.ReplaceAllData(ADFile.ToBytes(offlineFile));
+            file.SaveFileData();
+            return file.FileData;
+        }
+
+        public virtual byte[] BuildOffline()
+        {
+            return ADFile.ToBytes(this);
+        }
+
+        public static ProjectItemData ReadOffline(byte[] data)
+        {
+            return ADFile.FromBytes(data) as ProjectItemData;
+        }
+
+        public void BuildFromOffline(byte[] data,string path)
+        {
+            OfflineFile offlineFile = ADFile.FromBytes(data) as OfflineFile;
+            offlineFile.ReleaseFile(path);
+            foreach (var item in offlineFile.MainMapDatas)
+            {
+                App.instance.OnGenerate.Invoke(ReadOffline(item));
+            }
         }
     }
 }

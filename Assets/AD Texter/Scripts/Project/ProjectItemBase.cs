@@ -9,8 +9,8 @@ namespace AD.Sample.Texter
     public interface IProjectItem : ICanSerializeOnCustomEditor
     {
         bool IsAbleDisplayedOnHierarchyAtTheSameTime(Type type);
-        bool SaveData(out List<IProjectItem> badSaveItems);
-        bool SaveProjectSourceData();
+        //bool SaveData(out List<IProjectItem> badSaveItems);
+        //bool SaveProjectSourceData();
 
         void ReDrawLine();
 

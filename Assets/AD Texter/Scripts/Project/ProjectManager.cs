@@ -91,7 +91,7 @@ namespace AD.Sample.Texter
 
         public GameEditorApp UIApp => GameEditorApp.instance;
 
-        public ProjectData CurrentProjectData;
+        //public ProjectData CurrentProjectData;
 
         [Header("Assets")]
         public Transform ProjectTransformRoot;
@@ -101,10 +101,6 @@ namespace AD.Sample.Texter
         public MainSceneLoader MainSceneLoaderManager;
         [Header("Prefab")]
         public PrefabModel ProjectPrefabModel;
-#if UNITY_EDITOR
-        [Header("Debug")]
-        public List<ProjectItemData> s_Datas = new();
-#endif
          
 
         private void Start()
@@ -113,17 +109,12 @@ namespace AD.Sample.Texter
             App.instance.OnGenerate.AddListener(T => this.OnGenerate.Invoke(T));
             ADGlobalSystem.instance.IsAutoSaveArchitecturesDebugLog = true;
             ADGTimeC = ADGlobalSystem.instance.AutoSaveArchitecturesDebugLogTimeLimitCounter;
-#if UNITY_EDITOR
-            s_Datas = ProjectItemData.s_Datas;
-#endif
         }
 
         private void OnApplicationQuit()
         {
             App.instance.SaveRecord();
         }
-
-        private TaskInfo loadingTask, savingTask;
 
         public override void Init()
         {
@@ -137,55 +128,49 @@ namespace AD.Sample.Texter
             {
                 yield return null;  
             }
-
-            loadingTask = new TaskInfo("Project Loading", 0, 0, new Vector2(0, 2.3f), false);
-            loadingTask.Register();
-
-            DebugExtension.LogMessage("Project Manager Init");
-
             Architecture.AddMessage("Start Loading Model");
 
-            CurrentProjectData = new()
-            {
-                DataAssetsForm = Architecture.GetModel<DataAssets>()
-            };
+            var assetsHeader = Architecture.GetModel<DataAssets>();
             if (Architecture.Contains<ProjectLoadEntry>())
             {
                 //更新
-                Architecture.RegisterModel<ProjectLoadEntry>(Architecture.GetModel<ProjectLoadEntry>().GetNext(CurrentProjectData.DataAssetsForm));
+                Architecture.RegisterModel<ProjectLoadEntry>(Architecture.GetModel<ProjectLoadEntry>().GetNext(assetsHeader));
             }
             else
             {
-                Architecture.RegisterModel(ProjectLoadEntry.Temp(CurrentProjectData.DataAssetsForm));
+                Architecture.RegisterModel(ProjectLoadEntry.Temp(assetsHeader));
             }
             ProjectPrefabModel.Root = ProjectTransformRoot;
             Architecture.RegisterModel(ProjectPrefabModel);
 
-            loadingTask.TaskValue = 0.1f;
-            yield return new WaitForSeconds(0.5f);
-            loadingTask.TaskValue = 0.3f;
-
-
             ProjectRootMono.Init();
-            yield return CurrentProjectData.Load(loadingTask);
 
+            using ADFile file = new(new(Path.Combine(LoadingManager.FilePath, assetsHeader.AssetsName, "data.line"), ADStreamEnum.Location.File, ADStreamEnum.Format.LINE));
+            if(file.Deserialize(out ProjectItemData root, "master"))
+            {
+                yield return LoadSingle(root);
+            }
+        }
+
+        private IEnumerator LoadSingle(ProjectItemData data)
+        {
+            App.instance.OnGenerate.Invoke(data);
+            foreach (var child in data.Childs)
+            {
+                yield return LoadSingle(child);
+            }
         }
 
         public void SaveProjectData()
         {
-            if (loadingTask != null)
+            ProjectItemData root = new ProjectItemData(ProjectRootMono);
+            root.ExecuteBeforeSave();
+            var assetsHeader = Architecture.GetModel<DataAssets>();
+            using ADFile file = new(new(Path.Combine(LoadingManager.FilePath, assetsHeader.AssetsName, "data.line"), ADStreamEnum.Location.File, ADStreamEnum.Format.LINE));
+            if(!file.Serialize(root,"master"))
             {
-                loadingTask.UnRegister();
-                loadingTask = null;
+                Debug.LogError("Serialize Failed");
             }
-            if (savingTask != null)
-            {
-                savingTask.UnRegister();
-                savingTask = null;
-            }
-            savingTask = new TaskInfo("Project Saving", 0, 0, new Vector2(0, 1f), false);
-            savingTask.Register();
-            SceneTrans.instance.StartCoroutine(CurrentProjectData.Save(savingTask));
         }
 
         public void BackToEntry()

@@ -55,7 +55,7 @@ namespace AD.Sample.Texter.Project
                     FileC.SelectFileOnSystem(T =>
                     {
                         App.instance.GetController<ProjectManager>().LoadFromOfflineFile(T);
-                    }, "独立文件", ProjectData.OfflineExtension, ProjectData.OfflineExtension);
+                    }, "独立文件", "offline","offline");
 
                 });
             }
@@ -147,40 +147,6 @@ namespace AD.Sample.Texter.Project
         }
 
         public DataAssets CurrentDataAssets => App.instance.GetModel<DataAssets>();
-
-        [Header("Bad Items")] public List<GameObject> badSaveItemsObjects;
-
-        public void SaveDataForStaticEditorBar()
-        {
-            if (!SaveData(out var badSaveItems))
-                badSaveItemsObjects = badSaveItems.GetSubList<GameObject, IProjectItem>(T => T is MonoBehaviour, T => T.As<MonoBehaviour>().gameObject);
-            else
-                App.instance.GetController<ProjectManager>().SaveProjectData();
-        }
-
-        public bool SaveData(out List<IProjectItem> badSaveItems)
-        {
-            badSaveItems = null;
-            if (SaveProjectSourceData())
-            {
-                bool result = true;
-                foreach (var child in Childs)
-                {
-                    result = child.As<IProjectItem>().SaveData(out List<IProjectItem> temp) && result;
-                    if (temp != null)
-                    {
-                        if (badSaveItems == null) badSaveItems = temp;
-                        else badSaveItems.AddRange(temp);
-                    }
-                }
-                return result;
-            }
-            else
-            {
-                badSaveItems = new() { this };
-                return false;
-            }
-        }
 
         //EditGroup
 
