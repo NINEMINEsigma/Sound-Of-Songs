@@ -481,8 +481,8 @@ namespace AD.Graph
             return ID.ToString();
         }
 
-        private static long totallyIndex = 0;
-        private static Queue<long> releaseIndexs = new();
+        internal static long totallyIndex = 0;
+        internal static Queue<long> releaseIndexs = new();
 
         public Node()
         {
@@ -1046,6 +1046,20 @@ namespace AD.Graph
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+    }
+
+    [Serializable]
+    public class HyperConnectedNodes :Node
+    {
+        public override object Data { get => base.Data; set => base.Data = (Graph)value; }
+        public virtual Graph Pass { get => (Graph)Data; set => Data = value; }
+
+        public static HyperConnectedNodes Generate(Graph graph)
+        {
+            HyperConnectedNodes result = new();
+            //TODO
+            return result;
         }
     }
 }

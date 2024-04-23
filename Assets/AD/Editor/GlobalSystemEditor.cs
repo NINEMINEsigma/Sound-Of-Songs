@@ -127,7 +127,7 @@ namespace AD
                         this.HelpBox($"Do You Want To Set The Target To Go Back To The Previous Scene , You Can Enter \"{ADGlobalSystem._BackSceneTargetSceneName}\"", MessageType.Warning);
                     }
                 });
-                GUILayout.BeginHorizontal(EditorStyles.helpBox);
+                GUILayout.BeginVertical(EditorStyles.helpBox);
 
                 isAsyncToLoadNextScene.boolValue = GUILayout.Toggle(isAsyncToLoadNextScene.boolValue, new GUIContent("Is AsyncLoad"), customSkin.FindStyle("Toggle"));
                 isAsyncToLoadNextScene.boolValue = GUILayout.Toggle(isAsyncToLoadNextScene.boolValue, new GUIContent(""), customSkin.FindStyle("Toggle Helper"));
