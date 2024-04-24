@@ -99,8 +99,8 @@ namespace AD.Sample.Texter.Project
                             GameEditorApp.instance.GetController<Properties>().ClearAndRefresh();
                         }
                     });
-
-                //PropertiesExLayout.Generate(that.ProjectLLMSourceData.m_DataList);
+                PropertiesLayout.Space(5);
+                PropertiesExLayout.Generate(that.SourceData);
             }
         }
 
