@@ -14,8 +14,8 @@ namespace AD.BASE.IO
 {
 	public abstract class ADReader : System.IDisposable
 	{
-		/// <summary>The settings used to create this reader.</summary>
-		public ADSettings settings;
+        /// <summary>The settings used to create this reader.</summary>
+        public ADSettings settings;
 
 		internal bool IsSupportCycle = false;
 

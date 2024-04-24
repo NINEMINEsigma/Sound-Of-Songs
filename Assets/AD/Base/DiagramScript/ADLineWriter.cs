@@ -161,10 +161,13 @@ namespace AD.BASE.IO
 		{
 			base.StartWriteObject(null);
 			isFirstProperty = true;
-			baseWriter.Write('\n');
-			WriteTabs(serializationDepth - 1);
-			baseWriter.Write('{');
-		}
+            if (settings.prettyPrint)
+            {
+                baseWriter.Write(Environment.NewLine);
+                WriteTabs(serializationDepth-1);
+            }
+            baseWriter.Write("{");
+        }
 
 		internal override void EndWriteObject(string name)
 		{
@@ -177,15 +180,21 @@ namespace AD.BASE.IO
 		internal override void StartWriteCollection()
 		{
 			base.StartWriteCollection();
-			baseWriter.Write('[');
+            if (settings.prettyPrint)
+            {
+                baseWriter.Write(Environment.NewLine);
+                WriteTabs(serializationDepth-1);
+            }
+            baseWriter.Write("[");
 			WriteNewlineAndTabs();
-		}
+
+        }
 
 		internal override void EndWriteCollection()
 		{
 			base.EndWriteCollection();
 			WriteNewlineAndTabs();
-			baseWriter.Write(']');
+            baseWriter.Write(']');
 		}
 
 		internal override void StartWriteCollectionItem(int index)

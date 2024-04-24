@@ -265,7 +265,7 @@ public abstract class ADWriter : IDisposable
     /// <param name="memberReferenceMode">Whether we want to write the property by reference, by value, or both.</param>
     public virtual void WriteProperty(string name, object value)
 	{
-        if (SerializationDepthLimitExceeded())
+        if (SerializationDepthLimitExceeded()|| value==null)
             return;
 
         StartWriteProperty(name); Write(value); EndWriteProperty(name);
@@ -291,9 +291,12 @@ public abstract class ADWriter : IDisposable
         if (SerializationDepthLimitExceeded())
             return;
 
-        StartWriteProperty(name); 
-        Write(value, type); 
-        EndWriteProperty(name);
+		if (value != null)
+		{
+			StartWriteProperty(name);
+			Write(value, type);
+			EndWriteProperty(name);
+		}
 	}
 
 	/*[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]

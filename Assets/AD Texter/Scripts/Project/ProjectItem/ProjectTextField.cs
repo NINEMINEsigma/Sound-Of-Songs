@@ -20,6 +20,8 @@ namespace AD.Sample.Texter
         public string text;
         public string description;
 
+        public ProjectTextData() { }
+
         public ProjectTextData(ProjectTextField projectItem, string text = "", string description = "") : base(projectItem)
         {
             this.text = text;
@@ -224,6 +226,12 @@ namespace AD.Sample.Texter.Project
         public void OnRayCatching()
         {
             OnChange();
+        }
+
+        public void ExecuteBeforeSave()
+        {
+            SourceData.MatchProjectItem = this;
+            SourceData.ProjectItemPosition = transform.localPosition.ToVector2(VectorExtension.Vec32Vec2IgnoreType.y);
         }
     }
 }

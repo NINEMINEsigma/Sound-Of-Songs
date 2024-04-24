@@ -38,7 +38,7 @@ namespace AD.Sample.Texter
     }
 
     [Serializable]
-    public class ProjectScriptSlicerData : ProjectItemData
+    public class ProjectScriptSlicerData : ProjectItemData,ICanMakeOffline
     {
         public List<ScriptItemEntry> Items;
         public List<SceneEndingSelectOption> Options;
@@ -77,6 +77,7 @@ namespace AD.Sample.Texter
             return result;
         }
 
+        public ProjectScriptSlicerData() { }
         public ProjectScriptSlicerData(ProjectScriptSlicer projectItem,
                                        List<ScriptItemEntry> items,
                                        List<SceneEndingSelectOption> options,
@@ -88,6 +89,43 @@ namespace AD.Sample.Texter
             BackgroundImage = backgroundImage;
             BackgroundAudio = backgroundAudio;
         }
+        public string[] GetFilePaths()
+        {
+            List<string> paths = new()
+                {
+                    this.BackgroundImage,
+                    this.BackgroundAudio
+                };
+            paths.AddRange(Items.GetSubList<List<string>, ScriptItemEntry>(T =>
+            {
+                return T.CharacterImageKeyList.Count > 0;
+            }, T =>
+            {
+                return T.CharacterImageKeyList;
+            }).UnPackage());
+            paths.AddRange(Items.GetSubList(T => T.SoundAssets != ScriptItemEntry.NoVoice, T => T.SoundAssets));
+
+            return paths.ToArray();
+        }
+
+        public void ReplacePath(Dictionary<string, string> sourceAssetsDatas)
+        {
+            if (sourceAssetsDatas.TryGetValue(this.BackgroundImage, out string reBackgroundImage))
+                this.BackgroundImage = reBackgroundImage;
+            if (sourceAssetsDatas.TryGetValue(this.BackgroundAudio, out string reBackgroundAudio))
+                this.BackgroundAudio = reBackgroundAudio;
+            foreach (var item in Items)
+            {
+                for (int i = 0, e = item.CharacterImageKeyList.Count; i < e; i++)
+                {
+                    if (sourceAssetsDatas.TryGetValue(item.CharacterImageKeyList[i], out string temp))
+                        item.CharacterImageKeyList[i] = temp;
+                }
+                if (sourceAssetsDatas.TryGetValue(item.SoundAssets, out string sa))
+                    item.SoundAssets = sa;
+            }
+        }
+
     }
 }
 
@@ -362,6 +400,12 @@ namespace AD.Sample.Texter.Project
         public void OnRayCatching()
         {
             OnChange();
+        }
+
+        public void ExecuteBeforeSave()
+        {
+            SourceData.MatchProjectItem = this;
+            SourceData.ProjectItemPosition = transform.localPosition.ToVector2(VectorExtension.Vec32Vec2IgnoreType.y);
         }
     }
 }

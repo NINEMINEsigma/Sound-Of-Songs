@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using UnityEngine.Events;
 using System.Collections;
 using Unity.VisualScripting;
+using UnityEngine;
 
 namespace AD.BASE.IO
 {
@@ -27,7 +28,7 @@ namespace AD.BASE.IO
               "\nIf the save data is encrypted, please ensure that encryption is enabled when you load, and that you are using the same password used to encrypt the data.";
         public StreamReader baseReader;
 
-		internal ADLineReader(Stream stream, ADSettings settings, bool readHeaderAndFooter = true) : base(settings, readHeaderAndFooter)
+        internal ADLineReader(Stream stream, ADSettings settings, bool readHeaderAndFooter = true) : base(settings, readHeaderAndFooter)
 		{
 			this.baseReader = new StreamReader(stream);
 
@@ -114,12 +115,14 @@ namespace AD.BASE.IO
 
             StartReadObject();
             T obj = default;
+			bool isFirst = true;
 			do
 			{
-				Type type = ReadTypeFromHeader<T>();
-				readMode = ReadMode.Def;
+				Type type = isFirst ? ReadTypeFromHeader<T>() : ReadTypeFromHeader<object>();
+				isFirst = false;
+                readMode = ReadMode.Def;
 				ADType adtype = ADType.GetOrCreateADType(type);
-				object value = Read<T>(adtype);
+				object value = Read<object>(adtype);
 				if (currentID == 0) obj = (T)value;
 				if (CallBackWaiter.TryGetValue(currentID, out var waiters))
 				{
@@ -231,41 +234,42 @@ namespace AD.BASE.IO
             return false;
         }
 
-        protected override T ReadObject<T>(ADType type)
-        {
-            if (StartReadObject())
-                return default;
+		protected override T ReadObject<T>(ADType type)
+		{
+			if (StartReadObject())
+				return default;
 
 			object obj = null;
-			if(readMode==ReadMode.Def)
+			if (readMode == ReadMode.Def)
 			{
 				readMode = ReadMode.Ref;
 				obj = type.Read<T>(this);
+				if (obj == null) currentRefID = -1;
 			}
-			else if(readMode==ReadMode.Ref)
+			else if (readMode == ReadMode.Ref)
 			{
-                currentRefID = GetReadID(Read_string());
-                if (DefSource.TryGetValue(currentRefID, out var entry))
+				currentRefID = GetReadID(Read_string());
+				if (DefSource.TryGetValue(currentRefID, out var entry))
 				{
 					obj = entry.value;
 				}
 				else
 				{
-					//Action<object> action=//TODO
-					//if(!CallBackWaiter.ContainsKey(currentID))
-					//{
-					//	CallBackWaiter.Add(currentID, new());
-					//}
-					//CallBackWaiter[currentID].Enqueue(action);
 					obj = null;
-                    //IsNeedUpdateSum++;
-                }
+				}
 			}
-			currentRefID = -1;
 
-            EndReadObject();
-            return (T)obj;
-        }
+			EndReadObject();
+			try
+			{
+				return (T)obj;
+			}
+			catch
+			{
+				Debug.LogError($"The type of expect is {typeof(T).Name} but the instance is {obj.GetType().Name}");
+				return default;
+			}
+		}
 
         #region Property/Key Methods
 
@@ -425,11 +429,17 @@ namespace AD.BASE.IO
 		{
 			char c = ReadCharIgnoreWhitespace();
 			// If we find a ']', we reached the end of the array.
-			if(c == ']')
+			if (c == ']')
 				return true;
 			// Else, we should expect a comma.
-			else if(c != ',')
-				throw new FormatException("Expected ',' seperating collection items or ']' terminating collection, found '"+c+"'.");
+			else if (c != ',')
+			{
+				char bad = c;
+				string str = "";
+				for (int i = 0; i < 36; i++)
+					str += (char)baseReader.Read();
+				throw new FormatException("Expected ',' seperating collection items or ']' terminating collection, found '" + bad + "', before :\n" + str);
+			}
 			return false;
 		}
 

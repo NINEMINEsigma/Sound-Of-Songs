@@ -7,6 +7,9 @@ using Unity.VisualScripting;
 using System.Collections.Generic;
 using System.IO.Compression;
 using AD.BASE.IO;
+using AD.Reflection;
+using AD.Types;
+using AD.Utility;
 
 namespace AD.BASE
 {
@@ -710,28 +713,28 @@ namespace AD.BASE
         public Dictionary<string, byte[]> SourceAssetsDatas = new();
         public Dictionary<string, string> PathRelayers = new();
 
-        public void Add(ICanMakeOffline target)
+        public void Add(ICanMakeOffline target,HashSet<object> passSet=null)
         {
+            passSet ??= new();
+            if (!passSet.Add(target)) return;
             MainMapDatas.Add(ADFile.ToBytes(target));
             foreach (var path in target.GetFilePaths())
             {
                 if (!SourceAssetsDatas.ContainsKey(path))
                 {
-                    try
-                    {
-                        SourceAssetsDatas.Add(path, File.ReadAllBytes(path));
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogException(ex);
-                    }
+                    SourceAssetsDatas.Add(path, File.ReadAllBytes(path));
                 }
+            }
+            foreach (var child in ADType.GetOrCreateADType(target.GetType()).members.GetSubList(T => T.type.IsSubclassOf(typeof(ICanMakeOffline))))
+            {
+                object cat = child.reflectedMember.GetValue(target);
+                Add(cat, passSet);
             }
         }
 
-        public void Add(object target)
+        public void Add(object target, HashSet<object> passSet = null)
         {
-            if (target is ICanMakeOffline mO) Add(mO);
+            if (target.As<ICanMakeOffline>(out var mO)) Add(mO, passSet);
             else
             {
                 MainMapDatas.Add(ADFile.ToBytes(target));
@@ -740,9 +743,9 @@ namespace AD.BASE
 
         public void Build(string path)
         {
-            ADFile file = new(path, true, false, true);
+            using ADFile file = new(path, true, false, true);
             file.ReplaceAllData(ADFile.ToBytes(this));
-            file.Dispose();
+            file.SaveFileData();
         }
 
         public static OfflineFile BuildFrom(string path)
@@ -755,11 +758,24 @@ namespace AD.BASE
             foreach (var asset in SourceAssetsDatas)
             {
                 string fileName = Path.GetFileName(asset.Key);
-                ADFile file = new(Path.Combine(directory, fileName), true, false, true);
+                using ADFile file = new(Path.Combine(directory, fileName), true, false, true);
                 file.ReplaceAllData(SourceAssetsDatas[asset.Key]);
                 file.SaveFileData();
                 file.Dispose();
                 PathRelayers.Add(asset.Key, file.FilePath);
+            }
+        }
+
+        public void Reconnect(object target, HashSet<object> passSet = null)
+        {
+            passSet ??= new();
+            if (!passSet.Add(target)) return;
+            if (target.As<ICanMakeOffline>(out var icm))
+                icm.ReplacePath(PathRelayers);
+            foreach (var child in ADType.GetOrCreateADType(target.GetType()).members)
+            {
+                object cat = child.reflectedMember.GetValue(target);
+                Reconnect(cat, passSet);
             }
         }
 

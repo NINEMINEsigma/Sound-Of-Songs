@@ -55,7 +55,7 @@ namespace AD.Sample.Texter.Project
                     FileC.SelectFileOnSystem(T =>
                     {
                         App.instance.GetController<ProjectManager>().LoadFromOfflineFile(T);
-                    }, "独立文件", "offline","offline");
+                    }, "独立文件", ".offline","offline");
 
                 });
             }
@@ -170,6 +170,11 @@ namespace AD.Sample.Texter.Project
             {
                 item.As<IProjectItem>().ReDrawLine();
             }
+        }
+
+        public void ExecuteBeforeSave()
+        {
+
         }
     }
 }

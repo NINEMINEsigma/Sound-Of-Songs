@@ -5721,8 +5721,8 @@ MonoBehaviour:
   IsAutoSaveArchitecturesDebugLog: 0
   AutoSaveArchitecturesDebugLogTimeLimit: 60
   AutoSaveArchitecturesDebugLogTimeLimitCounter:
-    clockS: 638494838363778866
-    clockE: 638494838363778866
+    clockS: 638495739733630117
+    clockE: 638495739733630117
     clockU: 0
   _IsOnValidate: 1
   RecordPath: null
@@ -5761,7 +5761,7 @@ MonoBehaviour:
   StringValues:
     Data:
     - Key: CurrentCreaterName
-      Value: New Creater
+      Value: liubai
     OnAdd:
       m_PersistentCalls:
         m_Calls: []
@@ -8951,7 +8951,7 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 8127d0d62dfb0ee449c43d37dd307868, type: 3}
     - target: {fileID: 7416443738413253411, guid: 2a2470e293cc2a346a007a2792ffede5, type: 3}
       propertyPath: m_text
-      value: "\u57FA\u4E8ELitegraoh\u6846\u67B6\u7684\u8282\u70B9\u5DE5\u4F5C\u6D41"
+      value: "\u57FA\u4E8ELitegraph\u6846\u67B6\u7684\u8282\u70B9\u5DE5\u4F5C\u6D41"
       objectReference: {fileID: 0}
     - target: {fileID: 7416443738413253411, guid: 2a2470e293cc2a346a007a2792ffede5, type: 3}
       propertyPath: m_enableWordWrapping
@@ -14792,7 +14792,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1543104499
 Transform:
   m_ObjectHideFlags: 0
@@ -18119,7 +18119,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1973966957
 Transform:
   m_ObjectHideFlags: 0

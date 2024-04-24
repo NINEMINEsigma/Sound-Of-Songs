@@ -1461,26 +1461,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfb3802c9d6e30244ae1cdd7d1857003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentProjectData:
-    datas:
-      Data: []
-      OnAdd:
-        m_PersistentCalls:
-          m_Calls: []
-      OnTryAdd:
-        m_PersistentCalls:
-          m_Calls: []
-      OnRemove:
-        m_PersistentCalls:
-          m_Calls: []
-      OnReplace:
-        m_PersistentCalls:
-          m_Calls: []
-    DataAssetsForm:
-      CreaterName: 
-      Description: 
-      DateTime: 
-      AssetsName: 
   ProjectTransformRoot: {fileID: 1162533632}
   ProjectRootMono: {fileID: 1696605981247371494}
   MainCameraCore: {fileID: 1342043927}
@@ -1543,7 +1523,6 @@ MonoBehaviour:
       OnReplace:
         m_PersistentCalls:
           m_Calls: []
-  s_Datas: []
   OnGenerate:
     m_PersistentCalls:
       m_Calls: []
@@ -1561,7 +1540,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2059444617829518807, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -455.9544
+      value: -455.95435
       objectReference: {fileID: 0}
     - target: {fileID: 3423843946003238532, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
       propertyPath: m_AnchorMax.x
@@ -1576,8 +1555,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3423843947058591023, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3423843947058591023, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000014543533
+      value: -0.0003950596
+      objectReference: {fileID: 0}
+    - target: {fileID: 4137645672129404782, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4137645672882109607, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
       propertyPath: m_AnchorMax.x
@@ -1593,11 +1580,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4137645673184879813, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4137645673975154444, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
+      propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5104160261090691772, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -397.50006
+      value: -397.5
       objectReference: {fileID: 0}
     - target: {fileID: 6066388755877324787, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
       propertyPath: m_AnchorMax.x
@@ -1605,6 +1596,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6066388755877324787, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6066388756931583064, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
+      propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8281072325243664556, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
@@ -1666,7 +1661,15 @@ PrefabInstance:
     - target: {fileID: 9159430833804017660, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
       propertyPath: StaticItem.Array.data[0].Callbacks.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1696605981247371494}
+      objectReference: {fileID: 2057135014}
+    - target: {fileID: 9159430833804017660, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
+      propertyPath: StaticItem.Array.data[0].Callbacks.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SaveProjectData
+      objectReference: {fileID: 0}
+    - target: {fileID: 9159430833804017660, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
+      propertyPath: StaticItem.Array.data[0].Callbacks.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: AD.Sample.Texter.ProjectManager, Assembly-CSharp
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0dc4dcd3956eb494d92247b8d08a228a, type: 3}
 --- !u!1001 &1696605981247371493

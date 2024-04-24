@@ -234,24 +234,24 @@ namespace AD.Types
             return null;
         }
 
-        internal static void AddType(Type type, ADType es3Type)
+        internal static void AddType(Type type, ADType adType)
         {
             if (types == null)
                 Init();
 
             var existingType = GetADType(type);
-            if (existingType != null && existingType.Priority > es3Type.Priority)
+            if (existingType != null && existingType.Priority > adType.Priority)
                 return;
 
             lock (_lock)
             {
-                types[type] = es3Type;
+                types[type] = adType;
             }
         }
 
         internal static ADType CreateADType(Type type, bool throwException = true)
         {
-            ADType adType = null;
+            ADType adType;
             if (ReflectionExtension.IsEnum(type)) adType = CreateEnumType(type);
             else if (ReflectionExtension.TypeIsArray(type)) adType = CreateArrayType(type, throwException);
             else if (ReflectionExtension.IsGenericType(type)

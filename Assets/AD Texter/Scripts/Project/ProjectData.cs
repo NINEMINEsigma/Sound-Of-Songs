@@ -9,6 +9,7 @@ using AD.Derivation.GameEditor;
 using AD.Sample.Texter;
 using AD.Sample.Texter.Data;
 using AD.Utility;
+using Newtonsoft.Json;
 using UnityEngine;
 
 /*
@@ -443,11 +444,22 @@ namespace AD.Sample.Texter
             ProjectItemPosition = new Vector2(0,0);
         }
 
-        [AD.SAL._Ignore_]public IProjectItem MatchProjectItem;
+        [AD.SAL._Ignore_, NonSerialized] public IProjectItem MatchProjectItem;
         public string ProjectItemID;
         public ProjectItemData Parent;
-        public ProjectItemData[] Childs;
-        public Vector2 ProjectItemPosition;
+        public List<ProjectItemData> Childs;
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public float ProjectItemPositionX, ProjectItemPositionY;
+        [AD.SAL._Ignore_]
+        public Vector2 ProjectItemPosition
+        {
+            get => new(ProjectItemPositionX, ProjectItemPositionY);
+            set
+            {
+                ProjectItemPositionX = value.x;
+                ProjectItemPositionY = value.y;
+            }
+        }
 
         public ProjectItemData ExecuteBeforeSave()
         {
@@ -456,8 +468,18 @@ namespace AD.Sample.Texter
                 .GetSubList<ProjectItemData, ICanSerializeOnCustomEditor>(T => true, T => T
                 .As<IProjectItemWhereNeedInitData>()
                 .SourceData
-                .ExecuteBeforeSave())
-                .ToArray();
+                .ExecuteBeforeSave());
+            if(MatchProjectItem.ParentTarget != null)
+            {
+                if(MatchProjectItem.ParentTarget.As<IProjectItemWhereNeedInitData>(out var parent0))
+                {
+                    Parent = parent0.SourceData;
+                }
+                else if(MatchProjectItem.ParentTarget is IProjectItemRoot)
+                {
+                    Parent = App.instance.GetController<ProjectManager>().CurrentRootData;
+                }
+            }
             return this;
         }
 

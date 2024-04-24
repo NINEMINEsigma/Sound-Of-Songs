@@ -21,6 +21,7 @@ namespace AD.Sample.Texter
         public Dictionary<string, VariantSetting> VariantSettingPairs = new();
         public string Target;
 
+        public LLMCoreData() { }
         public LLMCoreData(LLMCore projectItem, List<SendData> dataList, Dictionary<string, VariantSetting> variantSettingPairs,string target) : base(projectItem)
         {
             this.m_DataList = dataList;
@@ -99,7 +100,7 @@ namespace AD.Sample.Texter.Project
                         }
                     });
 
-                PropertiesExLayout.Generate(that.ProjectLLMSourceData.m_DataList);
+                //PropertiesExLayout.Generate(that.ProjectLLMSourceData.m_DataList);
             }
         }
 
@@ -487,6 +488,17 @@ namespace AD.Sample.Texter.Project
         public static LLM[] GetALLMatchLLM(EditGroup editGroup)
         {
             return editGroup.ViewLayer.GameObjects.GetSubList<LLM, KeyValuePair<string,GameObject>>(T => T.Key.StartsWith("Chat"), T => T.Value.SeekComponent<LLM>()).ToArray();
+        }
+
+        public void ExecuteBeforeSave()
+        {
+            this.ProjectLLMSourceData.VariantSettingPairs.Clear();
+            foreach (var single in GetALLMatchLLM(MyEditGroup))
+            {
+                this.ProjectLLMSourceData.VariantSettingPairs.Add(single.name, single.GetSetting());
+            }
+            SourceData.MatchProjectItem = this;
+            SourceData.ProjectItemPosition = transform.localPosition.ToVector2(VectorExtension.Vec32Vec2IgnoreType.y);
         }
 
         [SerializeField] private LLM m_MatchLLM;

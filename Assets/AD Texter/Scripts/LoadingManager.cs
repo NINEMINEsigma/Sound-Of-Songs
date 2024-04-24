@@ -33,19 +33,9 @@ namespace AD.Sample.Texter
         }
         public static Data.DataFile LoadDataAssets(string path)
         {
-            /*var file = new ADFile(false, path, false, false, false);
-            try
-            {
-                if (file.Deserialize<Data.DataFile>(true, System.Text.Encoding.UTF8, out object result))
-                    return ADGlobalSystem.FinalCheck(result as Data.DataFile, path + " is load failed");
-                else throw new ADException(path + " is load failed");
-            }
-            catch
-            {
-                //file.Delete();
-                throw;
-            }*/
-            return ADGlobalSystem.Input<Data.DataFile>(path, out object result) ? result as Data.DataFile : null;
+            using ADFile file = new(new ADSettings(path, ADStreamEnum.Format.JSON, ADStreamEnum.Location.File));
+            file.Deserialize(out Data.DataFile result,"header");
+            return result;//ADGlobalSystem.Input<Data.DataFile>(path, out object result) ? result as Data.DataFile : null;
         }
 
         #endregion
@@ -54,9 +44,8 @@ namespace AD.Sample.Texter
 
         public static void SaveDataAssets(string fileName, DataAssets data)
         {
-            /*var file = new ADFile(Path.Combine(FilePath, fileName), true, false, false, false);
-            file.Serialize<Data.DataFile>(new(data), System.Text.Encoding.UTF8, false);*/
-            ADGlobalSystem.Output<Data.DataFile>(Path.Combine(FilePath, fileName), new(data));
+            var file = new ADFile(new ADSettings( Path.Combine(FilePath, fileName),ADStreamEnum.Format.JSON,ADStreamEnum.Location.File));
+            file.Serialize<Data.DataFile>(new(data), "header");
         }
 
         #endregion

@@ -91,8 +91,6 @@ namespace AD.Sample.Texter
 
         public GameEditorApp UIApp => GameEditorApp.instance;
 
-        //public ProjectData CurrentProjectData;
-
         [Header("Assets")]
         public Transform ProjectTransformRoot;
         public ProjectRoot ProjectRootMono;
@@ -146,9 +144,14 @@ namespace AD.Sample.Texter
             ProjectRootMono.Init();
 
             using ADFile file = new(new(Path.Combine(LoadingManager.FilePath, assetsHeader.AssetsName, "data.line"), ADStreamEnum.Location.File, ADStreamEnum.Format.LINE));
-            if(file.Deserialize(out ProjectItemData root, "master"))
+            if (FileC.FileExists(file.FilePath))
             {
-                yield return LoadSingle(root);
+                if (file.Deserialize(out ProjectItemData root, "master"))
+                {
+                    root.MatchProjectItem = ProjectRootMono;
+                    yield return LoadSingle(root);
+                }
+                else throw new ADException("Load Failed", file.ErrorException);
             }
         }
 
@@ -161,15 +164,61 @@ namespace AD.Sample.Texter
             }
         }
 
+        public void SaveEveryOne(IProjectItem item)
+        {
+            item.ExecuteBeforeSave();
+            foreach (var child in item.GetChilds().Contravariance<ICanSerializeOnCustomEditor, IProjectItem>())
+            {
+                SaveEveryOne(child);   
+            }
+        }
+
+        [HideInInspector] public ProjectItemData CurrentRootData;
+
         public void SaveProjectData()
         {
-            ProjectItemData root = new ProjectItemData(ProjectRootMono);
+            try
+            {
+                SaveEveryOne(ProjectRootMono);
+                CurrentRootData = new ProjectItemData(ProjectRootMono);
+                SaveProjectData(CurrentRootData);
+                CurrentRootData = null;
+                GameEditorApp
+                    .instance
+                    .GetSystem<GameEditorWindowGenerator>()
+                    .ObtainElement(new Vector2(200, 0))
+                    .SetTitle($"Finish");
+            }
+            catch (ADException ex)
+            {
+                GameEditorApp
+                    .instance
+                    .GetSystem<GameEditorWindowGenerator>()
+                    .ObtainElement(new Vector2(400, 320))
+                    .SetTitle($"AD : {ex.GetType().Name}")
+                    .GenerateText("message", ex.Message, new Vector2(400, 320));
+            }
+            catch (Exception ex)
+            {
+                GameEditorApp
+                    .instance
+                    .GetSystem<GameEditorWindowGenerator>()
+                    .ObtainElement(new Vector2(400, 320))
+                    .SetTitle($"Unknown : {ex.GetType().Name}")
+                    .GenerateText("message", ex.Message, new Vector2(400, 320));
+            }
+        }
+
+        public void SaveProjectData(ProjectItemData root)
+        {
             root.ExecuteBeforeSave();
             var assetsHeader = Architecture.GetModel<DataAssets>();
-            using ADFile file = new(new(Path.Combine(LoadingManager.FilePath, assetsHeader.AssetsName, "data.line"), ADStreamEnum.Location.File, ADStreamEnum.Format.LINE));
-            if(!file.Serialize(root,"master"))
+            string path = Path.Combine(LoadingManager.FilePath, assetsHeader.AssetsName, "data.line");
+            using ADFile file = new(new(path, ADStreamEnum.Location.File, ADStreamEnum.Format.LINE));
+            FileC.TryCreateDirectroryOfFile(path);
+            if (!file.Serialize(root, "master"))
             {
-                Debug.LogError("Serialize Failed");
+                Architecture.AddMessage("Serialize Failed");
             }
         }
 
@@ -213,34 +262,23 @@ namespace AD.Sample.Texter
             else LastFocusTarget = target;
         }
 
-        //XXX
+        //Offline
+
+        public void LoadFromOfflineFile(OfflineFile offline)
+        {
+            ProjectItemData root = (ProjectItemData)ADFile.FromBytes(offline.MainMapDatas[0]);
+            var assetsHeader = Architecture.GetModel<DataAssets>();
+            offline.ReleaseFile(Path.Combine(LoadingManager.FilePath, assetsHeader.AssetsName));
+            offline.Reconnect(root);
+            SaveProjectData(root);
+        }
 
         public void LoadFromOfflineFile(string path)
         {
             using ADFile file = new(path, false, true, true);
-            if (file)
-            {
-                StartCoroutine(EndWaitLoadFromOfflineFile(file));
-            }
-            else Debug.LogException(file.ErrorException);
-        }
-
-        private IEnumerator EndWaitLoadFromOfflineFile(ADFile file)
-        {
-            CurrentProjectData.BuildFromOffline(file.FileData);
-            if (loadingTask != null)
-            {
-                loadingTask.UnRegister();
-                loadingTask = null;
-            }
-            if (savingTask != null)
-            {
-                savingTask.UnRegister();
-                savingTask = null;
-            }
-            savingTask = new TaskInfo("Project Saving", 0, 0, new Vector2(0, 1f), false);
-            savingTask.Register();
-            yield return CurrentProjectData.Save(savingTask);
+            OfflineFile offline = (OfflineFile)ADFile.FromBytes(file.FileData);
+            LoadFromOfflineFile(offline);
+            file.Dispose();
             App.instance.GetController<MainSceneLoader>().UnloadAll();
             ADGlobalSystem.instance.TargetSceneName = SceneExtension.GetCurrent().name;
             ADGlobalSystem.instance.OnEnd();
@@ -248,33 +286,15 @@ namespace AD.Sample.Texter
 
         public void CreateOfflineFile(string path)
         {
-            CurrentProjectData.BuildOffline(path);
-        }
-
-        private IEnumerator EndWaitCreateOfflineFile()
-        {
-            if (loadingTask != null)
-            {
-                loadingTask.UnRegister();
-                loadingTask = null;
-            }
-            if (savingTask != null)
-            {
-                savingTask.UnRegister();
-                savingTask = null;
-            }
-            savingTask = new TaskInfo("Project Saving", 0, 0, new Vector2(0, 1f), false);
-            savingTask.Register();
-            yield return CurrentProjectData.Save(savingTask);
-            CreateOfflineFile(Path.Combine(LoadingManager.FilePath, "Temp", CurrentProjectData.DataAssetsForm.AssetsName + "." + ProjectData.OfflineExtension));
-            App.instance.GetController<MainSceneLoader>().UnloadAll();
-            ADGlobalSystem.instance.TargetSceneName = SceneExtension.GetCurrent().name;
-            ADGlobalSystem.instance.OnEnd();
+            FileC.TryCreateDirectroryOfFile(path);
+            OfflineFile offlineFile = new();
+            offlineFile.Add(new ProjectItemData(ProjectRootMono).ExecuteBeforeSave());
+            offlineFile.Build(path);
         }
 
         public void CreateOfflineFile()
         {
-            StartCoroutine(EndWaitCreateOfflineFile());
+            CreateOfflineFile(Path.Combine(LoadingManager.FilePath, "Export", Architecture.GetModel<DataAssets>().AssetsName + ".offline"));
         }
     }
 }

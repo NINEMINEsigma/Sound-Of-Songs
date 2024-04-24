@@ -1,0 +1,249 @@
+{
+	"master" : 
+	{
+		"Root" : 
+		{
+			"__type" : "AD.Sample.Texter.ProjectItemData,Assembly-CSharp",
+			"__value" : 
+			{
+				"ProjectItemID" : "Root",
+				"Childs" : 
+				[
+					{"Ref[1]"},{"Ref[2]"}
+				],
+				"ProjectItemPositionX" : 0,
+				"ProjectItemPositionY" : 0
+			}
+		},
+		"Def[1]" : 
+		{
+			"__type" : "AD.Sample.Texter.ProjectItemData,Assembly-CSharp",
+			"__value" : 
+			{
+				"__type" : "AD.Sample.Texter.LLMCoreData,Assembly-CSharp",
+				"m_DataList" : 
+				[
+					
+				],
+				"VariantSettingPairs" : 
+				{"Chat Spark":{"Ref[3]"},"Chat GPT":{"Ref[4]"},"Chat GPT turbo":{"Ref[5]"},"Chat Baidu":{"Ref[6]"},"Chat Knowledge Baidu":{"Ref[7]"},"Chat GLM":{"Ref[8]"},"Chat GLM turbo":{"Ref[9]"},"Chat RWKV":{"Ref[10]"}
+				},
+				"Target" : "Chat Spark",
+				"ProjectItemID" : "New Object",
+				"Parent" : {"Root"},
+				"Childs" : 
+				[
+					{"Ref[11]"}
+				],
+				"ProjectItemPositionX" : 5.83653545,
+				"ProjectItemPositionY" : 3.69172239
+			}
+		},
+		"Def[2]" : 
+		{
+			"__type" : "AD.Sample.Texter.ProjectItemData,Assembly-CSharp",
+			"__value" : 
+			{
+				"__type" : "AD.Sample.Texter.ProjectTextData,Assembly-CSharp",
+				"text" : "",
+				"description" : "",
+				"ProjectItemID" : "New Object",
+				"Parent" : {"Root"},
+				"Childs" : 
+				[
+					
+				],
+				"ProjectItemPositionX" : 5.72996426,
+				"ProjectItemPositionY" : -3.898849
+			}
+		},
+		"Def[3]" : 
+		{
+			"__type" : "AD.Derivation.LLM.LLM+VariantSetting,Assembly-CSharp",
+			"__value" : 
+			{
+				"url" : "https:\/\/spark-api.xf-yun.com\/v1.1\/chat",
+				"lan" : "中文",
+				"HistoryKeepCount" : 15,
+				"Prompt" : "",
+				"IsUseDefaultPromptFormat" : true,
+				"DataList" : 
+				[
+					
+				],
+				"Settings" : 
+				{"ID":"讯飞的AppID","Key":"讯飞的APIKey","Secret":"讯飞的APISecret","ModelType":"ModelV15"
+				}
+			}
+		},
+		"Def[4]" : 
+		{
+			"__type" : "AD.Derivation.LLM.LLM+VariantSetting,Assembly-CSharp",
+			"__value" : 
+			{
+				"url" : "https:\/\/api.openai.com\/v1\/completions",
+				"lan" : "中文",
+				"HistoryKeepCount" : 15,
+				"Prompt" : "",
+				"IsUseDefaultPromptFormat" : true,
+				"DataList" : 
+				[
+					
+				],
+				"Settings" : 
+				{"Key":"","PostDataSetting":"{\r\n  \"model\": \"\",\r\n  \"prompt\": \"\",\r\n  \"max_tokens\": 1024,\r\n  \"temperature\": 0.9,\r\n  \"top_p\": 0,\r\n  \"frequency_penalty\": 0.0,\r\n  \"presence_penalty\": 0.0,\r\n  \"stop\": \"\"\r\n}"
+				}
+			}
+		},
+		"Def[5]" : 
+		{
+			"__type" : "AD.Derivation.LLM.LLM+VariantSetting,Assembly-CSharp",
+			"__value" : 
+			{
+				"url" : "https:\/\/api.openai.com\/v1\/chat\/completions",
+				"lan" : "中文",
+				"HistoryKeepCount" : 15,
+				"Prompt" : "",
+				"IsUseDefaultPromptFormat" : true,
+				"DataList" : 
+				[
+					{"Ref[12]"}
+				],
+				"Settings" : 
+				{"Key":"","SystemSetting":"","Model":"gpt-3.5-turbo"
+				}
+			}
+		},
+		"Def[6]" : 
+		{
+			"__type" : "AD.Derivation.LLM.LLM+VariantSetting,Assembly-CSharp",
+			"__value" : 
+			{
+				"url" : "https:\/\/aip.baidubce.com\/rpc\/2.0\/ai_custom\/v1\/wenxinworkshop\/chat\/eb-instant",
+				"lan" : "中文",
+				"HistoryKeepCount" : 15,
+				"Prompt" : "",
+				"IsUseDefaultPromptFormat" : true,
+				"DataList" : 
+				[
+					
+				],
+				"Settings" : 
+				{"APIKey":"","GetTokenFromServer":"True","Secret":"","Token":"","AuthorizeURL":"https:\/\/aip.baidubce.com\/oauth\/2.0\/token","ModelType":"ERNIE_Bot_turbo","History":"[]"
+				}
+			}
+		},
+		"Def[7]" : 
+		{
+			"__type" : "AD.Derivation.LLM.LLM+VariantSetting,Assembly-CSharp",
+			"__value" : 
+			{
+				"url" : "https:\/\/appbuilder.baidu.com\/rpc\/2.0\/cloud_hub\/v1\/ai_engine\/agi_platform\/v1\/instance\/integrated",
+				"lan" : "中文",
+				"HistoryKeepCount" : 15,
+				"Prompt" : "",
+				"IsUseDefaultPromptFormat" : true,
+				"DataList" : 
+				[
+					
+				],
+				"Settings" : 
+				{"Key":"","ConversationID":""
+				}
+			}
+		},
+		"Def[8]" : 
+		{
+			"__type" : "AD.Derivation.LLM.LLM+VariantSetting,Assembly-CSharp",
+			"__value" : 
+			{
+				"url" : "http:\/\/localhost:8000",
+				"lan" : "中文",
+				"HistoryKeepCount" : 15,
+				"Prompt" : "",
+				"IsUseDefaultPromptFormat" : true,
+				"DataList" : 
+				[
+					
+				],
+				"Settings" : 
+				{"History":"[]"
+				}
+			}
+		},
+		"Def[9]" : 
+		{
+			"__type" : "AD.Derivation.LLM.LLM+VariantSetting,Assembly-CSharp",
+			"__value" : 
+			{
+				"url" : "https:\/\/open.bigmodel.cn\/api\/paas\/v3\/model-api\/chatglm_turbo\/invoke",
+				"lan" : "中文",
+				"HistoryKeepCount" : 15,
+				"Prompt" : "",
+				"IsUseDefaultPromptFormat" : true,
+				"DataList" : 
+				[
+					
+				],
+				"Settings" : 
+				{"ApiKey":"","Key":"","Secret":"","ModelType":"chatglm_turbo","InvokeMethod":"invoke"
+				}
+			}
+		},
+		"Def[10]" : 
+		{
+			"__type" : "AD.Derivation.LLM.LLM+VariantSetting,Assembly-CSharp",
+			"__value" : 
+			{
+				"url" : "http:\/\/127.0.0.1:8000\/v1\/chat\/completions",
+				"lan" : "中文",
+				"HistoryKeepCount" : 15,
+				"Prompt" : "",
+				"IsUseDefaultPromptFormat" : true,
+				"DataList" : 
+				[
+					{"Ref[13]"}
+				],
+				"Settings" : 
+				{"SystemSetting":"","gptModel":"RWKV"
+				}
+			}
+		},
+		"Def[11]" : 
+		{
+			"__type" : "AD.Sample.Texter.ProjectItemData,Assembly-CSharp",
+			"__value" : 
+			{
+				"__type" : "AD.Sample.Texter.ProjectTextData,Assembly-CSharp",
+				"text" : "",
+				"description" : "",
+				"ProjectItemID" : "New Object",
+				"Parent" : {"Ref[1]"},
+				"Childs" : 
+				[
+					
+				],
+				"ProjectItemPositionX" : 10.7054815,
+				"ProjectItemPositionY" : 0.3277483
+			}
+		},
+		"Def[12]" : 
+		{
+			"__type" : "AD.Derivation.LLM.LLM+SendData,Assembly-CSharp",
+			"__value" : 
+			{
+				"role" : "system",
+				"content" : ""
+			}
+		},
+		"Def[13]" : 
+		{
+			"__type" : "AD.Derivation.LLM.LLM+SendData,Assembly-CSharp",
+			"__value" : 
+			{
+				"role" : "system",
+				"content" : ""
+			}
+		}
+	}
+}
