@@ -741,7 +741,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1002687280392057815, guid: cdbeab13eb7585a499681d507e0c0c64, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -455.95447
+      value: -455.9544
       objectReference: {fileID: 0}
     - target: {fileID: 1986745883755304467, guid: cdbeab13eb7585a499681d507e0c0c64, type: 3}
       propertyPath: m_Color.a
@@ -857,7 +857,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4538837733263374190, guid: cdbeab13eb7585a499681d507e0c0c64, type: 3}
       propertyPath: m_Value
-      value: 1.4272131
+      value: 1.008889
       objectReference: {fileID: 0}
     - target: {fileID: 4538837733359995695, guid: cdbeab13eb7585a499681d507e0c0c64, type: 3}
       propertyPath: m_SizeDelta.y
@@ -865,7 +865,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4538837733359995695, guid: cdbeab13eb7585a499681d507e0c0c64, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -3.84507
+      value: -0.08022122
       objectReference: {fileID: 0}
     - target: {fileID: 4652361454976913375, guid: cdbeab13eb7585a499681d507e0c0c64, type: 3}
       propertyPath: m_SizeDelta.y
@@ -903,6 +903,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.x
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 5922488393015794596, guid: cdbeab13eb7585a499681d507e0c0c64, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -138.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6317214944257746823, guid: cdbeab13eb7585a499681d507e0c0c64, type: 3}
       propertyPath: m_text
       value: AlphaDiagram Editor
@@ -917,7 +921,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6317214945934734524, guid: cdbeab13eb7585a499681d507e0c0c64, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -397.50012
+      value: -397.50006
       objectReference: {fileID: 0}
     - target: {fileID: 6317214945934734525, guid: cdbeab13eb7585a499681d507e0c0c64, type: 3}
       propertyPath: m_fontSize
