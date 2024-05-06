@@ -1,16 +1,56 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using AD.Experimental.Runtime.Internal;
+using AD.Utility;
 using UnityEngine;
 
 namespace AD.Experimental.Runtime
 {
+
     namespace Internal
     {
+        public static class KeyWordSet
+        {
+            public readonly static string[] KeyWords = new[]
+            {
+            //用于创建对象
+            "build",
+            //用于表明随后的指示名是一个类型
+            "typename"
+            };
+        }
+
         //将源文本解析为可识别语言
         public class LanguageUnit
         {
-            
+            public LanguageUnit(string origin)
+            {
+                Origin = origin;
+                IsKeyWord = KeyWordSet.KeyWords.Contains(origin);
+                if (origin[0] == '\"' && origin[^1] == '\"' && origin.Length > 1)
+                    IsText = true;
+                else
+                    IsText = false;
+                IsIndicationName = !IsText && !IsKeyWord;
+            }
+
+            public string Origin;
+            //build     typename    MainType        Name
+            //KeyWord   KeyWord     IndicationName  IndicationName
+            //该语句build一个typename为MainType的对象并命名为Name
+            /// <summary>
+            /// 是否为关键字
+            /// </summary>
+            public readonly bool IsKeyWord;
+            /// <summary>
+            /// 是否为指示名
+            /// </summary>
+            public readonly bool IsIndicationName;
+            /// <summary>
+            /// 是否为带有双引号的文本参数
+            /// </summary>
+            public readonly bool IsText;
         }
 
         //对语言的规范进行扩展,补充或修饰
@@ -108,21 +148,64 @@ namespace AD.Experimental.Runtime
         public LineStructure(LineTransformer transformer, string[] lines)
         {
             m_transformer = transformer;
+            Lines = new();
             if (lines != null)
             {
-                char ch;
                 foreach (var line in lines)
                 {
-                    List<(int,int)> word_views = new();
-                    for (int i = 0, e = line.Length; i < e; i++)
+                    List<StringView> views = new()
                     {
+                        new(line)
+                    };
+                    DoBuildSingleLineStringViews(line, views);
+                    List<LanguageUnit> currentLine = new();
+                    Lines.Add(currentLine);
+                    DoAddSingleLineLanguageUnitToOneLine(views, currentLine);
+                }
+            }
+        }
 
+        private static void DoAddSingleLineLanguageUnitToOneLine(List<StringView> views, List<LanguageUnit> currentLine)
+        {
+            for (int i = 0, e = views.Count; i < e; i++)
+            {
+                LanguageUnit unit = new(views[i].ToString());
+                currentLine.Add(unit);
+            }
+        }
+
+        private static void DoBuildSingleLineStringViews(string line, List<StringView> views)
+        {
+            char ch;
+            StringView current = views.Last();
+            for (int i = 0, e = line.Length; i < e; i++)
+            {
+                current.Right = i;
+                ch = line[i];
+                if (ch == ' ')
+                {
+                    while (i < e && line[i] == ' ')
+                    {
+                        i++;
                     }
+                    if (i < e)
+                    {
+                        current = new(line);
+                        views.Add(current);
+                        current.Left = i;
+                    }
+                }
+                else if (ch == '\"')
+                {
+                    do
+                    {
+                        i++;
+                    } while (i < e && line[i] == '\"');
                 }
             }
         }
 
         private LineTransformer m_transformer;
-        private List<LanguageUnit[]> Lines;
+        private List<List<LanguageUnit>> Lines;
     }
 }

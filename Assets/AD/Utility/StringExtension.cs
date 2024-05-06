@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -126,7 +127,7 @@ namespace AD.Utility
         public static string LinkAndInsert(this string[] self, char key)
         {
             string result = "";
-            if(self==null)return result;
+            if (self == null) return result;
             int first = 0, end = self.Length;
             while (first < end - 1)
             {
@@ -203,6 +204,58 @@ namespace AD.Utility
         public static string LoadFromMemory(byte[] bytes, Encoding encoding)
         {
             return encoding.GetString(bytes);
+        }
+    }
+
+    [Serializable]
+    public class StringView : IEnumerable<char>
+    {
+        private readonly string OriginStr;
+
+        public StringView(string source)
+        {
+            OriginStr = source;
+            Left = 0;
+            Right = source.Length;
+        }
+
+        public int Left;
+        public int Right;
+
+        public char this[int index]
+        {
+            get => OriginStr[index + Left];
+        }
+
+        public override string ToString()
+        {
+            return OriginStr[Left..Right];
+        }
+
+        public IEnumerator<char> GetEnumerator()
+        {
+            for (int i = Left, e = Right; i < e; i++)
+            {
+                yield return OriginStr[i];
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public static implicit operator string(StringView view) => view.ToString();
+    }
+
+    [Serializable]
+    public class ShareStringView : StringView
+    {
+        public static Dictionary<int, string> SharedPool = new();
+        public ShareStringView(int id = 0, int left = 0, int right = 0) : base(SharedPool[id])
+        {
+            Left = left;
+            Right = right;
         }
     }
 }
