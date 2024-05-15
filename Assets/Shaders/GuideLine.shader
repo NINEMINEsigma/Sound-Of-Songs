@@ -104,6 +104,11 @@ Shader "Project/GuideLine"
                     return debugColor;
                 }
                 #endif
+                
+                float dis = i.positionWS.z - _NearPanel;
+                clip(dis);
+                float a = 1 - clamp(0,1, 0.05 * dis);
+                mainTex.a = a;
 
                 return mainTex;
             }
@@ -140,15 +145,14 @@ Shader "Project/GuideLine"
                 float4  positionCS      : SV_POSITION;
                 float4  color           : COLOR;
                 float2  uv              : TEXCOORD0;
-                #if defined(DEBUG_DISPLAY)
                 float3  positionWS      : TEXCOORD2;
-                #endif
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
             float4 _MainTex_ST;
+            float _NearPanel;
 
             Varyings UnlitVertex(Attributes attributes)
             {
@@ -157,9 +161,7 @@ Shader "Project/GuideLine"
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
                 o.positionCS = TransformObjectToHClip(attributes.positionOS);
-                #if defined(DEBUG_DISPLAY)
                 o.positionWS = TransformObjectToWorld(attributes.positionOS);
-                #endif
                 o.uv = TRANSFORM_TEX(attributes.uv, _MainTex);
                 o.color = attributes.color;
                 return o;
@@ -183,6 +185,12 @@ Shader "Project/GuideLine"
                     return debugColor;
                 }
                 #endif
+                
+                float a = i.positionWS.z - _NearPanel;
+                clip(a);
+                float far = clamp(0,1,0.2 * ( _NearPanel + 200 - i.positionWS.z));
+                clip(far);
+                mainTex.a = clamp(0,1,a) * mainTex.a * far;
 
                 return mainTex;
             }
