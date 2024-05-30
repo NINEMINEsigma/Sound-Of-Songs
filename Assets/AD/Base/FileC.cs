@@ -438,7 +438,7 @@ namespace AD.BASE
             targetFile.fileTitle = new string(new char[64]);
             targetFile.maxFileTitle = targetFile.fileTitle.Length;
             targetFile.initialDir = Application.streamingAssetsPath.Replace('/', '\\');//默认路径
-            targetFile.title = "Select A Song";
+            targetFile.title = "Select";
             targetFile.flags = 0x00080000 | 0x00001000 | 0x00000800 | 0x00000008;
             return targetFile;
         }
