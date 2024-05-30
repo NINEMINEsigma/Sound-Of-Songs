@@ -59,7 +59,7 @@ namespace RhythmGame.Visual
                     }
                     else
                     {
-                        Architecture.GetController<CameraCore>().transform.Translate(Current.deltaPosition * TouchMoveSpeed, Space.World);
+                        Architecture.GetController<CameraCore>().transform.Translate(-1 * TouchMoveSpeed * Current.deltaPosition, Space.World);
                     }
                 }
             }
